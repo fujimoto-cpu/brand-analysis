@@ -1,0 +1,260 @@
+/* ==========================================================================
+   brand-analysis-mobile.css
+   ブランド分析HTML（index.html + 個別ブランド分析）の共通モバイル最適化。
+   既存の <style> ブロックの後ろで読み込んで上書きする想定（!important で強制）。
+   ========================================================================== */
+
+/* ── Mobile (≤768px) ── */
+@media (max-width: 768px) {
+
+  /* ── 共通：横スクロール防止 ── */
+  html, body {
+    overflow-x: hidden !important;
+  }
+  body {
+    font-size: 14px !important;
+  }
+
+  /* ── NAV：高さ・余白を詰めて、不要リンクは隠す ── */
+  nav {
+    padding: 0 16px !important;
+    height: 48px !important;
+    gap: 12px !important;
+  }
+  nav .brand,
+  .nav-brand {
+    font-size: 12px !important;
+  }
+  /* 個別HTMLの目次リンクはブランド名以外を非表示（横スクロール防止） */
+  nav a:not(.brand) {
+    display: none !important;
+  }
+  /* 一覧ページのメタ情報は表示維持（短いので問題なし） */
+  .nav-meta {
+    font-size: 10px !important;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 88px 20px 56px !important;
+    min-height: auto !important;
+  }
+  .hero h1,
+  .hero-title {
+    font-size: clamp(32px, 9vw, 56px) !important;
+    line-height: 1.05 !important;
+  }
+  .hero-sub {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+    margin-bottom: 28px !important;
+  }
+  .hero-eyebrow {
+    font-size: 10px !important;
+    margin-bottom: 14px !important;
+  }
+  .hero-bg-text {
+    font-size: clamp(56px, 22vw, 120px) !important;
+  }
+  .hero-images {
+    display: none !important;
+  }
+  .scroll-hint {
+    display: none !important;
+  }
+
+  /* ── 一覧ページのヒーロー統計（3個並び→2列） ── */
+  .hero-stats {
+    flex-wrap: wrap !important;
+    gap: 20px 32px !important;
+  }
+  .hero-stat-num {
+    font-size: 24px !important;
+  }
+
+  /* ── SECTION 余白圧縮 ── */
+  section,
+  main {
+    padding: 56px 20px !important;
+  }
+  h2 {
+    font-size: 26px !important;
+    margin-bottom: 28px !important;
+  }
+  h3 {
+    font-size: 16px !important;
+  }
+
+  /* ── CARD GRID 全部1列に ── */
+  .card-grid-2,
+  .card-grid-3,
+  .card-grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+  .card {
+    padding: 22px !important;
+  }
+  .card .number {
+    font-size: 32px !important;
+  }
+
+  /* ── IMAGE GRID 1列に ── */
+  .img-grid-2,
+  .img-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── ブランドカード一覧（index.html） ── */
+  .brand-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .card-body {
+    padding: 20px !important;
+  }
+  .card-brand-name {
+    font-size: 20px !important;
+  }
+  .card-tagline {
+    font-size: 13px !important;
+  }
+
+  /* ── AXIS LEGEND（一覧ページ） ── */
+  .axis-legend {
+    padding: 20px !important;
+  }
+  .axis-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* ── PHASE MAP（一覧ページ） ── */
+  .phase-chip {
+    padding: 8px 12px !important;
+    font-size: 11px !important;
+  }
+
+  /* ── STAT ROW（個別ページ：4列→2列） ── */
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    margin-bottom: 28px !important;
+  }
+  .stat-item {
+    padding: 18px 12px !important;
+  }
+  .stat-num {
+    font-size: 26px !important;
+  }
+  .stat-label {
+    font-size: 10px !important;
+  }
+
+  /* ── INSIGHT CARD（フェーズバッジ＋本文の2カラムを1列に） ── */
+  .insight-card {
+    grid-template-columns: 1fr !important;
+    padding: 20px !important;
+    gap: 14px !important;
+  }
+  .insight-content p {
+    font-size: 13px !important;
+  }
+
+  /* ── SALES FLOW（横並び→縦） ── */
+  .sales-flow {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .sales-step {
+    border-radius: 12px !important;
+    padding: 18px 16px !important;
+  }
+  .sales-step:first-child,
+  .sales-step:last-child {
+    border-radius: 12px !important;
+  }
+  .sales-step:not(:last-child):after {
+    content: '↓' !important;
+    right: auto !important;
+    left: 50% !important;
+    top: auto !important;
+    bottom: -14px !important;
+    transform: translateX(-50%) !important;
+  }
+
+  /* ── TIMELINE 余白詰め ── */
+  .timeline {
+    padding-left: 24px !important;
+  }
+  .timeline-item {
+    margin-bottom: 24px !important;
+  }
+
+  /* ── TABLE 横スクロール対応 ── */
+  table {
+    display: block !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  th, td {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* ── CHART（ポジショニングマップ） ── */
+  .chart-wrapper {
+    padding: 20px 12px !important;
+    border-radius: 14px !important;
+  }
+  .chart-container {
+    height: 360px !important;
+  }
+  /* 縦書きラベルはモバイルでは横位置に変える */
+  .axis-left,
+  .axis-right {
+    font-size: 9px !important;
+  }
+
+  /* ── QUOTE ── */
+  .quote-block {
+    padding: 16px 20px !important;
+    margin: 24px 0 !important;
+  }
+  .quote-block blockquote {
+    font-size: 15px !important;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 40px 20px !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: flex-start !important;
+  }
+  .footer-meta {
+    font-size: 11px !important;
+    margin-top: 28px !important;
+  }
+  .ref-list a {
+    font-size: 12px !important;
+    word-break: break-all !important;
+  }
+
+  /* ── HERO IMG CARD（ページ内に並ぶサムネ系を縮小） ── */
+  .hero-img-card {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16/10 !important;
+  }
+}
+
+/* ── Tablet (769px〜1024px) 微調整 ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .card-grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .stat-row {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
