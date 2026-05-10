@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aimé Leon Dore — ブランド分析レポート</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+    :root {
+      --bg: #faf8f3;
+      --bg2: #f2efe8;
+      --bg3: #e8e5dc;
+      --border: #d8d4c8;
+      --text: #1a1a18;
+      --text-muted: #5a5752;
+      --text-dim: #9a9790;
+      --accent: #1a2a4a;
+      --accent2: #2a4a8a;
+      --accent3: #8a6a10;
+      --ald-navy: #1a2a4a;
+      --tag-bg: #d8e0f0;
+      --tag-text: #1a2a4a;
+      --blue-bg: #d8e8f5;
+      --blue-text: #1a4a7a;
+      --orange-bg: #f5e8d0;
+      --orange-text: #8a5a10;
+      --red-accent: #c04040;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(250,248,243,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 52px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    nav .brand { font-weight: 700; letter-spacing: 0.12em; font-size: 13px; color: var(--ald-navy); }
+    nav a { font-size: 12px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.06em; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+    nav .spacer { flex: 1; }
+    nav .date { font-size: 11px; color: var(--text-dim); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 120px 64px 80px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 60% 40%, #c8d4e8 0%, var(--bg) 65%);
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(60px, 14vw, 200px);
+      font-weight: 900; letter-spacing: -0.04em;
+      color: rgba(0,0,0,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--ald-navy);
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+      margin-bottom: 24px;
+    }
+    .hero-title span { color: var(--ald-navy); }
+    .hero-sub {
+      font-size: 18px; font-weight: 300; color: var(--text-muted);
+      max-width: 560px; margin-bottom: 48px;
+    }
+    .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      display: inline-block; padding: 4px 12px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #1a2a4a; border-radius: 100px;
+      font-size: 11px; letter-spacing: 0.08em; font-weight: 500;
+    }
+    .tag.blue { background: var(--blue-bg); color: var(--blue-text); border-color: #1a4a7a; }
+    .tag.orange { background: var(--orange-bg); color: var(--orange-text); border-color: #4a2e1e; }
+    .hero-images {
+      position: absolute; right: 64px; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .hero-img-card {
+      width: 200px; height: 140px;
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+    }
+    .hero-img-card img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-img-card .img-fallback {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em;
+    }
+    .scroll-hint {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .scroll-arrow { animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+    /* ─── SECTION ─── */
+    section {
+      padding: 80px 64px;
+      border-bottom: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--text-dim);
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 36px; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 40px; line-height: 1.2;
+    }
+    h2 .accent { color: var(--ald-navy); }
+    h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    strong { color: var(--text); }
+
+    /* ─── CARDS ─── */
+    .card-grid { display: grid; gap: 20px; }
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover { border-color: #1a2a4a; transform: translateY(-2px); }
+    .card-icon { font-size: 28px; margin-bottom: 16px; }
+    .card h3 { font-size: 16px; }
+    .card .role { font-size: 11px; color: var(--ald-navy); letter-spacing: 0.1em; margin-bottom: 10px; text-transform: uppercase; }
+    .card p { font-size: 14px; }
+    .card .number { font-size: 40px; font-weight: 900; letter-spacing: -0.04em; color: var(--ald-navy); }
+    .card .number-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+    /* ─── IMAGE GRID ─── */
+    .img-grid { display: grid; gap: 16px; }
+    .img-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .img-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .img-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .img-card img { width: 100%; display: block; aspect-ratio: 1/1; object-fit: cover; object-position: center; background: var(--bg2); flex-shrink: 0; }
+    .img-card .img-caption {
+      padding: 12px 14px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .img-card .img-caption strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+    .img-fallback-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      aspect-ratio: 4/3;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .img-fallback-card .emoji { font-size: 32px; }
+    .img-fallback-card .label { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 16px; font-size: 11px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid #e0dcd4; vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:hover td { background: rgba(255,255,255,0.4); }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+    .dot-navy { background: var(--ald-navy); }
+    .dot-blue { background: var(--blue-text); }
+    .dot-orange { background: var(--orange-text); }
+
+    /* ─── POSITIONING MAP ─── */
+    .chart-wrapper {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+    }
+    .chart-container { position: relative; height: 520px; }
+    .axis-label {
+      position: absolute;
+      font-size: 11px; color: var(--text-dim);
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .axis-top { top: 8px; left: 50%; transform: translateX(-50%); }
+    .axis-bottom { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .axis-left { left: 8px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+    .axis-right { right: 8px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+    /* ─── CD INSIGHTS ─── */
+    .insight-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: start;
+      transition: border-color .2s;
+      margin-bottom: 16px;
+    }
+    .insight-card:hover { border-color: var(--ald-navy); }
+    .insight-phase {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .phase-badge {
+      display: inline-block; padding: 4px 10px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #1a2a4a; border-radius: 100px;
+      font-size: 10px; letter-spacing: 0.1em; font-weight: 600;
+      width: fit-content;
+    }
+    .insight-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .insight-content p { font-size: 14px; margin-bottom: 8px; }
+    .insight-content .learn { font-size: 14px; color: var(--text-muted); font-style: italic; padding: 10px 14px; margin-top: 10px; background: var(--bg3); border-radius: 6px; display: block; }
+
+    /* ─── TIMELINE ─── */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline:before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+    .timeline-item { position: relative; margin-bottom: 32px; }
+    .timeline-item:before {
+      content: ''; position: absolute; left: -28px; top: 4px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--ald-navy); border: 2px solid var(--bg);
+    }
+    .timeline-year { font-size: 11px; color: var(--ald-navy); letter-spacing: 0.1em; margin-bottom: 6px; }
+    .timeline-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .timeline-content p { font-size: 14px; color: var(--text-muted); }
+
+    /* ─── STAT ROW ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+    .stat-item { text-align: center; padding: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+    .stat-num { font-size: 36px; font-weight: 900; color: var(--ald-navy); letter-spacing: -0.04em; }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.06em; }
+
+    /* ─── QUOTE ─── */
+    .quote-block {
+      border-left: 3px solid var(--ald-navy);
+      padding: 20px 28px;
+      background: var(--bg2);
+      border-radius: 0 12px 12px 0;
+      margin: 32px 0;
+    }
+    .quote-block blockquote { font-size: 18px; font-weight: 300; font-style: italic; color: var(--text); line-height: 1.6; }
+    .quote-block cite { font-size: 12px; color: var(--text-dim); display: block; margin-top: 12px; letter-spacing: 0.08em; }
+
+    /* ─── SALES FLOW ─── */
+    .sales-flow {
+      display: flex; gap: 0; align-items: stretch;
+    }
+    .sales-step {
+      flex: 1; background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px 20px; text-align: center;
+      position: relative;
+    }
+    .sales-step:not(:last-child):after {
+      content: '→';
+      position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); font-size: 18px; z-index: 1;
+    }
+    .sales-step:first-child { border-radius: 12px 0 0 12px; }
+    .sales-step:last-child { border-radius: 0 12px 12px 0; }
+    .sales-step .step-icon { font-size: 24px; margin-bottom: 8px; }
+    .sales-step .step-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .sales-step .step-desc { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── NETWORK DIAGRAM ─── */
+    .network-diagram {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 480px;
+      position: relative;
+      overflow: visible;
+    }
+    .network-svg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 1;
+      overflow: visible;
+    }
+    .network-center {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: 148px; height: 148px;
+      background: var(--tag-bg);
+      border: 2.5px solid var(--ald-navy);
+      border-radius: 50%;
+      text-align: center;
+      z-index: 3; position: relative;
+      box-shadow: 0 0 0 8px rgba(26,42,74,0.07);
+    }
+    .network-center .name { font-weight: 800; font-size: 12px; letter-spacing: 0.08em; color: var(--ald-navy); line-height: 1.3; }
+    .network-center .year { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+    .network-nodes { position: absolute; inset: 0; z-index: 2; }
+    .node {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+      transform: translate(-50%, -50%);
+    }
+    .node-circle {
+      width: 86px; height: 86px; border-radius: 50%;
+      background: var(--bg); border: 1.5px solid;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .node:hover .node-circle { transform: scale(1.08); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .node-year { font-size: 10px; color: var(--text-dim); letter-spacing: 0.04em; }
+    .node-1 { top: calc(50% - 155px); left: 50%; }
+    .node-2 { top: calc(50% - 77.5px); left: calc(50% + 134px); }
+    .node-3 { top: calc(50% + 77.5px); left: calc(50% + 134px); }
+    .node-4 { top: calc(50% + 155px); left: 50%; }
+    .node-5 { top: calc(50% + 77.5px); left: calc(50% - 134px); }
+    .node-6 { top: calc(50% - 77.5px); left: calc(50% - 134px); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 60px 64px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    footer h3 { font-size: 14px; font-weight: 600; margin-bottom: 20px; color: var(--text-muted); }
+    .ref-list { list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .ref-list a { color: var(--text-dim); font-size: 13px; text-decoration: none; transition: color .2s; }
+    .ref-list a:hover { color: var(--ald-navy); }
+    .footer-meta { margin-top: 40px; font-size: 12px; color: var(--text-dim); }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; gap: 16px; }
+      nav a:not(.brand) { display: none; }
+      section, footer { padding: 60px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .hero-images { display: none; }
+      .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+      .card-grid-2 { grid-template-columns: 1fr; }
+      .img-grid-3 { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .sales-flow { flex-direction: column; }
+      .sales-step:first-child { border-radius: 12px 12px 0 0; }
+      .sales-step:last-child { border-radius: 0 0 12px 12px; }
+      .sales-step:not(:last-child):after { content: '↓'; right: auto; left: 50%; transform: translateX(-50%); top: auto; bottom: -16px; }
+      .insight-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="brand">AIMÉ LEON DORE</span>
+  <a href="#overview">概要</a>
+  <a href="#founder">創設者</a>
+  <a href="#philosophy">哲学</a>
+  <a href="#products">製品</a>
+  <a href="#collabs">コラボ</a>
+  <a href="#business">ビジネス</a>
+  <a href="#positioning">ポジション</a>
+  <a href="#cd-insights">CD活用</a>
+  <span class="spacer"></span>
+  <a href="index.html" style="font-size:11px;letter-spacing:0.08em;color:var(--text-muted);text-decoration:none;border:1px solid var(--border);border-radius:20px;padding:4px 14px;transition:all 0.2s" onmouseover="this.style.borderColor='#a0a090'" onmouseout="this.style.borderColor='var(--border)'">← 一覧</a>
+  <span class="date">ブランド分析 — 2026.05.10</span>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg-text">ALD</div>
+  <p class="hero-eyebrow">Brand Analysis — Competitor Research</p>
+  <h1 class="hero-title">Aimé<span> Leon Dore</span></h1>
+  <p class="hero-sub">クイーンズ育ちのギリシャ系NYCデザイナーが創り出した「ブルックリン・プレップ」。ストリートと知性が交差するニューヨークの美意識を体現するライフスタイルブランド。</p>
+  <div class="hero-tags">
+    <span class="tag">🇺🇸 Founded 2014</span>
+    <span class="tag">Teddy Santis</span>
+    <span class="tag">Queens, NYC</span>
+    <span class="tag blue">Prep × Streetwear</span>
+    <span class="tag blue">New Balance AM</span>
+    <span class="tag orange">Porsche collab</span>
+    <span class="tag orange">Café Leon Dore</span>
+  </div>
+  <div class="hero-images">
+    <div class="hero-img-card">
+      <img src="brand-images/ald-01.jpg"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           alt="ALD New Balance 550">
+      <div class="img-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;">NB 550</div>
+    </div>
+    <div class="hero-img-card">
+      <img src="brand-images/ald-02.jpg"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           alt="Café Leon Dore">
+      <div class="img-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;">CAFÉ LEON DORE</div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <span class="scroll-arrow">↓</span>
+  </div>
+</div>
+
+<!-- ── 01 OVERVIEW ── -->
+<section id="overview">
+  <p class="section-label">01 — Overview</p>
+  <h2>ブランド<span class="accent">概要</span></h2>
+
+  <div class="stat-row">
+    <div class="stat-item">
+      <div class="stat-num">2014</div>
+      <div class="stat-label">創設年</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">NYC</div>
+      <div class="stat-label">Queens / Nolita 拠点</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">2021</div>
+      <div class="stat-label">New Balance AM就任</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">550</div>
+      <div class="stat-label">コラボ復活の象徴モデル</div>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>"I never set out to create a streetwear brand. I just wanted to make things I wanted to wear — things that felt like my world."</blockquote>
+    <cite>— Teddy Santis, Founder &amp; Creative Director, Aimé Leon Dore</cite>
+  </div>
+
+  <p>Aimé Leon Dore（ALD、読み：エメ・レオン・ドレ）は2014年3月、ニューヨーク・クイーンズ育ちのギリシャ系デザイナー <strong>Teddy Santis</strong> によって創設された。ブランド名は「愛された（Aimé）」というフランス語に、父のニックネーム「Leon」と自身の名前「Theodore（Dore）」を組み合わせたもの。</p>
+  <p>1990年代のクイーンズで過ごした多文化な環境——ヒップホップ、バスケットボール、ギリシャの家庭料理、プレップスクールの美学——がすべてのデザインの源泉となっている。創設以来、<strong>「ニュープレップ（New Prep）」</strong>と呼ばれる独自の美意識を確立し、ラグジュアリーでもなくストリートでもない「第三のポジション」を開拓してきた。</p>
+
+  <div class="img-grid img-grid-3" style="margin-top: 32px;">
+    <div class="img-card">
+      <img src="brand-images/ald-03.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏀</div><div class=label>SS Collection Campaign</div></div>'"
+           alt="ALD Campaign">
+      <div class="img-caption"><strong>S/Sキャンペーン</strong>バスケットコートとプレップが混在するNYCの街</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-04.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏪</div><div class=label>Mulberry St. Flagship</div></div>'"
+           alt="ALD Flagship Store">
+      <div class="img-caption"><strong>Mulberry St. 旗艦店</strong>2019年オープン・カフェ併設</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-05.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>☕</div><div class=label>Café Leon Dore</div></div>'"
+           alt="Café Leon Dore Interior">
+      <div class="img-caption"><strong>Café Leon Dore</strong>ギリシャインスパイアのカフェ空間</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 02 FOUNDER ── -->
+<section id="founder">
+  <p class="section-label">02 — Founder</p>
+  <h2>創設者 <span class="accent">Teddy Santis</span></h2>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-icon">👤</div>
+      <div class="role">Founder &amp; Creative Director</div>
+      <h3>Teddy Santis</h3>
+      <p>ニューヨーク・クイーンズ育ち、ギリシャ系移民の家庭に生まれる。両親の故郷ギリシャと、1990年代NYCのストリートカルチャーという二つの世界を行き来した経験が、ALDの文化的な多層性を形成している。</p>
+      <p>ファッション界での正式な学歴はないが、着るものへの徹底したこだわりと、コミュニティへの深い理解によってブランドを10年で国際的な地位へ引き上げた。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">👟</div>
+      <div class="role">Creative Director — New Balance MADE in USA</div>
+      <h3>New Balance 公式CDへの就任</h3>
+      <p>2021年4月、New Balance MADE in USA部門のクリエイティブディレクターに就任（2022年2月より本格始動）。これはニューバランスにとって史上初となるこのポジションであり、Santisのブランドビジョンがグローバルに認められた証明。</p>
+      <p>ALD単独のコラボレーターから、New Balanceそのものの顔へ。ストリートとヘリテージを繋ぐ役割を担っている。</p>
+    </div>
+  </div>
+
+  <div class="quote-block" style="margin-top: 32px;">
+    <blockquote>"Queens gave me everything. The diversity, the basketball courts, my grandmother's kitchen — that's ALD."</blockquote>
+    <cite>— Teddy Santis</cite>
+  </div>
+
+  <div class="img-grid img-grid-3" style="margin-top: 32px;">
+    <div class="img-card">
+      <img src="brand-images/ald-teddy-santis.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🎨</div><div class=label>Teddy Santis</div></div>'"
+           alt="Teddy Santis">
+      <div class="img-caption"><strong>Teddy Santis</strong>Founder &amp; Creative Director</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-nb-made-usa.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🇺🇸</div><div class=label>New Balance MADE in USA</div></div>'"
+           alt="New Balance MADE in USA">
+      <div class="img-caption"><strong>New Balance MADE in USA</strong>Santis CDとしての初プロダクト（2022）</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-queens-inspiration.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏙️</div><div class=label>Queens, NYC</div></div>'"
+           alt="Queens NYC">
+      <div class="img-caption"><strong>Queens, NYC</strong>ALDのあらゆるデザインの起点となる街</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 03 PHILOSOPHY ── -->
+<section id="philosophy">
+  <p class="section-label">03 — Design Philosophy</p>
+  <h2>デザイン哲学・<span class="accent">ブランドDNA</span></h2>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 40px;">
+    <div class="card">
+      <div class="card-icon">🏫</div>
+      <h3>ブルックリン・プレップ（New Prep）</h3>
+      <p>アイビーリーグ的なプレップスクールの美学と、1990年代NYCストリートカルチャーをハイブリッドした独自スタイル。ポロシャツ、コーデュロイ、チノパン——しかしそれをバスケットコートで着こなす感性。<strong>「クラシックを街に持ち込む」</strong>ことがALDの核心。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌍</div>
+      <h3>マルチカルチャー・アイデンティティ</h3>
+      <p>ギリシャの家庭文化とNYCの多様性が共存するクイーンズで育ったSantisの経験そのものがブランド。移民家庭の温かさ、カフェ文化、地中海の素材感——これらが衣服・店舗・フードすべてに滲み出ている。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚽</div>
+      <h3>スポーツ・ヘリテージ</h3>
+      <p>バスケットボール、ランニング、フットボール（サッカー）——ALDが参照するスポーツはいつも「90年代の記憶」。New Balanceとのコラボで復活させた550はバスケットボールシューズ。スポーツを「着る」ことで文化を引き継ぐ手法。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">☕</div>
+      <h3>カフェ・コミュニティ文化</h3>
+      <p>Mulberry St.旗艦店に併設された「Café Leon Dore」はALDの象徴。ギリシャの地中海カフェにインスパイアされたこの空間は、服を「売る場所」ではなく<strong>「コミュニティが集まる場所」</strong>として機能する。ブランドと場所を一体化させた先駆的試み。</p>
+    </div>
+  </div>
+
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/ald-prep-lookbook.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🧥</div><div class=label>Prep × Street Lookbook</div></div>'"
+           alt="ALD Prep Lookbook">
+      <div class="img-caption"><strong>プレップ × ストリート</strong>チノ、ポロ、スウェット</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-basketball.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏀</div><div class=label>Basketball Heritage</div></div>'"
+           alt="ALD Basketball">
+      <div class="img-caption"><strong>バスケットボール文化</strong>1990年代NYCへのオマージュ</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-cafe-food.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🫒</div><div class=label>Greek-inspired Menu</div></div>'"
+           alt="Café Leon Dore Menu">
+      <div class="img-caption"><strong>Café Leon Dore メニュー</strong>地中海フード・ギリシャワイン</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04 PRODUCTS ── -->
+<section id="products">
+  <p class="section-label">04 — Representative Products</p>
+  <h2>代表<span class="accent">製品</span></h2>
+
+  <p>ALDのプロダクトはすべて「90年代NYCで自分が着たかったもの」という視点で設計されている。素材・シルエット・ディテールにこだわりながら、決して奇をてらわない。価格帯は$100〜$1,700超まで幅広いが、コア製品（スウェット・チノ）は$200〜$400前後。</p>
+
+  <div class="img-grid img-grid-3" style="margin: 32px 0;">
+    <div class="img-card">
+      <img src="brand-images/ald-fleece-jacket.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🧥</div><div class=label>Fleece Jacket</div></div>'"
+           alt="ALD Fleece Jacket">
+      <div class="img-caption"><strong>フリースジャケット</strong>ALDの定番。毎シーズン完売する象徴アイテム</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-sweatshirt.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👕</div><div class=label>Heavy Sweatshirt</div></div>'"
+           alt="ALD Sweatshirt">
+      <div class="img-caption"><strong>ヘビースウェット</strong>$157〜 / プレミアム素材・ゆとりシルエット</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-nb550.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👟</div><div class=label>New Balance 550</div></div>'"
+           alt="ALD x New Balance 550">
+      <div class="img-caption"><strong>New Balance 550 × ALD</strong>2020年復活。スニーカー史に残るリバイバル</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-chino.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👖</div><div class=label>Chino Pants</div></div>'"
+           alt="ALD Chino">
+      <div class="img-caption"><strong>チノパンツ</strong>プレップ感の根幹。上質コットン使用</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-polo.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👔</div><div class=label>Polo Shirt</div></div>'"
+           alt="ALD Polo">
+      <div class="img-caption"><strong>ポロシャツ</strong>ストリートとプレップを繋ぐ象徴アイテム</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-accessories.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🧢</div><div class=label>Accessories — Cap / Bag</div></div>'"
+           alt="ALD Accessories">
+      <div class="img-caption"><strong>アクセサリー類</strong>キャップ・バッグ・ソックス / $50〜$200前後</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>カテゴリ</th>
+        <th>代表アイテム</th>
+        <th>価格帯（USD）</th>
+        <th>特徴</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>スウェット / ニット</td>
+        <td>Full Zip Fleece, Market Hoodie</td>
+        <td>$157 〜 $627</td>
+        <td>素材の厚みとヴィンテージ感が人気</td>
+      </tr>
+      <tr>
+        <td>コラボスニーカー</td>
+        <td>NB 550, 993, 991, 650R</td>
+        <td>$160 〜 $200（定価）</td>
+        <td>リセール価格は数倍。即完売が常態化</td>
+      </tr>
+      <tr>
+        <td>アウター</td>
+        <td>コーチジャケット、ウールコート</td>
+        <td>$300 〜 $1,000</td>
+        <td>Woolrichコラボなどヘリテージ素材重視</td>
+      </tr>
+      <tr>
+        <td>コラボコレクション</td>
+        <td>Porsche 911SC Pappou Sweater</td>
+        <td>$425 〜 $1,712</td>
+        <td>限定コラボは最高価格帯に到達</td>
+      </tr>
+      <tr>
+        <td>ボトムス</td>
+        <td>チノパンツ、ショーツ</td>
+        <td>$150 〜 $300</td>
+        <td>日本製コットンなどプレミアム素材使用例あり</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ── 04.5 VISUAL ARCHIVE ── -->
+<section id="visual-archive">
+  <p class="section-label">04.5 — Visual Archive</p>
+  <h2><span class="accent">ビジュアル</span> アーカイブ</h2>
+  <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 14px;">SS24 "World's Borough" キャンペーン / FW24 × Porsche × A$AP Ferg コラボを収録。</p>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 20px; opacity: 0.6;">SS24 — "The World's Borough" Campaign</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/ald-06.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 World's Borough Campaign 1">
+      <div class="img-caption"><strong>SS24 World's Borough Campaign 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-07.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 World's Borough 2">
+      <div class="img-caption"><strong>SS24 World's Borough 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-08.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 3">
+      <div class="img-caption"><strong>SS24 Campaign 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-09.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 4">
+      <div class="img-caption"><strong>SS24 Campaign 4</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-10.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 5">
+      <div class="img-caption"><strong>SS24 Campaign 5</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-11.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 6">
+      <div class="img-caption"><strong>SS24 Campaign 6</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-12.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 7">
+      <div class="img-caption"><strong>SS24 Campaign 7</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-13.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 8">
+      <div class="img-caption"><strong>SS24 Campaign 8</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-14.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 9">
+      <div class="img-caption"><strong>SS24 Campaign 9</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-15.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 10">
+      <div class="img-caption"><strong>SS24 Campaign 10</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-16.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 11">
+      <div class="img-caption"><strong>SS24 Campaign 11</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-17.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 12">
+      <div class="img-caption"><strong>SS24 Campaign 12</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-18.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 13">
+      <div class="img-caption"><strong>SS24 Campaign 13</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-19.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign 14">
+      <div class="img-caption"><strong>SS24 Campaign 14</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-20.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore SS24 Campaign Hero">
+      <div class="img-caption"><strong>SS24 Campaign Hero</strong></div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin: 40px 0 20px; opacity: 0.6;">FW24 × Porsche × A$AP Ferg</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/ald-21.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore FW24 × Porsche × A$AP Ferg 1">
+      <div class="img-caption"><strong>FW24 × Porsche × A$AP Ferg 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-22.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore FW24 × Porsche 2">
+      <div class="img-caption"><strong>FW24 × Porsche 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-23.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore FW24 × Porsche 3">
+      <div class="img-caption"><strong>FW24 × Porsche 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-24.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore FW24 × Porsche 4">
+      <div class="img-caption"><strong>FW24 × Porsche 4</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-25.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore FW24 × Porsche 5">
+      <div class="img-caption"><strong>FW24 × Porsche 5</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-26.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore FW24 × Porsche 6">
+      <div class="img-caption"><strong>FW24 × Porsche 6</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-27.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore FW24 × Porsche 7">
+      <div class="img-caption"><strong>FW24 × Porsche 7</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-28.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore FW24 × Porsche 8">
+      <div class="img-caption"><strong>FW24 × Porsche 8</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-29.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore FW24 × Porsche 9">
+      <div class="img-caption"><strong>FW24 × Porsche 9</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-30.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Aimé Leon Dore FW24 × Porsche Final Look">
+      <div class="img-caption"><strong>FW24 × Porsche Final Look</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 05 COLLABORATIONS ── -->
+<section id="collabs">
+  <p class="section-label">05 — Collaborations</p>
+  <h2>主要<span class="accent">コラボレーション</span></h2>
+
+  <p>ALDのコラボ戦略は「量より質」。ブランドの価値観と合致するパートナーのみを選び、毎回ストーリーのある作品を生み出す。New Balanceとの関係はとりわけ深く、単なるコラボレーターからCreative Directorへと進化した。</p>
+
+  <!-- コラボネットワーク図 -->
+  <div class="network-diagram" style="margin-bottom: 48px;">
+    <svg class="network-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <!-- Lines from center to nodes -->
+      <line x1="50" y1="50" x2="50" y2="18" stroke="#d8d4c8" stroke-width="0.5"/>
+      <line x1="50" y1="50" x2="73" y2="26" stroke="#d8d4c8" stroke-width="0.5"/>
+      <line x1="50" y1="50" x2="73" y2="74" stroke="#d8d4c8" stroke-width="0.5"/>
+      <line x1="50" y1="50" x2="50" y2="82" stroke="#d8d4c8" stroke-width="0.5"/>
+      <line x1="50" y1="50" x2="27" y2="74" stroke="#d8d4c8" stroke-width="0.5"/>
+      <line x1="50" y1="50" x2="27" y2="26" stroke="#d8d4c8" stroke-width="0.5"/>
+    </svg>
+    <div class="network-center">
+      <div class="name">AIMÉ<br>LEON DORE</div>
+      <div class="year">est. 2014</div>
+    </div>
+    <div class="network-nodes">
+      <div class="node node-1">
+        <div class="node-circle" style="color: var(--ald-navy); border-color: var(--ald-navy);">New<br>Balance</div>
+        <div class="node-year">2019〜 / CD就任</div>
+      </div>
+      <div class="node node-2">
+        <div class="node-circle" style="color: #7a3a10; border-color: #c8804a;">Porsche</div>
+        <div class="node-year">2020〜 / 3rd collab</div>
+      </div>
+      <div class="node node-3">
+        <div class="node-circle" style="color: #3a6a3a; border-color: #3a6a3a;">Woolrich</div>
+        <div class="node-year">2018〜 / 継続中</div>
+      </div>
+      <div class="node node-4">
+        <div class="node-circle" style="color: #1a4a7a; border-color: #1a4a7a;">Drake's<br>London</div>
+        <div class="node-year">ネクタイ・服飾雑貨</div>
+      </div>
+      <div class="node node-5">
+        <div class="node-circle" style="color: #5a3a8a; border-color: #5a3a8a;">Suicoke</div>
+        <div class="node-year">サンダルコラボ</div>
+      </div>
+      <div class="node node-6">
+        <div class="node-circle" style="color: #6a4a10; border-color: #6a4a10;">New Era</div>
+        <div class="node-year">キャップコレクション</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">2019</div>
+      <div class="timeline-content">
+        <h4>New Balance 990v5 — コラボ第1弾</h4>
+        <p>ニューバランスとの関係が始まる。ヘリテージモデル990v5にALDのプレップ感覚をミックス。ストリートとランニングヘリテージの融合。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <div class="timeline-content">
+        <h4>New Balance 550 復活 — 最も重要なコラボ</h4>
+        <p>数十年ぶりにリバイブさせたバスケットボールシューズ「550」。Santisのカラーセンスとヴィンテージ感でコレジエイトスタイルに昇華。発売直後に完売し、スニーカーカルチャー史に残るリバイバル事例となった。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <div class="timeline-content">
+        <h4>Porsche 964 Carrera 4 レストア — Jeffrey Deitch Gallery</h4>
+        <p>Porscheとの初コラボ。1990年代の964 Carrera 4をレストアし、Jeffrey Deitch Galleryで展示。ファッション×クルマ×アートを横断する斬新な発表形式が話題を呼ぶ。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2021</div>
+      <div class="timeline-content">
+        <h4>New Balance MADE in USA — Creative Director就任</h4>
+        <p>2021年4月発表、2022年2月始動。New Balanceが創設した「初のCreative Director」ポストにSantisが就任。ALDのコラボレーターという立場を超え、ニューバランス・ブランド自体の方向性を担う役割へ。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2021</div>
+      <div class="timeline-content">
+        <h4>Porsche 911 SC レストア — 第2弾</h4>
+        <p>Porsche × ALDの第2弾。911 SCを題材に、ブランドのナラティブをさらに深めた。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2022〜</div>
+      <div class="timeline-content">
+        <h4>New Balance 993, 991, 650R — 550の成功を継承</h4>
+        <p>550の成功を受け、993・991・650Rなど多数のモデルへコラボを展開。すべてがメイン市場で即完売。二次流通市場でも高プレミアムが続く。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2023</div>
+      <div class="timeline-content">
+        <h4>Porsche 356B（1960年） — 第3弾コラボ</h4>
+        <p>ポルシェの原点「356」を題材にした第3弾。Porscheにとって最も象徴的なモデルを選ぶことで、ブランドの「ルーツへの敬意」という共通テーマを深化させた。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2025</div>
+      <div class="timeline-content">
+        <h4>Porsche FW25 カプセルコレクション</h4>
+        <p>Porsche × ALD のアパレルカプセル。$425 Full-Zip Hoodieなど、コラボ特化の高価格帯ラインを展開。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="img-grid img-grid-3" style="margin-top: 40px;">
+    <div class="img-card">
+      <img src="brand-images/ald-nb550-collab.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👟</div><div class=label>ALD × NB 550 — 2020</div></div>'"
+           alt="ALD x NB 550">
+      <div class="img-caption"><strong>ALD × New Balance 550</strong>スニーカー史に残るリバイバル（2020）</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-porsche-356.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🚗</div><div class=label>ALD × Porsche 356B</div></div>'"
+           alt="ALD x Porsche 356">
+      <div class="img-caption"><strong>ALD × Porsche 356B</strong>1960年の356Bをレストア（2023）</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/ald-woolrich.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🧶</div><div class=label>ALD × Woolrich</div></div>'"
+           alt="ALD x Woolrich">
+      <div class="img-caption"><strong>ALD × Woolrich FW</strong>アメリカンヘリテージ素材との継続コラボ</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 06 BUSINESS ── -->
+<section id="business">
+  <p class="section-label">06 — Business Model</p>
+  <h2>ビジネス<span class="accent">モデル</span></h2>
+
+  <p>ALDのビジネスモデルは「体験型旗艦店」と「限定ドロップ文化」の組み合わせ。ECも展開するが、ブランドの核はあくまでオフラインの体験にある。セレクトショップへの卸（Dover Street Market, SSENSE等）も行いながら、プレミアムポジションを維持している。</p>
+
+  <div class="sales-flow" style="margin: 40px 0;">
+    <div class="sales-step">
+      <div class="step-icon">☕</div>
+      <div class="step-title">カフェで集まる</div>
+      <div class="step-desc">Café Leon Doreがコミュニティの入り口。服を買いに来なくても来られる場所</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🏪</div>
+      <div class="step-title">旗艦店で体験</div>
+      <div class="step-desc">Mulberry St.の世界観ある空間でブランドに没入する</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">⚡</div>
+      <div class="step-title">限定ドロップに参加</div>
+      <div class="step-desc">季節コレクション＋コラボ限定ドロップで「逃したくない」気持ちを生む</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🌐</div>
+      <div class="step-title">EC＋セレクト卸</div>
+      <div class="step-desc">DSM・SSENSE等の厳選パートナーを通じてグローバルに展開</div>
+    </div>
+  </div>
+
+  <div class="card-grid card-grid-3" style="margin-top: 32px;">
+    <div class="card">
+      <div class="card-icon">📍</div>
+      <h3>NYC旗艦店体験</h3>
+      <p>214 Mulberry St.（Nolita）。「リビングルームのような」内装、サウンドルーム、Café Leon Doreを内包。服を「置く」のではなく<strong>「ブランドの家として機能させる」</strong>店舗設計。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔒</div>
+      <h3>希少性の設計</h3>
+      <p>毎シーズンの生産量を意図的に絞る。コラボスニーカーは即完売が当たり前。リセール価格の高騰がブランド価値を証明し続ける構造を作っている。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌍</div>
+      <h3>グローバル展開</h3>
+      <p>ロンドン店舗を開設し、海外展開も進む。日本ではDover Street Market TokyoやECを通じて強い支持を獲得。アジア・欧州のコアファッション層に深く浸透。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 07 POSITIONING ── -->
+<section id="positioning">
+  <p class="section-label">07 — Brand Positioning</p>
+  <h2>ブランド<span class="accent">ポジショニング</span></h2>
+
+  <p>ALDは「ラグジュアリーでもなくストリートでもない」第三のポジションを確立している。価格帯・世界観・流通すべてで、Humanrace・Sporty &amp; Rich・Noahと異なる地位を占める。</p>
+
+  <div class="chart-wrapper" style="margin-bottom: 40px;">
+    <div class="axis-label axis-top">ラグジュアリー寄り</div>
+    <div class="axis-label axis-bottom">ストリート寄り</div>
+    <div class="axis-label axis-left">カルチャー重視</div>
+    <div class="axis-label axis-right">プロダクト重視</div>
+    <div class="chart-container">
+      <canvas id="positioningChart"></canvas>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ブランド</th>
+        <th>創設年</th>
+        <th>コア美学</th>
+        <th>価格帯</th>
+        <th>主な違い</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="dot dot-navy"></span>Aimé Leon Dore</td>
+        <td>2014</td>
+        <td>ニュープレップ × NYC多文化</td>
+        <td>$150 〜 $1,700+</td>
+        <td>体験型店舗＋カフェ文化・ヘリテージコラボの深さ</td>
+      </tr>
+      <tr>
+        <td><span class="dot dot-blue"></span>Humanrace</td>
+        <td>2020</td>
+        <td>ウェルネス × ジェンダーレス</td>
+        <td>$40 〜 $300</td>
+        <td>スキンケア起点・ファレルのセレブ影響力・adidas</td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:#6a3a7a"></span>Sporty &amp; Rich</td>
+        <td>2014</td>
+        <td>ヴィンテージ × スポーティ</td>
+        <td>$80 〜 $300</td>
+        <td>インスタグラム起点・女性客比率高・リゾート感</td>
+      </tr>
+      <tr>
+        <td><span class="dot" style="background:#3a6a3a"></span>Noah</td>
+        <td>2015</td>
+        <td>サーフ × エシカル × プレップ</td>
+        <td>$100 〜 $500</td>
+        <td>Supreme元CD創設・サステナビリティ重視・スケート文化</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── 08 CD INSIGHTS ── -->
+<section id="cd-insights">
+  <p class="section-label">08 — CD Insights</p>
+  <h2>CDとして<span class="accent">活かせるポイント</span></h2>
+
+  <p>ALDから学べることは「ブランドとは何を売るかではなく、どんな世界を生きるかを見せること」という原則に集約される。以下、クリエイティブディレクターとしての実践的な学びを整理する。</p>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">コミュニティ設計</span>
+      <div class="insight-title">カフェ・場所とブランドを一体化する</div>
+    </div>
+    <div class="insight-content">
+      <p><strong>ALDの真の差別化は「Café Leon Dore」にある。</strong>服を売るだけでなく、コーヒーを飲みに来られる場所をブランドの核に据えることで、消費者との接触頻度を劇的に高めた。服を買う気がなくても来られる理由を作る——これはリテール・ブランディング双方の革新。</p>
+      <p class="learn">→ CDとして：クライアントのブランドに「集まる理由」を作れるか？　イベント・ポップアップ・コンテンツをカフェ的な「居場所」として設計する発想を持つ。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">レガシー活用</span>
+      <div class="insight-title">NB 550に見るレガシー製品のリサーフェシング</div>
+    </div>
+    <div class="insight-content">
+      <p><strong>数十年放置されていたNew Balance 550を「今の美学」で再文脈化した手法は、ブランド戦略の教科書的事例。</strong>古いものを復活させるだけでなく、「なぜ今これなのか」という文脈（プレップ回帰・90年代カルチャー再評価）を同時に提供した。製品ではなく「時代の気分」を売った。</p>
+      <p class="learn">→ CDとして：扱うブランドのアーカイブや忘れられたプロダクトに光を当てる視点。「復活」にはストーリーが必要。ただ古くするのではなく、「今のどんな気分にフィットするか」を設計する。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">ストーリー設計</span>
+      <div class="insight-title">「クイーンズのリアル」をブランドストーリーにした手法</div>
+    </div>
+    <div class="insight-content">
+      <p><strong>ALDが他のNYCブランドと異なるのは、「クイーンズ」という具体的な地名・文化・記憶に根ざしている点。</strong>ブルックリンでも、マンハッタンでもなく、クイーンズ。移民家庭、多民族の街、ギリシャの祖母の台所——この「具体性」がブランドに他が持てないオリジナリティを与えている。</p>
+      <p class="learn">→ CDとして：ブランドのルーツを「具体的な場所・人・記憶」まで掘り下げる。「NYCっぽい」ではなく「クイーンズのどのコート」まで落とし込む精度が、本物のブランドとそうでないものを分ける。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">カルチャーブリッジ</span>
+      <div class="insight-title">異文化を横断するカルチャーブリッジの設計</div>
+    </div>
+    <div class="insight-content">
+      <p><strong>ギリシャ文化×NYCストリート×プレップスクール×バスケ×ランニングシューズ×ポルシェ——これほど異なる世界をひとつのブランドに収める力は、Santis自身がそれら全てに「本物の愛着」を持っているから成立する。</strong>コラボ相手の選定基準が「話題性」ではなく「自分が本当に好きかどうか」。</p>
+      <p class="learn">→ CDとして：異なるカルチャー・産業を橋渡しするときは、「自分ごと化」が鍵。「こういう掛け算が面白そう」ではなく「自分がこれらを本当に生きているか」を問う。ファッション×テクノロジー×食文化など、自分の実体験に根ざした横断が最も強い。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">コラボ戦略</span>
+      <div class="insight-title">「コラボレーター」から「インサイダー」へ昇格する道筋</div>
+    </div>
+    <div class="insight-content">
+      <p><strong>SantisがNew Balanceとの関係を「一回限りのコラボ」から「Creative Director就任」にまで発展させた背景には、毎回のコラボで相手ブランドへの深い理解と敬意を示し続けた実績がある。</strong>「使う側」ではなく「一緒に育てる側」の姿勢が、新しい役割への扉を開いた。</p>
+      <p class="learn">→ CDとして：クライアントや協業パートナーとの関係を「案件単位」ではなく「長期的な関係」として設計する。毎回相手への理解を深め、「この人なら任せられる」という信頼を蓄積することが、次のステージへの唯一の道。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <h3>参考・ファクトチェック済みソース</h3>
+  <ul class="ref-list">
+    <li><a href="https://en.wikipedia.org/wiki/Aim%C3%A9_Leon_Dore" target="_blank">Aimé Leon Dore — Wikipedia</a></li>
+    <li><a href="https://newbalance.newsmarket.com/latest-news/teddy-santis-named-creative-director-of-new-balance-made-in-usa/" target="_blank">Teddy Santis Named Creative Director of New Balance MADE in USA — New Balance Press Release (2021)</a></li>
+    <li><a href="https://www.businessoffashion.com/articles/retail/aime-leon-dores-teddy-santis-on-new-balance-and-the-future-of-menswear/" target="_blank">Teddy Santis on New Balance and the Future of Menswear — Business of Fashion</a></li>
+    <li><a href="https://newsroom.porsche.com/en/2023/scene-passion/porsche-356-aime-leon-dore-32229.html" target="_blank">Third collaboration with Aimé Leon Dore highlights a one-of-a-kind Porsche 356 — Porsche Newsroom (2023)</a></li>
+    <li><a href="https://www.soleretriever.com/news/articles/aime-leon-dore-new-balance-collaboration-history" target="_blank">The Complete History of Aimé Leon Dore x New Balance Collaborations — Sole Retriever</a></li>
+    <li><a href="https://www.aimeleondore.com/blogs/news/aime-leon-dore-flagship-cafe-leon-dore" target="_blank">Aimé Leon Dore Flagship &amp; Café Leon Dore — Official Blog</a></li>
+    <li><a href="https://www.theselloutnewsletter.com/p/how-teddy-santis-built-aime-leon-dior" target="_blank">How Teddy Santis Built Aimé Leon Dore — The Sellout Newsletter</a></li>
+    <li><a href="https://www.highsnobiety.com/p/aime-leon-dore-ny-store/" target="_blank">Aimé Leon Dore's NYC Flagship Store Is Clubhouse Culture — Highsnobiety</a></li>
+    <li><a href="https://www.complex.com/style/a/mike-destefano/aime-leon-dore-success-state-of-streetwear" target="_blank">Aimé Leon Dore &amp; the State of Streetwear — Complex</a></li>
+    <li><a href="https://impressmtl.com/blogs/news/the-history-of-aime-leon-dore" target="_blank">The History of Aimé Leon Dore — Impress Montreal</a></li>
+  </ul>
+  <div class="footer-meta">
+    <p>作成: CORIN（KONNEKT INTERNATIONAL） — 2026.05.10 / ファクトチェック済み / CDリサーチ用</p>
+  </div>
+</footer>
+
+<script>
+// ─── Positioning Chart ───
+(function() {
+  const ctx = document.getElementById('positioningChart');
+  if (!ctx) return;
+
+  Chart.register(ChartDataLabels);
+
+  const brands = [
+    { label: 'Aimé Leon Dore', x: 35, y: 72, r: 18, color: 'rgba(26,42,74,0.85)' },
+    { label: 'Humanrace', x: 60, y: 55, r: 14, color: 'rgba(26,90,122,0.75)' },
+    { label: 'Sporty & Rich', x: 70, y: 38, r: 13, color: 'rgba(106,58,122,0.70)' },
+    { label: 'Noah', x: 28, y: 58, r: 13, color: 'rgba(58,106,58,0.75)' },
+    { label: 'Supreme', x: 80, y: 22, r: 12, color: 'rgba(192,64,64,0.65)' },
+    { label: 'Ralph Lauren', x: 20, y: 88, r: 14, color: 'rgba(138,90,16,0.70)' },
+  ];
+
+  new Chart(ctx, {
+    type: 'bubble',
+    data: {
+      datasets: brands.map(b => ({
+        label: b.label,
+        data: [{ x: b.x, y: b.y, r: b.r }],
+        backgroundColor: b.color,
+        borderColor: 'transparent',
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          min: 0, max: 100,
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          ticks: { display: false },
+          title: { display: false }
+        },
+        y: {
+          min: 0, max: 100,
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          ticks: { display: false },
+          title: { display: false }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ctx.dataset.label
+          }
+        },
+        datalabels: {
+          color: '#fff',
+          font: { size: 11, weight: '700' },
+          formatter: (val, ctx) => ctx.dataset.label,
+          textAlign: 'center',
+          anchor: 'center',
+          align: 'center',
+          clip: false,
+        }
+      }
+    }
+  });
+
+  // Draw axis crosshairs manually
+  const orig = Chart.prototype.draw;
+  Chart.prototype.draw = function() {
+    orig.apply(this, arguments);
+    const chartInstance = this;
+    if (chartInstance.canvas.id !== 'positioningChart') return;
+    const xScale = chartInstance.scales.x;
+    const yScale = chartInstance.scales.y;
+    const ctx2 = chartInstance.ctx;
+    const midX = xScale.getPixelForValue(50);
+    const midY = yScale.getPixelForValue(50);
+    ctx2.save();
+    ctx2.setLineDash([4, 4]);
+    ctx2.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx2.lineWidth = 1;
+    ctx2.beginPath();
+    ctx2.moveTo(midX, yScale.top);
+    ctx2.lineTo(midX, yScale.bottom);
+    ctx2.stroke();
+    ctx2.beginPath();
+    ctx2.moveTo(xScale.left, midY);
+    ctx2.lineTo(xScale.right, midY);
+    ctx2.stroke();
+    ctx2.restore();
+  };
+})();
+</script>
+
+</body>
+</html>

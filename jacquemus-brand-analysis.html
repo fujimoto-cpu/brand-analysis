@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jacquemus — ブランド分析レポート</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+    :root {
+      --bg: #faf8f3;
+      --bg2: #f2efe8;
+      --bg3: #e8e5dc;
+      --border: #d8d4c8;
+      --text: #1a1a18;
+      --text-muted: #5a5752;
+      --text-dim: #9a9790;
+      --accent: #c85a3a;
+      --accent2: #8a3a20;
+      --accent3: #e07050;
+      --jq-coral: #c85a3a;
+      --tag-bg: #f5e4de;
+      --tag-text: #c85a3a;
+      --blue-bg: #d8eaf5;
+      --blue-text: #1a5a7a;
+      --orange-bg: #f5e8d0;
+      --orange-text: #8a5a10;
+      --red-accent: #c04040;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(250,248,243,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 52px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    nav .brand { font-weight: 700; letter-spacing: 0.12em; font-size: 13px; color: var(--jq-coral); }
+    nav a { font-size: 12px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.06em; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+    nav .spacer { flex: 1; }
+    nav .date { font-size: 11px; color: var(--text-dim); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 120px 64px 80px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 60% 40%, #f0d8d0 0%, var(--bg) 60%);
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(60px, 14vw, 180px);
+      font-weight: 900; letter-spacing: -0.04em;
+      color: rgba(0,0,0,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--jq-coral);
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+      margin-bottom: 24px;
+    }
+    .hero-title span { color: var(--jq-coral); }
+    .hero-sub {
+      font-size: 18px; font-weight: 300; color: var(--text-muted);
+      max-width: 520px; margin-bottom: 48px;
+    }
+    .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      display: inline-block; padding: 4px 12px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #a03a20; border-radius: 100px;
+      font-size: 11px; letter-spacing: 0.08em; font-weight: 500;
+    }
+    .tag.blue { background: var(--blue-bg); color: var(--blue-text); border-color: #1e3a4a; }
+    .tag.orange { background: var(--orange-bg); color: var(--orange-text); border-color: #4a2e1e; }
+    .hero-images {
+      position: absolute; right: 64px; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .hero-img-card {
+      width: 200px; height: 140px;
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+    }
+    .hero-img-card img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-img-card .img-fallback {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em;
+    }
+    .scroll-hint {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .scroll-arrow { animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+    /* ─── SECTION ─── */
+    section {
+      padding: 80px 64px;
+      border-bottom: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--text-dim);
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 36px; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 40px; line-height: 1.2;
+    }
+    h2 .accent { color: var(--jq-coral); }
+    h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    strong { color: var(--text); }
+
+    /* ─── CARDS ─── */
+    .card-grid { display: grid; gap: 20px; }
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover { border-color: var(--jq-coral); transform: translateY(-2px); }
+    .card-icon { font-size: 28px; margin-bottom: 16px; }
+    .card h3 { font-size: 16px; }
+    .card .role { font-size: 11px; color: var(--jq-coral); letter-spacing: 0.1em; margin-bottom: 10px; text-transform: uppercase; }
+    .card p { font-size: 14px; }
+    .card .number { font-size: 40px; font-weight: 900; letter-spacing: -0.04em; color: var(--jq-coral); }
+    .card .number-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+    /* ─── IMAGE GRID ─── */
+    .img-grid { display: grid; gap: 16px; }
+    .img-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .img-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .img-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .img-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .img-card img { width: 100%; display: block; aspect-ratio: 3/4; object-fit: cover; object-position: center; background: var(--bg2); flex-shrink: 0; }
+    .img-card .img-caption {
+      padding: 12px 14px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .img-card .img-caption strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+    .img-fallback-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      aspect-ratio: 3/4;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .img-fallback-card .emoji { font-size: 32px; }
+    .img-fallback-card .label { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 16px; font-size: 11px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid var(--border); vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:hover td { background: rgba(200,90,58,0.03); }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+    .dot-coral { background: var(--jq-coral); }
+    .dot-blue { background: var(--blue-text); }
+    .dot-orange { background: var(--orange-text); }
+
+    /* ─── POSITIONING MAP ─── */
+    .chart-wrapper {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+    }
+    .chart-container { position: relative; height: 520px; }
+    .axis-label {
+      position: absolute;
+      font-size: 11px; color: var(--text-dim);
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .axis-top { top: 8px; left: 50%; transform: translateX(-50%); }
+    .axis-bottom { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .axis-left { left: 8px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+    .axis-right { right: 8px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+    /* ─── CD INSIGHTS ─── */
+    .insight-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: start;
+      transition: border-color .2s;
+      margin-bottom: 16px;
+    }
+    .insight-card:hover { border-color: var(--jq-coral); }
+    .insight-phase {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .phase-badge {
+      display: inline-block; padding: 4px 10px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #a03a20; border-radius: 100px;
+      font-size: 10px; letter-spacing: 0.1em; font-weight: 600;
+      width: fit-content;
+    }
+    .insight-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .insight-content { }
+    .insight-content p { font-size: 14px; margin-bottom: 8px; }
+    .insight-content .learn { font-size: 14px; color: var(--text-muted); font-style: italic; padding: 10px 14px; margin-top: 10px; background: var(--bg3); border-radius: 6px; display: block; }
+
+    /* ─── QUOTE ─── */
+    .quote-block {
+      border-left: 3px solid var(--jq-coral);
+      padding: 20px 28px;
+      background: var(--bg2);
+      border-radius: 0 12px 12px 0;
+      margin: 32px 0;
+    }
+    .quote-block blockquote { font-size: 18px; font-weight: 300; font-style: italic; color: var(--text); line-height: 1.6; }
+    .quote-block cite { font-size: 12px; color: var(--text-dim); display: block; margin-top: 12px; letter-spacing: 0.08em; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 60px 64px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    footer h3 { font-size: 14px; font-weight: 600; margin-bottom: 20px; color: var(--text-muted); }
+    .ref-list { list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .ref-list a { color: var(--text-dim); font-size: 13px; text-decoration: none; transition: color .2s; }
+    .ref-list a:hover { color: var(--jq-coral); }
+    .footer-meta { margin-top: 40px; font-size: 12px; color: var(--text-dim); }
+
+    /* ─── STAT ROW ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+    .stat-item { text-align: center; padding: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+    .stat-num { font-size: 36px; font-weight: 900; color: var(--jq-coral); letter-spacing: -0.04em; }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.06em; }
+
+    /* ─── TIMELINE ─── */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline:before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+    .timeline-item { position: relative; margin-bottom: 32px; }
+    .timeline-item:before {
+      content: ''; position: absolute; left: -28px; top: 4px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--jq-coral); border: 2px solid var(--bg);
+    }
+    .timeline-year { font-size: 11px; color: var(--jq-coral); letter-spacing: 0.1em; margin-bottom: 6px; }
+    .timeline-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .timeline-content p { font-size: 14px; color: var(--text-muted); }
+
+    /* ─── PRICE TABLE ─── */
+    .price-bar {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 12px;
+    }
+    .price-bar .price-label { font-size: 13px; font-weight: 500; min-width: 180px; color: var(--text); }
+    .price-bar .bar-track { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+    .price-bar .bar-fill { height: 100%; border-radius: 4px; background: var(--jq-coral); }
+    .price-bar .price-val { font-size: 12px; color: var(--text-dim); min-width: 120px; text-align: right; }
+
+    /* ─── SHOW CARD ─── */
+    .show-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform .2s, border-color .2s;
+    }
+    .show-card:hover { transform: translateY(-3px); border-color: var(--jq-coral); }
+    .show-card-img {
+      width: 100%; aspect-ratio: 16/9;
+      background: var(--bg3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+      position: relative; overflow: hidden;
+    }
+    .show-card-img img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+    .show-card-body { padding: 20px; }
+    .show-card-body .show-season { font-size: 10px; letter-spacing: 0.15em; color: var(--jq-coral); text-transform: uppercase; margin-bottom: 6px; }
+    .show-card-body h4 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+    .show-card-body p { font-size: 13px; color: var(--text-muted); margin-bottom: 0; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; gap: 16px; }
+      nav a:not(.brand) { display: none; }
+      section, footer { padding: 60px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .hero-images { display: none; }
+      .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+      .card-grid-2 { grid-template-columns: 1fr; }
+      .img-grid-3, .img-grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .insight-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="brand">JACQUEMUS</span>
+  <a href="#overview">概要</a>
+  <a href="#founder">創業者</a>
+  <a href="#philosophy">哲学</a>
+  <a href="#products">製品</a>
+  <a href="#shows">ショー</a>
+  <a href="#business">ビジネス</a>
+  <a href="#positioning">ポジション</a>
+  <a href="#cd-insights">CD活用</a>
+  <span class="spacer"></span>
+  <a href="index.html" style="font-size:11px;letter-spacing:0.08em;color:var(--text-muted);text-decoration:none;border:1px solid var(--border);border-radius:20px;padding:4px 14px;transition:all 0.2s" onmouseover="this.style.borderColor='#c85a3a'" onmouseout="this.style.borderColor='var(--border)'">← 一覧</a>
+  <span class="date">ブランド分析 — 2026.05.10</span>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg-text">JACQUEMUS</div>
+  <p class="hero-eyebrow">Brand Analysis — Creative Director Research</p>
+  <h1 class="hero-title">Jacq<span>emus</span></h1>
+  <p class="hero-sub">南フランスのプロヴァンスに根ざした感情的ミニマリズム。18歳で独学創業、世界的ラグジュアリーブランドへ成長したSimon Porte Jacquemusの軌跡。</p>
+  <div class="hero-tags">
+    <span class="tag">🇫🇷 Founded 2009</span>
+    <span class="tag">Simon Porte Jacquemus</span>
+    <span class="tag blue">Provence × Paris</span>
+    <span class="tag blue">Emotional Minimalism</span>
+    <span class="tag orange">Le Chiquito</span>
+    <span class="tag orange">Instagram-first</span>
+  </div>
+  <div class="hero-images">
+    <div class="hero-img-card">
+      <img src="brand-images/jacquemus-01.jpg"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           alt="Jacquemus Le Chiquito">
+      <div class="img-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;">LE CHIQUITO</div>
+    </div>
+    <div class="hero-img-card">
+      <img src="brand-images/jacquemus-02.jpg"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           alt="Jacquemus Show">
+      <div class="img-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;">RUNWAY SHOW</div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <span class="scroll-arrow">↓</span>
+  </div>
+</div>
+
+<!-- ── 01 OVERVIEW ── -->
+<section id="overview">
+  <p class="section-label">01 — Overview</p>
+  <h2>ブランド<span class="accent">概要</span></h2>
+
+  <div class="stat-row">
+    <div class="stat-item">
+      <div class="stat-num">2009</div>
+      <div class="stat-label">創設年（パリ）</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">18</div>
+      <div class="stat-label">創業時の年齢</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">1.5M+</div>
+      <div class="stat-label">Instagram フォロワー（創業者）</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">€200–</div>
+      <div class="stat-label">エントリー価格帯</div>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>"I design for the woman I want to see in the fields of Provence, but also for the woman in the metro in Paris."</blockquote>
+    <cite>— Simon Porte Jacquemus</cite>
+  </div>
+
+  <p>Jacquemusは2009年、Simon Porte Jacquemusがパリで創設したフランスのラグジュアリーファッションブランド。独学でファッションを学び、18歳でスタートしたブランドは、南フランス・プロヴァンスの光と自然を根底に置いた<strong>感情的ミニマリズム</strong>を特徴とする。</p>
+  <p>2018 — Le Chiquito</strong>（極小バッグ）が世界的な話題を呼び、Instagram上でのバイラル拡散によって国際的な認知を獲得。以降、ラグジュアリー市場においてInstagramファーストのコミュニケーション戦略を先駆けたブランドの一つとして評価されている。</p>
+  <p>価格帯はバッグ€300〜€1,500、アパレル€150〜€1,000程度。エルメスやシャネルほど高額ではなく、Z世代・ミレニアル世代が手の届くラグジュアリーとして支持する<strong>「アクセシブル・ラグジュアリー」</strong>のポジションを確立している。</p>
+
+  <div class="img-grid img-grid-3" style="margin-top: 32px;">
+    <div class="img-card">
+      <img src="brand-images/jacquemus-03.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👜</div><div class=label>Le Chiquito</div></div>'"
+           alt="Jacquemus Le Chiquito">
+      <div class="img-caption"><strong>Le Chiquito</strong>世界的バイラルを起こしたアイコンバッグ</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-04.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🌾</div><div class=label>Provence Campaign</div></div>'"
+           alt="Jacquemus Provence">
+      <div class="img-caption"><strong>プロヴァンスキャンペーン</strong>南仏の光と大地を舞台にした世界観</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-05.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🌿</div><div class=label>Le Bambino</div></div>'"
+           alt="Jacquemus Le Bambino">
+      <div class="img-caption"><strong>Le Bambino</strong>Chiquitoの後継アイコンバッグ</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 02 FOUNDER ── -->
+<section id="founder">
+  <p class="section-label">02 — Founder</p>
+  <h2><span class="accent">Simon Porte</span> Jacquemus</h2>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 40px;">
+    <div class="card">
+      <div class="card-icon">👦</div>
+      <div class="role">Early Life</div>
+      <h3>プロヴァンス出身、独学のデザイナー</h3>
+      <p>1990年、フランス南部プロヴァンス地方出身。ファッションの正式な学校教育を受けず独学でデザインを学んだ。18歳でパリに移住し、ギャラリー・ラファイエットで働きながらブランドを立ち上げた。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">💔</div>
+      <div class="role">Turning Point</div>
+      <h3>母の死がブランド創設の原点</h3>
+      <p>18歳のとき、母親がバイク事故で急逝。その喪失体験がブランド創設の直接的な動機となった。母の服を着てファッションショーを開催したことがJacquemusの起点であり、<strong>感情と記憶がブランドの核</strong>となっている。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏆</div>
+      <div class="role">Recognition</div>
+      <h3>LVMH賞・国際的評価</h3>
+      <p>2015年、LVMH Young Fashion Designers Prizeの特別賞を受賞。2020年には<em>Time</em>誌「次の100人」に選出。파리コレクションの公式カレンダーに参加し、国際的なファッションメディアから継続的に高い評価を受ける。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📱</div>
+      <div class="role">Instagram Strategy</div>
+      <h3>自らがブランドの顔・発信者</h3>
+      <p>Simonは個人Instagramを通じてブランドのビジョン・旅・制作プロセスを積極的に公開。デザイナー自身がコンテンツクリエイターとして機能し、<strong>ブランドとファウンダーの人格が不可分</strong>になっている。</p>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">2009</div>
+      <div class="timeline-content">
+        <h4>Jacquemus 創設</h4>
+        <p>パリで18歳のSimonがブランドを創設。母の服からインスピレーションを得た最初のコレクションを発表。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2018</div>
+      <div class="timeline-content">
+        <h4>Le Chiquito 登場・世界的注目</h4>
+        <p>超小型バッグ「Le Chiquito」がInstagramを中心に爆発的にバイラル。ファッション界の話題を席巻し、ブランドの転換点となる。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2015</div>
+      <div class="timeline-content">
+        <h4>LVMH Young Fashion Designers Prize 特別賞</h4>
+        <p>業界最権威の賞を受賞し、ラグジュアリーファッション業界からの正式な認知を獲得。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2019</div>
+      <div class="timeline-content">
+        <h4>「L'Amour」— プロヴァンスの麦畑ショー</h4>
+        <p>プロヴァンスの麦畑を舞台に開催したランウェイショー「L'Amour」が世界的なメディア露出を獲得。ロケーションをブランドアイデンティティの一部とする手法を確立。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2021</div>
+      <div class="timeline-content">
+        <h4>「La Montagne」— アルプスのショー</h4>
+        <p>フランスアルプスの雪山を舞台にした「La Montagne」ショーを開催。非都市型ランウェイの進化系として評価。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2023</div>
+      <div class="timeline-content">
+        <h4>「Le Chouchou」— ハワイショー</h4>
+        <p>ハワイのビーチを舞台に「Le Chouchou」ショーを開催。南国・リゾートとプロヴァンスの地中海的世界観を融合させた演出で話題を呼ぶ。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2024</div>
+      <div class="timeline-content">
+        <h4>コラボ拡大・Nike・Air France 等</h4>
+        <p>Nike、Air France、Carrefour（スーパーマーケット）など多様なコラボを展開。高低差のあるブランドパートナーシップでカルチャー的な話題性を生み出す。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 03 PHILOSOPHY ── -->
+<section id="philosophy">
+  <p class="section-label">03 — Design Philosophy</p>
+  <h2>デザイン<span class="accent">哲学</span></h2>
+
+  <div class="quote-block">
+    <blockquote>"Fashion should be fun. It should be playful. It should have emotion."</blockquote>
+    <cite>— Simon Porte Jacquemus</cite>
+  </div>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 40px;">
+    <div class="card">
+      <div class="card-icon">🌿</div>
+      <div class="role">South of France</div>
+      <h3>プロヴァンスをDNAに宿す</h3>
+      <p>南フランスの強い陽光、ラベンダー畑、地中海の色彩がJacquemusの世界観の根幹。コレクション名・ショー会場・カラーパレットすべてが「プロヴァンスから来た」という感覚を保持している。<strong>出身地がブランドアイデンティティそのもの</strong>になっている稀有なケース。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">↔️</div>
+      <div class="role">Proportion Play</div>
+      <h3>誇張されたプロポーション</h3>
+      <p>Le Chiquito（極小バッグ）やオーバーサイズのつばの広い帽子など、比率を意図的に歪めることで視覚的なサプライズと「記憶に残る形」を生み出す。<strong>プロポーションの操作がデザイン言語</strong>になっている。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">💛</div>
+      <div class="role">Emotional Design</div>
+      <h3>感情と記憶を纏わせる</h3>
+      <p>機能やステータスではなく、<strong>ノスタルジア・喜び・地中海の光</strong>といった感情的体験をデザインに込める。「着た人が何かを感じる」ことを目標にしており、ブランドのストーリーテリングが感情的共鳴を生む設計になっている。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎭</div>
+      <div class="role">Minimal × Maximal</div>
+      <h3>ミニマルな美学×マキシマルな演出</h3>
+      <p>製品デザイン自体はクリーンでミニマル。しかしショーの演出・ビジュアルコミュニケーション・場所の選定は<strong>徹底的にドラマティック</strong>で記憶に残るものを追求。この対比がブランドの独自性を生む。</p>
+    </div>
+  </div>
+
+  <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 32px;">
+    <h3 style="margin-bottom: 20px; font-size: 16px;">Jacquemus の色彩言語</h3>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;border-radius:12px;background:#e8d5b5;border:1px solid var(--border);margin-bottom:8px;"></div>
+        <div style="font-size:11px;color:var(--text-dim);">プロヴァンス<br>クリーム</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;border-radius:12px;background:#c85a3a;border:1px solid var(--border);margin-bottom:8px;"></div>
+        <div style="font-size:11px;color:var(--text-dim);">テラコッタ<br>コーラル</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;border-radius:12px;background:#8b6914;border:1px solid var(--border);margin-bottom:8px;"></div>
+        <div style="font-size:11px;color:var(--text-dim);">麦わら<br>ゴールド</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;border-radius:12px;background:#5a8a6a;border:1px solid var(--border);margin-bottom:8px;"></div>
+        <div style="font-size:11px;color:var(--text-dim);">オリーブ<br>グリーン</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;border-radius:12px;background:#d4c5b0;border:1px solid var(--border);margin-bottom:8px;"></div>
+        <div style="font-size:11px;color:var(--text-dim);">サンド<br>ベージュ</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;border-radius:12px;background:#2a3a5a;border:1px solid var(--border);margin-bottom:8px;"></div>
+        <div style="font-size:11px;color:var(--text-dim);">地中海<br>ネイビー</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;border-radius:12px;background:#f5f0e8;border:1px solid var(--border);margin-bottom:8px;"></div>
+        <div style="font-size:11px;color:var(--text-dim);">オフホワイト<br>ミルク</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:80px;height:80px;border-radius:12px;background:#1a1a18;border:1px solid var(--border);margin-bottom:8px;"></div>
+        <div style="font-size:11px;color:var(--text-dim);">ディープ<br>ブラック</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04 PRODUCTS ── -->
+<section id="products">
+  <p class="section-label">04 — Iconic Products</p>
+  <h2>代表<span class="accent">製品</span></h2>
+
+  <p>Jacquemusの製品戦略はアイコン化されたシグネチャーアイテムによるブランド認知の強化を核にしている。バッグが最大の収益源であり、シーズンごとにサイズ・素材・カラーのバリエーションを展開する。</p>
+
+  <div class="img-grid img-grid-4" style="margin-bottom: 40px; margin-top: 32px;">
+    <div class="img-card">
+      <img src="brand-images/jq-chiquito-01.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👜</div><div class=label>Le Chiquito</div></div>'"
+           alt="Le Chiquito">
+      <div class="img-caption"><strong>Le Chiquito</strong>€350〜€600 / ミニバッグの代名詞</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jq-bambino-01.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🪣</div><div class=label>Le Bambino</div></div>'"
+           alt="Le Bambino">
+      <div class="img-caption"><strong>Le Bambino</strong>€350〜€500 / 日常使いのスモールバッグ</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jq-grand-bambino-01.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>💼</div><div class=label>Le Grand Bambino</div></div>'"
+           alt="Le Grand Bambino">
+      <div class="img-caption"><strong>Le Grand Bambino</strong>€450〜€600 / トート展開版</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jq-apparel-01.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👗</div><div class=label>Apparel</div></div>'"
+           alt="Jacquemus Apparel">
+      <div class="img-caption"><strong>アパレル</strong>€150〜€1,000 / ミニドレス・リネン素材中心</div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 24px;">製品カテゴリ別 価格帯</h3>
+  <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 32px;">
+    <div class="price-bar">
+      <span class="price-label">Le Chiquito（ミニバッグ）</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 45%"></div></div>
+      <span class="price-val">€350 – €650</span>
+    </div>
+    <div class="price-bar">
+      <span class="price-label">Le Bambino（スモールバッグ）</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 40%"></div></div>
+      <span class="price-val">€300 – €550</span>
+    </div>
+    <div class="price-bar">
+      <span class="price-label">Le Grand Bambino（トート）</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 48%"></div></div>
+      <span class="price-val">€400 – €700</span>
+    </div>
+    <div class="price-bar">
+      <span class="price-label">ドレス・トップス</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 30%"></div></div>
+      <span class="price-val">€150 – €600</span>
+    </div>
+    <div class="price-bar">
+      <span class="price-label">アクセサリー・帽子</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 20%"></div></div>
+      <span class="price-val">€80 – €300</span>
+    </div>
+    <div class="price-bar">
+      <span class="price-label">シューズ</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 35%"></div></div>
+      <span class="price-val">€250 – €700</span>
+    </div>
+    <div class="price-bar">
+      <span class="price-label">エディション・レザー大型バッグ</span>
+      <div class="bar-track"><div class="bar-fill" style="width: 80%"></div></div>
+      <span class="price-val">€800 – €1,500</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── 04.5 VISUAL ARCHIVE ── -->
+<section id="visual-archive">
+  <p class="section-label">04.5 — Visual Archive</p>
+  <h2><span class="accent">ビジュアル</span> アーカイブ</h2>
+  <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 14px;">FW24 "Le Chouchou" — カプリ島ランウェイ（15周年記念コレクション）全ルック収録。</p>
+
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/jacquemus-06.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Runway Look 1">
+      <div class="img-caption"><strong>FW24 Capri Runway Look 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-07.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 2">
+      <div class="img-caption"><strong>FW24 Capri Look 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-08.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 3">
+      <div class="img-caption"><strong>FW24 Capri Look 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-09.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 4">
+      <div class="img-caption"><strong>FW24 Capri Look 4</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-10.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 5">
+      <div class="img-caption"><strong>FW24 Capri Look 5</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-11.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 6">
+      <div class="img-caption"><strong>FW24 Capri Look 6</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-12.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 7">
+      <div class="img-caption"><strong>FW24 Capri Look 7</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-13.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 8">
+      <div class="img-caption"><strong>FW24 Capri Look 8</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-14.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 9">
+      <div class="img-caption"><strong>FW24 Capri Look 9</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-15.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 10">
+      <div class="img-caption"><strong>FW24 Capri Look 10</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-16.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 11">
+      <div class="img-caption"><strong>FW24 Capri Look 11</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-17.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 12">
+      <div class="img-caption"><strong>FW24 Capri Look 12</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-18.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 13">
+      <div class="img-caption"><strong>FW24 Capri Look 13</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-19.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 14">
+      <div class="img-caption"><strong>FW24 Capri Look 14</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-20.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 15">
+      <div class="img-caption"><strong>FW24 Capri Look 15</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-21.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 16">
+      <div class="img-caption"><strong>FW24 Capri Look 16</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-22.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 17">
+      <div class="img-caption"><strong>FW24 Capri Look 17</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-23.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 18">
+      <div class="img-caption"><strong>FW24 Capri Look 18</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-24.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Look 19">
+      <div class="img-caption"><strong>FW24 Capri Look 19</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/jacquemus-25.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Jacquemus FW24 Capri Finale">
+      <div class="img-caption"><strong>FW24 Capri Finale</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 05 SHOWS ── -->
+<section id="shows">
+  <p class="section-label">05 — Shows & Communication</p>
+  <h2>ショーと<span class="accent">コミュニケーション</span></h2>
+
+  <p>Jacquemusのランウェイショーは単なる新作発表の場ではなく、ブランドの世界観を体験させる<strong>メディアイベント</strong>として設計されている。非都市型ロケーションの選定とInstagramでの拡散を前提にした演出が、他ブランドと圧倒的に差別化された話題性を生み出している。</p>
+
+  <div class="card-grid card-grid-3" style="margin-bottom: 40px; margin-top: 32px;">
+    <div class="show-card">
+      <div class="show-card-img">
+        <img src="brand-images/jq-show-lamour.jpg"
+             onerror="this.style.display='none'"
+             alt="L'Amour Show">
+        🌾
+      </div>
+      <div class="show-card-body">
+        <div class="show-season">SS2021 — "L'Amour"</div>
+        <h4>プロヴァンスの麦畑</h4>
+        <p>南仏プロヴァンスの麦畑にランウェイを設置。モデルが黄金色の穂の間を歩く映像がSNSで世界中に拡散し、ブランドのInstagram戦略の頂点として語り継がれる。</p>
+      </div>
+    </div>
+    <div class="show-card">
+      <div class="show-card-img">
+        <img src="brand-images/jq-show-lamontagne.jpg"
+             onerror="this.style.display='none'"
+             alt="La Montagne Show">
+        🏔️
+      </div>
+      <div class="show-card-body">
+        <div class="show-season">FW2021 — "La Montagne"</div>
+        <h4>フランスアルプスの雪山</h4>
+        <p>アルプスの雪景色を舞台に開催。白一色の世界にコーラル・テラコッタ系のウェアが映えるビジュアルが特徴。「場所の極端さ」がブランドの演出力を示した。</p>
+      </div>
+    </div>
+    <div class="show-card">
+      <div class="show-card-img">
+        <img src="brand-images/jq-show-hawaii.jpg"
+             onerror="this.style.display='none'"
+             alt="Hawaii Show">
+        🌺
+      </div>
+      <div class="show-card-body">
+        <div class="show-season">SS2024 — "Le Chouchou"</div>
+        <h4>ハワイのビーチ</h4>
+        <p>ハワイでの開催でリゾート×プロヴァンスの世界観を融合。地中海的な色彩とハワイの自然光が重なるビジュアルがメディア露出を最大化。</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-top: 16px;">
+    <h3 style="margin-bottom: 20px; font-size: 16px;">Jacquemus の Instagram戦略 — 他ブランドとの違い</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>要素</th>
+          <th>Jacquemus</th>
+          <th>一般的なラグジュアリーブランド</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>デザイナーの露出</td>
+          <td><span class="dot dot-coral"></span>Simon自身が日常・旅・制作を投稿</td>
+          <td>デザイナーは基本的に非公開</td>
+        </tr>
+        <tr>
+          <td>ショー会場</td>
+          <td><span class="dot dot-coral"></span>プロヴァンス/アルプス/ハワイ等の非都市型</td>
+          <td>パリ/ミラノのコンベンションホール中心</td>
+        </tr>
+        <tr>
+          <td>コンテンツトーン</td>
+          <td><span class="dot dot-coral"></span>感情的・ノスタルジック・夢見るような</td>
+          <td>ステータス・クラフツマンシップ訴求</td>
+        </tr>
+        <tr>
+          <td>バイラル設計</td>
+          <td><span class="dot dot-coral"></span>「撮られることを前提にした」演出</td>
+          <td>招待制・クローズドなプレス対応</td>
+        </tr>
+        <tr>
+          <td>コラボ先</td>
+          <td><span class="dot dot-coral"></span>Nike・Carrefour・Air France 等カルチャー混交</td>
+          <td>同格〜上位ラグジュアリーブランドのみ</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── 06 BUSINESS ── -->
+<section id="business">
+  <p class="section-label">06 — Business Model</p>
+  <h2>ビジネス<span class="accent">モデル</span></h2>
+
+  <div class="card-grid card-grid-3" style="margin-bottom: 40px;">
+    <div class="card">
+      <div class="card-icon">📱</div>
+      <div class="role">D2C + Social</div>
+      <h3>Instagramファーストの販売戦略</h3>
+      <p>公式オンラインストアを主要販売チャネルとし、InstagramのビジュアルがD2Cトラフィックを誘導する構造。新作ドロップをSNSで事前予告し、発売直後の話題性を最大化。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">💧</div>
+      <div class="role">Drop Model</div>
+      <h3>限定ドロップで希少性を演出</h3>
+      <p>季節コレクションに加え、カラー・素材限定版を不定期ドロップ。入手困難な状態を演出することでセカンダリーマーケットでの話題性も維持し、ブランドへの欲求を高める。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🤝</div>
+      <div class="role">Collaboration</div>
+      <h3>話題性のあるコラボ戦略</h3>
+      <p>Nike、Air France、Carrefour（スーパーマーケット）、Samsung など「意外性のあるパートナー」とのコラボでカルチャー的な話題性を生み出す。高低差のあるコラボがブランドの遊び心を強調。</p>
+    </div>
+  </div>
+
+  <div style="background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px;">
+    <h3 style="margin-bottom: 20px; font-size: 16px;">売上構成（推定）</h3>
+    <canvas id="revenueChart" style="max-height: 320px;"></canvas>
+  </div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-icon">🏬</div>
+      <div class="role">Retail Strategy</div>
+      <h3>ポップアップ × 旗艦店展開</h3>
+      <p>パリ（マレ地区）に恒久店舗を持つほか、ロンドン・ニューヨーク等でポップアップを展開。インスタ映えする店舗デザインがそのままコンテンツとして機能。2019年頃より南仏プロヴァンスにも店舗を展開。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌍</div>
+      <div class="role">Market</div>
+      <h3>欧米・アジア市場で均等に浸透</h3>
+      <p>韓国・日本・中国をはじめアジア太平洋地域が急成長市場。Instagramを通じたオーガニックなグローバル拡散が、従来の地域別マーケティング予算を最小化している。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 07 POSITIONING ── -->
+<section id="positioning">
+  <p class="section-label">07 — Brand Positioning</p>
+  <h2>ブランド<span class="accent">ポジショニング</span></h2>
+
+  <p>Jacquemusのポジショニングは「感情訴求のアクセシブル・ラグジュアリー」。伝統的なハウスとは異なる独自の軸でラグジュアリー市場に楔を打ち込んでいる。</p>
+
+  <div class="chart-wrapper" style="margin-bottom: 40px; margin-top: 32px;">
+    <div style="position:relative; height: 520px;">
+      <div class="axis-label axis-top">← エモーショナル / ストーリー重視</div>
+      <div class="axis-label axis-bottom">プレステージ / ヘリテージ重視 →</div>
+      <div class="axis-label axis-left">低価格帯</div>
+      <div class="axis-label axis-right">超高価格帯</div>
+      <canvas id="positioningChart"></canvas>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ブランド</th>
+        <th>価格帯（バッグ）</th>
+        <th>ターゲット</th>
+        <th>コアバリュー</th>
+        <th>SNS戦略</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="dot dot-coral"></span>Jacquemus</td>
+        <td>€300–€1,500</td>
+        <td>Z世代・ミレニアル女性</td>
+        <td>感情・プロヴァンス・遊び心</td>
+        <td>デザイナー自身が発信・バイラル設計</td>
+      </tr>
+      <tr>
+        <td><span class="dot dot-blue"></span>Loewe</td>
+        <td>€1,000–€4,000</td>
+        <td>30-45歳・感度高い層</td>
+        <td>工芸・文化・知性・アート</td>
+        <td>クリエイティブディレクターJW主導</td>
+      </tr>
+      <tr>
+        <td><span class="dot dot-blue"></span>Bottega Veneta</td>
+        <td>€800–€3,500</td>
+        <td>30-50歳・富裕層</td>
+        <td>クラフツマンシップ・静謐・ロゴレス</td>
+        <td>意図的にSNSを抑制（希少性演出）</td>
+      </tr>
+      <tr>
+        <td><span class="dot dot-orange"></span>A.P.C.</td>
+        <td>€200–€600</td>
+        <td>20-35歳・インテリ層</td>
+        <td>ミニマル・フレンチベーシック</td>
+        <td>控えめ・プロダクト訴求中心</td>
+      </tr>
+      <tr>
+        <td><span class="dot dot-orange"></span>Ganni</td>
+        <td>€100–€500</td>
+        <td>25-40歳・北欧感度層</td>
+        <td>サステナビリティ・楽しさ・アクセシブル</td>
+        <td>コミュニティ重視・インフルエンサー活用</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── 08 CD INSIGHTS ── -->
+<section id="cd-insights">
+  <p class="section-label">08 — CD Insights</p>
+  <h2>CDとして<span class="accent">活かせるポイント</span></h2>
+
+  <p>Jacquemusから学べるのは「デザインの上手さ」ではなく、<strong>ブランドに感情と場所を宿す方法論</strong>。世界的CDを目指すゆりこが自分のブランドワークに取り入れられる視点をまとめた。</p>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <div class="phase-badge">INSIGHT 01</div>
+      <div class="insight-title">「場所」をブランドDNAの核にする</div>
+    </div>
+    <div class="insight-content">
+      <p>Simonはプロヴァンスという出身地を単なる「インスピレーション源」ではなく、<strong>ブランドアイデンティティの語源</strong>にした。麦畑のショー、地中海カラーのパレット、リネン素材の多用——すべてが「プロヴァンスから来た」という一本の軸に紐づいている。</p>
+      <p>CDとしてのヒント：クライアントブランドの場合、<strong>「どこ出身の、どんな景色から来たブランドか」</strong>を最初のブリーフで深掘りすること。地名・風景・気候が具体的であるほど、デザインの一貫性が生まれる。</p>
+      <p class="learn">→ 場所の記憶がブランドの語彙になる</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <div class="phase-badge">INSIGHT 02</div>
+      <div class="insight-title">Instagramファーストのブランドコミュニケーション設計</div>
+    </div>
+    <div class="insight-content">
+      <p>Jacquemusが革新したのはコレクションの質ではなく<strong>「見られ方の設計」</strong>。プロヴァンスの麦畑ショーは、写真・動画を撮ることを前提に設計された。モデルが歩く光の向き、麦の色とウェアの配色対比——すべてが「スマホで見たときに美しい」ために最適化されていた。</p>
+      <p>CDとしてのヒント：どんなブランドワークでも<strong>「これがInstagramのフィードに流れてきたときに止まれるか」</strong>を最終チェック基準の一つに入れる。最終成果物だけでなく、制作過程のBTSも「公開前提」で設計できるか問う。</p>
+      <p class="learn">→ 「見られる場所」まで設計するのがブランドデザイン</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <div class="phase-badge">INSIGHT 03</div>
+      <div class="insight-title">プロポーション操作による「記憶に残る形」の創出</div>
+    </div>
+    <div class="insight-content">
+      <p>Le Chiquitoがバイラルした理由は「可愛い」だけではない。<strong>「実用的でないほど小さい」という矛盾</strong>が視覚的なサプライズを生み、誰もが「あのバッグ、本当に使えるの？」と話題にした。意図的なプロポーションの破壊が、最強の差別化要素になった。</p>
+      <p>CDとしてのヒント：ロゴ・パッケージ・ビジュアルの比率を決める際に<strong>「あえて期待値を外すプロポーションはどれか」</strong>を一度試してみる。「美しいバランス」の隣に「意図的な違和感」を置いたとき、どちらが記憶に残るかを比べる習慣を持つ。</p>
+      <p class="learn">→ 意図的な歪みが「語れるデザイン」を生む</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <div class="phase-badge">INSIGHT 04</div>
+      <div class="insight-title">感情（ノスタルジア・喜び・光）をビジュアル言語に変換する</div>
+    </div>
+    <div class="insight-content">
+      <p>JacquemusのキャンペーンやSNS投稿を見ると、感情の説明文が一切ない。<strong>光の角度・素材の透け感・人物の表情・場所の開放感</strong>——これらが組み合わさって「あの幸せな夏の記憶」を呼び起こす。感情は言葉にしない方が強い場合がある。</p>
+      <p>CDとしてのヒント：ブランドの「感情軸」を言語化した後、<strong>それを言葉なしで伝えるビジュアルはどれか</strong>を問う。感情を言語化するプロセスと、その言語化を捨てて映像・写真・色だけで表現するプロセスの両方を持つ。</p>
+      <p class="learn">→ 感情の言語化は手段。最終出力は感情の直接体験</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <div class="phase-badge">BONUS</div>
+      <div class="insight-title">ファウンダーの「傷」がブランドの強度を生む</div>
+    </div>
+    <div class="insight-content">
+      <p>Simonのブランド創設動機は母の死。この<strong>個人的な喪失体験</strong>がブランド全体に独特の感傷と温かみを与えている。Jacquemusのコレクションがどこか「懐かしく、切なく、同時に明るい」のは、この原点から来ている。</p>
+      <p>CDとしてのヒント：クライアントブランドのブリーフで「なぜこのブランドを作ったか」を掘り下げる際、<strong>傷・喪失・怒り・後悔</strong>といったネガティブな感情にも踏み込む勇気を持つ。そこにブランドの本当の強度が眠っていることが多い。</p>
+      <p class="learn">→ 美しいブランドは必ず「痛み」を変換している</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <h3>参考情報・出典</h3>
+  <ul class="ref-list">
+    <li><a href="https://www.jacquemus.com" target="_blank">jacquemus.com — 公式サイト</a></li>
+    <li><a href="https://www.vogue.com/fashion-shows/designer/jacquemus" target="_blank">Vogue — Jacquemus コレクションアーカイブ</a></li>
+    <li><a href="https://www.businessoffashion.com/profile/jacquemus/" target="_blank">Business of Fashion — Jacquemus プロフィール</a></li>
+    <li><a href="https://www.nytimes.com/topic/company/jacquemus" target="_blank">The New York Times — Jacquemus 関連記事</a></li>
+    <li><a href="https://www.instagram.com/jacquemus" target="_blank">@jacquemus — 公式Instagram</a></li>
+    <li><a href="https://www.instagram.com/simonporte_jacquemus" target="_blank">@simonporte_jacquemus — Simon個人Instagram</a></li>
+  </ul>
+  <div class="footer-meta">
+    <p>作成日：2026-05-10 ／ 用途：CD研究・ブランドリファレンス ／ 担当：CORIN (CEO)</p>
+    <p style="margin-top: 8px; color: var(--text-dim); font-size: 11px;">※ 価格帯は公開情報をもとにした推定値。為替・シーズン・エディションにより変動します。</p>
+  </div>
+</footer>
+
+<script>
+  // ─── Revenue Pie Chart ───
+  const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+  new Chart(revenueCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['バッグ（アイコン）', 'アパレル', 'シューズ', 'アクセサリー・帽子', 'コラボ・限定版'],
+      datasets: [{
+        data: [55, 25, 10, 6, 4],
+        backgroundColor: ['#c85a3a', '#e07050', '#d4a090', '#e8c8c0', '#f0ddd8'],
+        borderColor: '#faf8f3',
+        borderWidth: 3,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: '#5a5752',
+            font: { family: 'Inter', size: 13 },
+            padding: 16
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.raw}%`
+          }
+        },
+        datalabels: {
+          color: '#faf8f3',
+          font: { weight: '700', size: 13, family: 'Inter' },
+          formatter: (value) => value >= 8 ? `${value}%` : ''
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+
+  // ─── Positioning Scatter Chart ───
+  const posCtx = document.getElementById('positioningChart').getContext('2d');
+  const brands = [
+    { label: 'Jacquemus', x: 80, y: 40, color: '#c85a3a' },
+    { label: 'Loewe', x: 65, y: 70, color: '#1a5a7a' },
+    { label: 'Bottega Veneta', x: 30, y: 75, color: '#1a5a7a' },
+    { label: 'Hermès', x: 15, y: 95, color: '#8a5a10' },
+    { label: 'A.P.C.', x: 55, y: 18, color: '#8a5a10' },
+    { label: 'Ganni', x: 70, y: 12, color: '#5a8a6a' },
+    { label: 'Chanel', x: 25, y: 90, color: '#8a5a10' },
+    { label: 'Isabel Marant', x: 72, y: 30, color: '#9a9790' },
+  ];
+  new Chart(posCtx, {
+    type: 'scatter',
+    data: {
+      datasets: brands.map(b => ({
+        label: b.label,
+        data: [{ x: b.x, y: b.y }],
+        backgroundColor: b.color + 'cc',
+        borderColor: b.color,
+        borderWidth: 2,
+        pointRadius: b.label === 'Jacquemus' ? 14 : 10,
+        pointHoverRadius: b.label === 'Jacquemus' ? 17 : 13,
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          min: 0, max: 100,
+          title: { display: false },
+          ticks: { display: false },
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          border: { color: 'rgba(0,0,0,0.15)' }
+        },
+        y: {
+          min: 0, max: 100,
+          title: { display: false },
+          ticks: { display: false },
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          border: { color: 'rgba(0,0,0,0.15)' }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.dataset.label
+          }
+        },
+        datalabels: {
+          align: 'top',
+          offset: 6,
+          color: ctx => brands[ctx.datasetIndex].color,
+          font: {
+            family: 'Inter',
+            size: ctx => ctx.dataset.label === 'Jacquemus' ? 13 : 11,
+            weight: ctx => ctx.dataset.label === 'Jacquemus' ? '700' : '500'
+          },
+          formatter: (val, ctx) => ctx.dataset.label
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+</script>
+</body>
+</html>

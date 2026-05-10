@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ブランド分析 — Brand Research Library</title>
+<style>
+:root {
+  --bg: #faf8f3;
+  --bg2: #f2efe8;
+  --bg3: #e8e5dc;
+  --border: #d8d4c8;
+  --text: #1a1a18;
+  --text-muted: #5a5752;
+  --text-dim: #9a9790;
+  --accent: #2d6a2d;
+  --tag-bg: #e8f0e8;
+  --tag-text: #2d6a2d;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(250,248,243,0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 48px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-brand {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.nav-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 140px 64px 80px;
+  background: radial-gradient(ellipse at 70% 30%, #d8ead8 0%, var(--bg) 55%);
+  border-bottom: 1px solid var(--border);
+}
+.hero-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: clamp(40px, 7vw, 80px);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
+}
+.hero h1 span { color: var(--accent); }
+.hero-sub {
+  font-size: 16px;
+  color: var(--text-muted);
+  max-width: 560px;
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+.hero-stats {
+  display: flex;
+  gap: 48px;
+}
+.hero-stat-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+}
+.hero-stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+/* ── MAIN ── */
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 48px 120px;
+}
+
+.section-label {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+}
+
+/* ── GRID ── */
+.brand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 24px;
+  margin-bottom: 80px;
+}
+
+/* ── BRAND CARD ── */
+.brand-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+.brand-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.08);
+  border-color: #c0bab0;
+}
+
+.card-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg3);
+}
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.4s ease;
+}
+.brand-card:hover .card-thumb img {
+  transform: scale(1.04);
+}
+.card-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.18) 100%);
+}
+.card-year-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(250,248,243,0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.05em;
+}
+
+.card-body {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.card-brand-name {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.card-tagline {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.card-tag {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  font-weight: 500;
+}
+.card-tag.yellow { background: #f5f0d0; color: #7a6800; }
+.card-tag.orange { background: #f5e8d0; color: #7a4800; }
+.card-tag.blue   { background: #d8e8f5; color: #1a4a7a; }
+.card-tag.pink   { background: #f5d8e8; color: #7a1a4a; }
+
+.card-footer {
+  border-top: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-cta {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.card-arrow {
+  font-size: 16px;
+  color: var(--text-dim);
+  transition: transform 0.2s ease;
+}
+.brand-card:hover .card-arrow { transform: translateX(4px); }
+
+/* ── COMING SOON CARD ── */
+.brand-card.coming-soon {
+  opacity: 0.55;
+  cursor: default;
+  pointer-events: none;
+}
+.card-thumb.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-thumb-icon {
+  font-size: 48px;
+  opacity: 0.3;
+}
+.card-soon-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* ── AXIS LEGEND ── */
+.axis-legend {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 64px;
+}
+.axis-legend h3 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.axis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.axis-item { display: flex; flex-direction: column; gap: 6px; }
+.axis-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.axis-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--bg3), var(--accent));
+}
+.axis-ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── PHASE MAP ── */
+.phase-map {
+  margin-bottom: 64px;
+}
+.phase-map h3 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.phase-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.phase-chip {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.phase-chip strong { color: var(--text); font-size: 13px; display: block; margin-bottom: 2px; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.footer-brand { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); }
+.footer-meta { font-size: 11px; color: var(--text-dim); }
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .hero { padding: 100px 24px 60px; }
+  main { padding: 48px 24px 80px; }
+  .brand-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 24px; }
+  footer { flex-direction: column; gap: 12px; padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">Brand Research Library</span>
+  <span class="nav-meta">Phase 0 — 競合リサーチ</span>
+</nav>
+
+<div class="hero">
+  <p class="hero-eyebrow">KONNEKT INTERNATIONAL — CD Research</p>
+  <h1>Brand<br><span>Analysis</span></h1>
+  <p class="hero-sub">新ブランド立ち上げAIワークフローのPhase 0 競合リサーチ。各ブランドのポジショニング・販売戦略・デザイン哲学を分析し、CDとして活かせるポイントを抽出する。</p>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-num">11</div>
+      <div class="hero-stat-label">分析済みブランド</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">10</div>
+      <div class="hero-stat-label">分析候補ブランド</div>
+    </div>
+    <div>
+      <div class="hero-stat-num">7</div>
+      <div class="hero-stat-label">ワークフロー Phase</div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── ALL BRANDS ── -->
+  <p class="section-label">分析完了 — All Brands</p>
+  <div class="brand-grid">
+
+    <!-- Humanrace -->
+    <a class="brand-card" href="humanrace-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/hr-skincare-kit.png" alt="Humanrace">
+        <div class="card-thumb-overlay"></div>
+        <span class="card-year-badge">Est. 2020</span>
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">Humanrace</div>
+        <div class="card-tagline">「日常をリチュアルに変える」ウェルネス×ストリートの交点。ファレル・ウィリアムス創設。</div>
+        <div class="card-tags">
+          <span class="card-tag">Wellness</span>
+          <span class="card-tag">Genderless</span>
+          <span class="card-tag orange">adidas collab</span>
+          <span class="card-tag blue">Louis Vuitton</span>
+          <span class="card-tag">DTC Drop</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="card-cta">レポートを読む</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <!-- CPFM -->
+    <a class="brand-card" href="cpfm-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/cpfm-cardigan.jpg" alt="CPFM">
+        <div class="card-thumb-overlay"></div>
+        <span class="card-year-badge">Est. 2015</span>
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">Cactus Plant<br>Flea Market</div>
+        <div class="card-tagline">「洗練を拒否すること」がステートメント。匿名戦略×サプライズドロップで神秘性を最大化。</div>
+        <div class="card-tags">
+          <span class="card-tag yellow">Drop Culture</span>
+          <span class="card-tag">Nike collab</span>
+          <span class="card-tag orange">McDonald's</span>
+          <span class="card-tag">匿名戦略</span>
+          <span class="card-tag">DIY Rebellion</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="card-cta">レポートを読む</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+
+    <a class="brand-card" href="ald-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/ald-06.jpg" alt="Aimé Leon Dore"
+             onerror="this.parentElement.innerHTML='<span style=font-size:48px;display:flex;align-items:center;justify-content:center;height:100%>🧘</span>'">
+        <div class="card-thumb-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">Aimé Leon Dore</div>
+        <div class="card-tagline">NYのライフスタイル×ノスタルジア。Teddy Santisのストーリーテリングで急成長。</div>
+        <div class="card-tags">
+          <span class="card-tag">Lifestyle</span>
+          <span class="card-tag blue">New Balance</span>
+          <span class="card-tag">Storytelling</span>
+        </div>
+      </div>
+      <div class="card-footer"><span class="card-cta">詳細を見る</span><span class="card-arrow">→</span></div>
+    </a>
+
+    <a class="brand-card" href="fog-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/fog-hoodie.jpg" alt="Fear of God"
+             onerror="this.parentElement.innerHTML='<span style=font-size:48px;display:flex;align-items:center;justify-content:center;height:100%>🌊</span>'">
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">Fear of God</div>
+        <div class="card-tagline">Jerry Lorenzoのラグジュアリー×スピリチュアル。ファッションと信仰の交差点。</div>
+        <div class="card-tags">
+          <span class="card-tag">Luxury Streetwear</span>
+          <span class="card-tag orange">Essentials</span>
+          <span class="card-tag blue">adidas</span>
+        </div>
+      </div>
+      <div class="card-footer"><span class="card-cta">詳細を見る</span><span class="card-arrow">→</span></div>
+    </a>
+
+    <a class="brand-card" href="aesop-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/aesop-15.jpg" alt="Aesop"
+             onerror="this.parentElement.innerHTML='<span style=font-size:48px;display:flex;align-items:center;justify-content:center;height:100%>🌿</span>'">
+        <div class="card-thumb-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">Aesop</div>
+        <div class="card-tagline">哲学・文学を起点にしたスキンケア。「製品より世界観」設計の教科書的事例。</div>
+        <div class="card-tags">
+          <span class="card-tag">Skincare</span>
+          <span class="card-tag">Philosophy</span>
+          <span class="card-tag">Minimal</span>
+        </div>
+      </div>
+      <div class="card-footer"><span class="card-cta">詳細を見る</span><span class="card-arrow">→</span></div>
+    </a>
+
+    <a class="brand-card" href="stoneisland-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/stoneisland-05.jpg" alt="Stone Island"
+             onerror="this.parentElement.innerHTML='<span style=font-size:48px;display:flex;align-items:center;justify-content:center;height:100%>🏔️</span>'">
+        <div class="card-thumb-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">Stone Island</div>
+        <div class="card-tagline">素材実験×機能美。コンパス型ロゴとバッジ文化で熱狂的ファンベースを形成。</div>
+        <div class="card-tags">
+          <span class="card-tag">Material Research</span>
+          <span class="card-tag">Badge Culture</span>
+          <span class="card-tag blue">Moncler傘下</span>
+        </div>
+      </div>
+      <div class="card-footer"><span class="card-cta">詳細を見る</span><span class="card-arrow">→</span></div>
+    </a>
+
+    <a class="brand-card" href="jacquemus-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/jacquemus-06.jpg" alt="Jacquemus"
+             onerror="this.parentElement.innerHTML='<span style=font-size:48px;display:flex;align-items:center;justify-content:center;height:100%>🎨</span>'">
+        <div class="card-thumb-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">Jacquemus</div>
+        <div class="card-tagline">南仏の詩的ミニマリズム。SNS×ポップアップで独自のブランドストーリーを構築。</div>
+        <div class="card-tags">
+          <span class="card-tag pink">French Luxury</span>
+          <span class="card-tag">Viral Pop-up</span>
+          <span class="card-tag">Storytelling</span>
+        </div>
+      </div>
+      <div class="card-footer"><span class="card-cta">詳細を見る</span><span class="card-arrow">→</span></div>
+    </a>
+
+    <a class="brand-card" href="loewe-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/loewe-09.jpg" alt="Loewe"
+             onerror="this.parentElement.innerHTML='<span style=font-size:48px;display:flex;align-items:center;justify-content:center;height:100%>🦋</span>'">
+        <div class="card-thumb-overlay"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">Loewe</div>
+        <div class="card-tagline">Jonathan Andersonによるクラフト×コンテンポラリーの再定義。アート×ファッションの融合。</div>
+        <div class="card-tags">
+          <span class="card-tag">Craft Luxury</span>
+          <span class="card-tag blue">LVMH</span>
+          <span class="card-tag">Art Collab</span>
+        </div>
+      </div>
+      <div class="card-footer"><span class="card-cta">詳細を見る</span><span class="card-arrow">→</span></div>
+    </a>
+
+    <a class="brand-card" href="madhappy-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/mh-cardigan.jpg" alt="Madhappy"
+             onerror="this.parentElement.innerHTML='<span style=font-size:48px;display:flex;align-items:center;justify-content:center;height:100%>⚡</span>'">
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">Madhappy</div>
+        <div class="card-tagline">メンタルヘルス×ストリートウェア。Z世代の感情を可視化するブランド設計。</div>
+        <div class="card-tags">
+          <span class="card-tag">Mental Health</span>
+          <span class="card-tag yellow">Community</span>
+          <span class="card-tag orange">Columbia Collab</span>
+        </div>
+      </div>
+      <div class="card-footer"><span class="card-cta">詳細を見る</span><span class="card-arrow">→</span></div>
+    </a>
+
+    <a class="brand-card" href="sportyrich-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/sr-trackjacket.jpg" alt="Sporty &amp; Rich"
+             onerror="this.parentElement.innerHTML='<span style=font-size:48px;display:flex;align-items:center;justify-content:center;height:100%>🪴</span>'">
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">Sporty &amp; Rich</div>
+        <div class="card-tagline">Emily Oberg主宰。健康・自己管理・ウェルネスをユーモラスに打ち出すライフスタイルブランド。</div>
+        <div class="card-tags">
+          <span class="card-tag">Wellness</span>
+          <span class="card-tag">Retro Aesthetic</span>
+          <span class="card-tag pink">Founder-led</span>
+        </div>
+      </div>
+      <div class="card-footer"><span class="card-cta">詳細を見る</span><span class="card-arrow">→</span></div>
+    </a>
+
+    <!-- ADER ERROR -->
+    <a class="brand-card" href="ader-error-brand-analysis.html">
+      <div class="card-thumb">
+        <img src="brand-images/ader-error-01.jpg"
+             alt="ADER ERROR"
+             style="width:100%;height:100%;object-fit:cover;"
+             onerror="this.parentElement.innerHTML='<span style=font-size:48px;line-height:200px;display:block;text-align:center>🎭</span>'">
+        <div class="card-thumb-overlay"></div>
+        <span class="card-year-badge">Est. 2014</span>
+      </div>
+      <div class="card-body">
+        <div class="card-brand-name">ADER ERROR</div>
+        <div class="card-tagline">「エラー」を美学に変えるソウル発の匿名コレクティブ。Editismという独自哲学で世界を席巻。</div>
+        <div class="card-tags">
+          <span class="card-tag blue">Korean Collective</span>
+          <span class="card-tag">Concept Fashion</span>
+          <span class="card-tag">Z-Blue</span>
+        </div>
+      </div>
+      <div class="card-footer"><span class="card-cta">詳細を見る</span><span class="card-arrow">→</span></div>
+    </a>
+
+  </div>
+
+  <!-- ── PHASE MAP ── -->
+  <div class="phase-map">
+    <h3>ワークフロー接続マップ</h3>
+    <div class="phase-chips">
+      <div class="phase-chip"><strong>Phase 0</strong>競合リサーチ（このライブラリ）</div>
+      <div class="phase-chip"><strong>Phase 1</strong>スケッチ → フラット化</div>
+      <div class="phase-chip"><strong>Phase 2</strong>デジタル化 → プロト</div>
+      <div class="phase-chip"><strong>Phase 3</strong>素材・テキスタイル選定</div>
+      <div class="phase-chip"><strong>Phase 4</strong>サンプル → 評価</div>
+      <div class="phase-chip"><strong>Phase 5</strong>コンテンツ制作</div>
+      <div class="phase-chip"><strong>Phase 6</strong>EC・販売設計</div>
+      <div class="phase-chip"><strong>Phase 7</strong>ナレッジ蓄積</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span class="footer-brand">KONNEKT INTERNATIONAL — Brand Research</span>
+  <span class="footer-meta">Phase 0 競合リサーチライブラリ — 2026.05.09</span>
+</footer>
+
+</body>
+</html>

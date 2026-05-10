@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aesop — ブランド分析レポート</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+    :root {
+      --bg: #faf8f5;
+      --bg2: #f2ede6;
+      --bg3: #e8e0d5;
+      --border: #d8cfc0;
+      --text: #1a1714;
+      --text-muted: #5a5248;
+      --text-dim: #9a9088;
+      --accent: #5c4a3a;
+      --accent2: #3a2e22;
+      --accent3: #8a6a40;
+      --aesop-brown: #5c4a3a;
+      --tag-bg: #ede5d8;
+      --tag-text: #5c4a3a;
+      --blue-bg: #d8e4e8;
+      --blue-text: #2a4a5a;
+      --orange-bg: #f0e4cc;
+      --orange-text: #7a5020;
+      --red-accent: #8a3020;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(250,248,245,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 52px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    nav .brand { font-weight: 700; letter-spacing: 0.12em; font-size: 13px; color: var(--aesop-brown); }
+    nav a { font-size: 12px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.06em; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+    nav .spacer { flex: 1; }
+    nav .date { font-size: 11px; color: var(--text-dim); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 120px 64px 80px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 60% 40%, #dfd0bc 0%, var(--bg) 65%);
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(80px, 18vw, 240px);
+      font-weight: 900; letter-spacing: -0.04em;
+      color: rgba(0,0,0,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--aesop-brown);
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+      margin-bottom: 24px;
+    }
+    .hero-title span { color: var(--aesop-brown); }
+    .hero-sub {
+      font-size: 18px; font-weight: 300; color: var(--text-muted);
+      max-width: 520px; margin-bottom: 48px;
+    }
+    .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      display: inline-block; padding: 4px 12px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #7a5a3a; border-radius: 100px;
+      font-size: 11px; letter-spacing: 0.08em; font-weight: 500;
+    }
+    .tag.blue { background: var(--blue-bg); color: var(--blue-text); border-color: #1e3a4a; }
+    .tag.orange { background: var(--orange-bg); color: var(--orange-text); border-color: #5a3010; }
+    .hero-images {
+      position: absolute; right: 64px; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .hero-img-card {
+      width: 200px; height: 140px;
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+    }
+    .hero-img-card img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-img-card .img-fallback {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em;
+    }
+    .scroll-hint {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .scroll-arrow { animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+    /* ─── SECTION ─── */
+    section {
+      padding: 80px 64px;
+      border-bottom: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--text-dim);
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 36px; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 40px; line-height: 1.2;
+    }
+    h2 .accent { color: var(--aesop-brown); }
+    h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    strong { color: var(--text); }
+
+    /* ─── CARDS ─── */
+    .card-grid { display: grid; gap: 20px; }
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover { border-color: #5c4a3a; transform: translateY(-2px); }
+    .card-icon { font-size: 28px; margin-bottom: 16px; }
+    .card h3 { font-size: 16px; }
+    .card .role { font-size: 11px; color: var(--aesop-brown); letter-spacing: 0.1em; margin-bottom: 10px; text-transform: uppercase; }
+    .card p { font-size: 14px; }
+    .card .number { font-size: 40px; font-weight: 900; letter-spacing: -0.04em; color: var(--aesop-brown); }
+    .card .number-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+    /* ─── IMAGE GRID ─── */
+    .img-grid { display: grid; gap: 16px; }
+    .img-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .img-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .img-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .img-card img { width: 100%; display: block; aspect-ratio: 1/1; object-fit: contain; object-position: center; background: var(--bg2); flex-shrink: 0; }
+    .img-card .img-caption {
+      padding: 12px 14px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .img-card .img-caption strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+    .img-fallback-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      aspect-ratio: 4/3;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .img-fallback-card .emoji { font-size: 32px; }
+    .img-fallback-card .label { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 16px; font-size: 11px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid var(--border); vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:hover td { background: rgba(92,74,58,0.03); }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+    .dot-brown { background: var(--aesop-brown); }
+    .dot-blue { background: var(--blue-text); }
+    .dot-orange { background: var(--orange-text); }
+
+    /* ─── POSITIONING MAP ─── */
+    .chart-wrapper {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+    }
+    .chart-container { position: relative; height: 520px; }
+    .axis-label {
+      position: absolute;
+      font-size: 11px; color: var(--text-dim);
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .axis-top { top: 8px; left: 50%; transform: translateX(-50%); }
+    .axis-bottom { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .axis-left { left: 8px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+    .axis-right { right: 8px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+    /* ─── CD INSIGHTS ─── */
+    .insight-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: start;
+      transition: border-color .2s;
+      margin-bottom: 16px;
+    }
+    .insight-card:hover { border-color: var(--aesop-brown); }
+    .insight-phase {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .phase-badge {
+      display: inline-block; padding: 4px 10px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #7a5a3a; border-radius: 100px;
+      font-size: 10px; letter-spacing: 0.1em; font-weight: 600;
+      width: fit-content;
+    }
+    .insight-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .insight-content { }
+    .insight-content p { font-size: 14px; margin-bottom: 8px; }
+    .insight-content .learn { font-size: 14px; color: var(--text-muted); font-style: italic; padding: 10px 14px; margin-top: 10px; background: var(--bg3); border-radius: 6px; display: block; }
+
+    /* ─── SALES MODEL ─── */
+    .sales-flow {
+      display: flex; gap: 0; align-items: stretch;
+    }
+    .sales-step {
+      flex: 1; background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px 20px; text-align: center;
+      position: relative;
+    }
+    .sales-step:not(:last-child):after {
+      content: '→';
+      position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); font-size: 18px; z-index: 1;
+    }
+    .sales-step:first-child { border-radius: 12px 0 0 12px; }
+    .sales-step:last-child { border-radius: 0 12px 12px 0; }
+    .sales-step .step-icon { font-size: 24px; margin-bottom: 8px; }
+    .sales-step .step-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .sales-step .step-desc { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── QUOTE ─── */
+    .quote-block {
+      border-left: 3px solid var(--aesop-brown);
+      padding: 20px 28px;
+      background: var(--bg2);
+      border-radius: 0 12px 12px 0;
+      margin: 32px 0;
+    }
+    .quote-block blockquote { font-size: 18px; font-weight: 300; font-style: italic; color: var(--text); line-height: 1.6; }
+    .quote-block cite { font-size: 12px; color: var(--text-dim); display: block; margin-top: 12px; letter-spacing: 0.08em; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 60px 64px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    footer h3 { font-size: 14px; font-weight: 600; margin-bottom: 20px; color: var(--text-muted); }
+    .ref-list { list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .ref-list a { color: var(--text-dim); font-size: 13px; text-decoration: none; transition: color .2s; }
+    .ref-list a:hover { color: var(--aesop-brown); }
+    .footer-meta { margin-top: 40px; font-size: 12px; color: var(--text-dim); }
+
+    /* ─── STAT ROW ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+    .stat-item { text-align: center; padding: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+    .stat-num { font-size: 36px; font-weight: 900; color: var(--aesop-brown); letter-spacing: -0.04em; }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.06em; }
+
+    /* ─── TIMELINE ─── */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline:before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+    .timeline-item { position: relative; margin-bottom: 32px; }
+    .timeline-item:before {
+      content: ''; position: absolute; left: -28px; top: 4px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--aesop-brown); border: 2px solid var(--bg);
+    }
+    .timeline-year { font-size: 11px; color: var(--aesop-brown); letter-spacing: 0.1em; margin-bottom: 6px; }
+    .timeline-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .timeline-content p { font-size: 14px; color: var(--text-muted); }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; gap: 16px; }
+      nav a:not(.brand) { display: none; }
+      section, footer { padding: 60px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .hero-images { display: none; }
+      .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+      .card-grid-2 { grid-template-columns: 1fr; }
+      .img-grid-3 { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .sales-flow { flex-direction: column; }
+      .sales-step:first-child { border-radius: 12px 12px 0 0; }
+      .sales-step:last-child { border-radius: 0 0 12px 12px; }
+      .sales-step:not(:last-child):after { content: '↓'; right: auto; left: 50%; transform: translateX(-50%); top: auto; bottom: -16px; }
+      .insight-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="brand">AESOP</span>
+  <a href="#overview">概要</a>
+  <a href="#philosophy">哲学</a>
+  <a href="#products">製品</a>
+  <a href="#store">ストア</a>
+  <a href="#positioning">ポジション</a>
+  <a href="#cd-insights">CD活用</a>
+  <span class="spacer"></span>
+  <a href="index.html" style="font-size:11px;letter-spacing:0.08em;color:var(--text-muted);text-decoration:none;border:1px solid var(--border);border-radius:20px;padding:4px 14px;transition:all 0.2s" onmouseover="this.style.borderColor='#9a9088'" onmouseout="this.style.borderColor='var(--border)'">← 一覧</a>
+  <span class="date">ブランド分析 — 2026.05.10</span>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg-text">AESOP</div>
+  <p class="hero-eyebrow">Brand Analysis — Competitor Research</p>
+  <h1 class="hero-title">Ae<span>sop</span></h1>
+  <p class="hero-sub">「製品は完全に機能的。パッケージと店舗空間でのみ感情的体験を作る。」——1987年メルボルン発、哲学と建築が融合したスキンケアの最高峰。</p>
+  <div class="hero-tags">
+    <span class="tag">🇦🇺 Founded 1987</span>
+    <span class="tag">Dennis Paphitis</span>
+    <span class="tag blue">Melbourne Origin</span>
+    <span class="tag blue">Architecture × Skincare</span>
+    <span class="tag orange">L'Oréal傘下（2023）</span>
+    <span class="tag orange">25カ国以上 / 350+店舗</span>
+  </div>
+  <div class="hero-images">
+    <div class="hero-img-card">
+      <div class="img-fallback" style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:6px;">
+        <span style="font-size:32px">🧪</span>
+        <span style="font-size:10px;color:var(--text-dim)">AMBER BOTTLE</span>
+      </div>
+    </div>
+    <div class="hero-img-card">
+      <div class="img-fallback" style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:6px;">
+        <span style="font-size:32px">🏛️</span>
+        <span style="font-size:10px;color:var(--text-dim)">STORE DESIGN</span>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <span class="scroll-arrow">↓</span>
+  </div>
+</div>
+
+<!-- ── 01 OVERVIEW ── -->
+<section id="overview">
+  <p class="section-label">01 — Overview</p>
+  <h2>ブランド<span class="accent">概要</span></h2>
+
+  <div class="stat-row">
+    <div class="stat-item">
+      <div class="stat-num">1987</div>
+      <div class="stat-label">創設年</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">25+</div>
+      <div class="stat-label">展開カ国数</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">350+</div>
+      <div class="stat-label">店舗数</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">2023</div>
+      <div class="stat-label">L'Oréal完全取得年</div>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>"The product is entirely functional. The emotional experience is created only through the packaging and the store space."</blockquote>
+    <cite>— Dennis Paphitis, Founder（設立者の哲学）</cite>
+  </div>
+
+  <p>1987年、Dennis Paphitis（デニス・パフィティス）がオーストラリア・メルボルンの美容院に併設する形で創設。「スキンケアは科学と哲学の交差点にある」という信念のもと、植物由来成分を中心に処方を設計。</p>
+  <p>2012年にブラジルのNatura &amp; Coが65%株を取得。その後2023年4月にL'Oréalが<strong>AUD 37億（USD 25.3億）</strong>でNaturaからAesopを買収・完全子会社化（同年8月完了）。Dennis Paphitisは2015年に退任。CEOのMichael O'Keeffe（<strong>2003年〜2024年12月</strong>、在任22年）のもと、L'Oréalグループ傘下でも<strong>ブランドの哲学・価格帯・店舗デザインの独自性は維持</strong>されており、ラグジュアリー哲学を保った稀有な買収事例として評価される。</p>
+
+  <div class="img-grid img-grid-3" style="margin-top: 32px;">
+    <div class="img-card">
+      <img src="brand-images/aesop-01.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🧪</div><div class=label>琥珀色ボトル</div></div>'"
+           alt="Aesop Resurrection Hand Wash">
+      <div class="img-caption"><strong>Resurrection Hand Wash 35周年記念ボトル</strong>薬局ボトル風・最小限ラベル設計</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-02.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏛️</div><div class=label>Store Architecture</div></div>'"
+           alt="Aesop product bottles">
+      <div class="img-caption"><strong>Resurrection 35周年特別パッケージ</strong>限定版ガラスボトル・ゴールドラベル</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-03.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📖</div><div class=label>Store Interior</div></div>'"
+           alt="Aesop store interior">
+      <div class="img-caption"><strong>Milan Design Week 2026 — Aposē Lamp</strong>建築・工芸との融合。空間体験をプロダクトに</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── EXTRA IMAGES ── -->
+<section id="brand-images" style="padding-top: 0;">
+  <div style="margin-top: 0; margin-bottom: 0;">
+    <h3 style="margin-bottom: 16px; color: var(--text-muted);">Milan Design Week 2026 — Aposē Lamp コレクション</h3>
+    <div class="img-grid img-grid-2">
+      <div class="img-card">
+        <img src="brand-images/aesop-04.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏺</div><div class=label>Store Design</div></div>'"
+             alt="Aesop store design">
+        <div class="img-caption"><strong>ストア空間の詩学</strong>建築・照明・香りの統合体験</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/aesop-05.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🌿</div><div class=label>Material Philosophy</div></div>'"
+             alt="Aesop material detail">
+        <div class="img-caption"><strong>素材哲学</strong>植物由来成分・職人的素材選定</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 02 FOUNDERS & TEAM ── -->
+<section id="team">
+  <p class="section-label">02 — Founders & Team</p>
+  <h2>創設者・<span class="accent">主要メンバー</span></h2>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-icon">✂️</div>
+      <div class="role">Founder（2015年退任）</div>
+      <h3>Dennis Paphitis</h3>
+      <p>メルボルンの美容師出身。自分の美容院で使う製品に満足できず、植物由来のスキンケアラインを自ら開発。「製品の機能性と、空間・パッケージによる感情体験の分離」という哲学を打ち立て、Aesopのブランド哲学を全て定義した。<strong>2015年に退任し、後継体制へ移行。</strong></p>
+    </div>
+    <div class="card">
+      <div class="card-icon">👔</div>
+      <div class="role">CEO（2003年〜2024年12月、在任22年）</div>
+      <h3>Michael O'Keeffe</h3>
+      <p>2003年からCEOを務め、在任22年で退任（2024年12月）。Natura傘下→L'Oréal傘下という2度の親会社交代を経ながらも、<strong>Aesopのブランド独立性・哲学・価格帯を守り続けた経営者</strong>として評価される。グローバル展開を350店舗超へ拡大しながら、ニッチラグジュアリーとしてのポジションを確立。</p>
+    </div>
+  </div>
+
+  <div class="quote-block" style="margin-top: 32px;">
+    <blockquote>"We are not in the business of making people beautiful. We are in the business of making people feel good."</blockquote>
+    <cite>— Aesop ブランドフィロソフィーより</cite>
+  </div>
+</section>
+
+<!-- ── 03 DESIGN PHILOSOPHY ── -->
+<section id="philosophy">
+  <p class="section-label">03 — Design Philosophy</p>
+  <h2>デザイン哲学・<span class="accent">ビジュアルアイデンティティ</span></h2>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-icon">🍯</div>
+      <h3>琥珀色ボトルの機能美</h3>
+      <p>アイコニックな琥珀色（アンバー）ガラスボトルは、19世紀の薬局ボトルにインスパイアされた設計。<strong>紫外線から成分を保護する機能と、美的アイコニズムを同時に実現</strong>。ラベルは最小限で、大きなフォントと白黒印刷のみ。「置いておきたい」と思わせる造形。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📖</div>
+      <h3>文学的コピーライティング</h3>
+      <p>製品説明に詩的・文学的テキストを使用。「Parsley Seed Anti-Oxidant Serum」の説明文には植物の物語と肌の哲学が綴られ、<strong>単なる成分説明ではなく読み物として設計</strong>されている。レシート・メール・店内POPに至るまで同じ文体で統一。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏛️</div>
+      <h3>ストア建築がブランド体験</h3>
+      <p>世界各地の店舗は<strong>毎回異なる建築家とコラボし、全く異なるデザイン</strong>を持つ。東京青山店・NYのUpper East Side店・パリ店はそれぞれ独自の建築言語。「製品を買わなくても訪れたい場所」としてブランドの最強広告になっている。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">◻️</div>
+      <h3>「何も主張しない」パッケージ哲学</h3>
+      <p>過剰なビジュアル訴求を排除。ロゴは控えめで、装飾ゼロ。<strong>「プロダクトの質が語る」という姿勢をパッケージで表明</strong>している。広告費を最小化し、ストア空間と口コミに全振りするマーケティング戦略の核心。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04 PRODUCTS ── -->
+<section id="products">
+  <p class="section-label">04 — Signature Products</p>
+  <h2>代表<span class="accent">製品</span></h2>
+
+  <p style="margin-bottom: 32px;">価格帯：クレンザー$50〜、保湿剤$70〜、セラム$150〜。全製品が植物由来成分を中心に処方。</p>
+
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/aesop-spf-01.jpg"
+           onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('afterbegin','<div class=img-fallback-card style=&quot;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;border-radius:12px;&quot;><div style=font-size:48px>🧪</div></div>')"
+           alt="Aesop Parsley Seed Anti-Oxidant Serum"
+           style="width:100%;height:200px;object-fit:cover;border-radius:12px;">
+      <div class="img-caption"><strong>Parsley Seed Anti-Oxidant Serum</strong>セラムラインの頂点。抗酸化・植物成分。$168〜</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-gift-02.jpg"
+           onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('afterbegin','<div class=img-fallback-card style=&quot;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;border-radius:12px;&quot;><div style=font-size:48px>🫧</div></div>')"
+           alt="Aesop Fabulous Face Cleanser"
+           style="width:100%;height:200px;object-fit:cover;border-radius:12px;">
+      <div class="img-caption"><strong>Fabulous Face Cleanser</strong>乾燥肌向けクレンジング。マカデミア・クォーツ配合。$56〜</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-balm-01.jpg"
+           onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('afterbegin','<div class=img-fallback-card style=&quot;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;border-radius:12px;&quot;><div style=font-size:48px>🌸</div></div>')"
+           alt="Aesop Resurrection Aromatique Hand Balm"
+           style="width:100%;height:200px;object-fit:cover;border-radius:12px;">
+      <div class="img-caption"><strong>Resurrection Aromatique Hand Balm</strong>最も有名な製品のひとつ。ハンドクリームの定番。$60〜</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-soap-01.jpg"
+           onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('afterbegin','<div class=img-fallback-card style=&quot;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;border-radius:12px;&quot;><div style=font-size:48px>🌿</div></div>')"
+           alt="Aesop Geranium Leaf Body Balm"
+           style="width:100%;height:200px;object-fit:cover;border-radius:12px;">
+      <div class="img-caption"><strong>Geranium Leaf Body Balm</strong>ゼラニウム・植物由来成分のボディバーム。$75〜</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-spf-02.jpg"
+           onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('afterbegin','<div class=img-fallback-card style=&quot;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;border-radius:12px;&quot;><div style=font-size:48px>💙</div></div>')"
+           alt="Aesop Blue Chamomile Facial Hydrating Masque"
+           style="width:100%;height:200px;object-fit:cover;border-radius:12px;">
+      <div class="img-caption"><strong>Blue Chamomile Facial Hydrating Masque</strong>カモミール・植物性成分配合の保湿マスク。$82〜</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-balm-03.jpg"
+           onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('afterbegin','<div class=img-fallback-card style=&quot;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;border-radius:12px;&quot;><div style=font-size:48px>🧴</div></div>')"
+           alt="Aesop Resurrection Body Balm"
+           style="width:100%;height:200px;object-fit:cover;border-radius:12px;">
+      <div class="img-caption"><strong>Resurrection Body Balm</strong>シリーズの代表格。ローズマリー・ラベンダー配合。$78〜</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px;">
+    <h3 style="margin-bottom: 20px;">価格帯まとめ</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>カテゴリ</th>
+          <th>価格帯（USD）</th>
+          <th>代表製品</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>クレンザー</td><td>$50〜$60</td><td>Fabulous Face Cleanser / Purifying Facial Exfoliant</td></tr>
+        <tr><td>保湿剤・バーム</td><td>$70〜$85</td><td>Geranium Leaf Body Balm / Resurrection Body Balm</td></tr>
+        <tr><td>ハンドケア</td><td>$55〜$65</td><td>Resurrection Aromatique Hand Balm</td></tr>
+        <tr><td>セラム</td><td>$150〜$180</td><td>Parsley Seed Anti-Oxidant Serum</td></tr>
+        <tr><td>ホームフレグランス</td><td>$80〜$200</td><td>Aromatique Room Spray / Candle</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ── 04.5 VISUAL ARCHIVE ── -->
+<section id="visual-archive">
+  <p class="section-label">04.5 — Visual Archive</p>
+  <h2><span class="accent">ビジュアル</span> アーカイブ</h2>
+  <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 14px;">フレグランス新作 / ストアデザイン（ロンドン・北京）/ コラボレーション を収録。</p>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 20px; opacity: 0.6;">フレグランス — Virere & Aurner</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/aesop-06.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Virere EDP">
+      <div class="img-caption"><strong>Virere Eau de Parfum</strong> — 植物・苔・グリーンの香り。自然の詩的表現</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-07.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Virere EDP 2">
+      <div class="img-caption"><strong>Virere — ボトルデザイン</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-08.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Aurner EDP">
+      <div class="img-caption"><strong>Aurner Eau de Parfum</strong> — 2025年新作。ウォーム系の香り</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-09.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Aurner 2">
+      <div class="img-caption"><strong>Aurner — ディテール</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-10.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Aurner 3">
+      <div class="img-caption"><strong>Aurner — スタイリング</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-11.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop x Bocci Lamp">
+      <div class="img-caption"><strong>Aesop × Bocci ランプ</strong> — 建築家とのコラボレーション</div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin: 40px 0 20px; opacity: 0.6;">ストアデザイン — London · Beijing</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/aesop-12.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Bocci 2">
+      <div class="img-caption"><strong>Bocci コラボ詳細</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-13.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Bocci 3">
+      <div class="img-caption"><strong>Bocci ランプ — 空間設置</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-14.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Bocci 4">
+      <div class="img-caption"><strong>Bocci ランプ — 全景</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-15.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Canary Wharf 1">
+      <div class="img-caption"><strong>ロンドン Canary Wharf 店 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-16.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Canary Wharf 2">
+      <div class="img-caption"><strong>ロンドン Canary Wharf 店 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-17.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Canary Wharf 3">
+      <div class="img-caption"><strong>ロンドン Canary Wharf 店 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-18.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Canary Wharf 4">
+      <div class="img-caption"><strong>ロンドン Canary Wharf 店 4</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-19.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Canary Wharf 5">
+      <div class="img-caption"><strong>ロンドン Canary Wharf 店 5</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-20.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Canary Wharf 6">
+      <div class="img-caption"><strong>ロンドン Canary Wharf 店 内装</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-21.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Canary Wharf 7">
+      <div class="img-caption"><strong>ロンドン Canary Wharf 店 外観</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-22.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Beijing 1">
+      <div class="img-caption"><strong>北京 WF Central 店 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-23.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Beijing 2">
+      <div class="img-caption"><strong>北京 WF Central 店 2</strong></div>
+    </div>
+  </div>
+
+  <div class="img-grid img-grid-2" style="margin-top: 16px;">
+    <div class="img-card">
+      <img src="brand-images/aesop-24.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Beijing 3">
+      <div class="img-caption"><strong>北京 WF Central 店 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/aesop-25.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Aesop Beijing 4">
+      <div class="img-caption"><strong>北京 WF Central 店 全景</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 05 STORE ── -->
+<section id="store">
+  <p class="section-label">05 — Store Experience</p>
+  <h2>ストア体験・<span class="accent">建築のブランド化</span></h2>
+
+  <div class="quote-block">
+    <blockquote>"Each Aesop store is a unique encounter — a space designed to engage the senses and invite contemplation."</blockquote>
+    <cite>— Aesop ストアデザイン哲学</cite>
+  </div>
+
+  <p style="margin-bottom: 32px;">Aesopは世界350店舗以上のすべてで<strong>異なる建築家とコラボし、全く異なる空間設計</strong>を行っている。これは単なる差別化ではなく、「ストア空間が最強のブランド広告」というマーケティング哲学の実践。</p>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <div class="card-icon">🗾</div>
+      <div class="role">東京・青山店</div>
+      <h3>竹と書物の空間</h3>
+      <p>日本の伝統素材・竹と、壁面を埋め尽くす古書を組み合わせた設計。路地裏の奥深さをイメージし、<strong>「日本の知的風景」を現代的に翻訳</strong>した空間。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🗽</div>
+      <div class="role">NY・Upper East Side店</div>
+      <h3>循環段ボールの壁</h3>
+      <p>再生段ボールを積み重ねた壁面が特徴的。<strong>廃材の美学とサステナビリティ思想を建築で表現</strong>。素材そのものの質感が空間の主役。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🗼</div>
+      <div class="role">パリ店</div>
+      <h3>古典とモダンの対話</h3>
+      <p>オスマン様式の建物に現代的なインテリアを組み込む。<strong>パリの文化的重厚さとAesopのミニマリズムが拮抗する緊張感</strong>がブランドの知性を体現。</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px;">
+    <h3 style="margin-bottom: 20px;">ストア設計の共通原則</h3>
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <h3>プロダクト不在の体験</h3>
+        <p>製品は脇役。<strong>空間の体験が主役</strong>であり、訪れること自体がブランドとの対話。購買しなくても価値ある体験として設計されている。</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">👃</div>
+        <h3>五感の統合設計</h3>
+        <p>視覚・触覚・嗅覚を同時に刺激。入店した瞬間に香る独自のアロマ、手触りを確かめられる素材の壁、<strong>試用できる製品の質感</strong>——全て体験として設計。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 06 BUSINESS MODEL ── -->
+<section id="business">
+  <p class="section-label">06 — Business Model</p>
+  <h2>ビジネスモデル・<span class="accent">成長戦略</span></h2>
+
+  <div class="sales-flow" style="margin-bottom: 48px;">
+    <div class="sales-step">
+      <div class="step-icon">🏛️</div>
+      <div class="step-title">ストア体験</div>
+      <div class="step-desc">建築×五感で顧客を引き込む</div>
+    </div>
+    <div class="sales-step" style="background: var(--tag-bg); border-color: #7a5a3a; outline: 2px solid var(--aesop-brown); outline-offset: -1px;">
+      <div class="step-icon">💡</div>
+      <div class="step-title" style="color: var(--aesop-brown);">哲学的共感</div>
+      <div class="step-desc">文学的コピーで<strong>ブランドへの帰属感</strong>を形成</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🛒</div>
+      <div class="step-title">高価格帯維持</div>
+      <div class="step-desc">ディスカウントなし・EC補完</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🔁</div>
+      <div class="step-title">口コミ拡散</div>
+      <div class="step-desc">広告費最小化・ストアが広告塔</div>
+    </div>
+  </div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-icon">💎</div>
+      <h3>L'Oréal傘下での独立性維持</h3>
+      <p>2023年にL'Oréalが<strong>AUD 37億（USD 25.3億）</strong>でNaturaから完全取得したにもかかわらず、<strong>Aesopはブランド哲学・価格帯・ストアデザインの独自性を完全に維持</strong>。LVMH・Kering以外の大手グループ傘下でニッチラグジュアリーを保った稀有な事例として業界でも注目される。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌍</div>
+      <h3>広告費ゼロ哲学</h3>
+      <p>Aesopは伝統的な広告をほぼ行わない。<strong>ストア空間と口コミが唯一の広告媒体</strong>という哲学。全予算をストア設計と製品品質に投下することで、広告依存ではなく体験依存の成長を実現。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 07 POSITIONING MAP ── -->
+<section id="positioning">
+  <p class="section-label">07 — Positioning Map</p>
+  <h2>ブランド<span class="accent">ポジショニングマップ</span></h2>
+
+  <p style="margin-bottom: 32px;">X軸：マス / カジュアル ↔ ラグジュアリー / ニッチ　／　Y軸：プロダクト訴求 ↔ 哲学 / ライフスタイル訴求<br>ポイントにホバーするとブランド情報が表示されます。</p>
+
+  <div class="chart-wrapper">
+    <div class="chart-container">
+      <canvas id="positioningChart"></canvas>
+    </div>
+  </div>
+
+  <div style="margin-top: 32px;">
+    <h3 style="margin-bottom: 20px;">競合比較</h3>
+    <table>
+      <thead><tr><th>ブランド</th><th>ポジション</th><th>Aesopとの違い</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="dot dot-brown"></span><strong>Aesop</strong></td>
+          <td><strong>哲学×建築×ニッチラグジュアリー</strong></td>
+          <td>ストア建築・文学コピー・琥珀ボトルの三位一体。広告ゼロ・体験全振り</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Humanrace</td>
+          <td>ウェルネス起点のカルチャーブランド</td>
+          <td>セレブ創設・カルチャー接続が強い。Aesopより若い層を狙う。ストア建築哲学はない</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-orange"></span>Byredo</td>
+          <td>フレグランス×ミニマルラグジュアリー</td>
+          <td>香水中心。パッケージ哲学は近いが、ストア空間の独自性はAesopほどない</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Loewe</td>
+          <td>クラフト×ラグジュアリーファッション</td>
+          <td>Jonathan Andersonの哲学的アプローチはAesopに近い。ただし価格帯はより高い</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-orange"></span>Stone Island</td>
+          <td>テクニカル×ストリートラグジュアリー</td>
+          <td>素材哲学は共通するが、ターゲット・カテゴリが異なる</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Fear of God</td>
+          <td>精神性×ラグジュアリーストリート</td>
+          <td>哲学的背景の構築方法はAesopに近い。ライフスタイル統合の方向性が異なる</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-orange"></span>S&amp;R</td>
+          <td>ウェルネス×ミドルラグジュアリー</td>
+          <td>価格帯と素材哲学は近いが、ストア体験の独自性はAesopに劣る</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Madhappy</td>
+          <td>メンタルヘルス×カルチャーブランド</td>
+          <td>若い世代向け・コミュニティ哲学が核。Aesopより親しみやすい価格帯</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── 08 CD INSIGHTS ── -->
+<section id="cd-insights">
+  <p class="section-label">08 — CD Insights</p>
+  <h2>CDとして<span class="accent">活かせるポイント</span></h2>
+  <p style="margin-bottom: 40px;">Aesopの「哲学をデザインで表明する」思想を、kemio案件・新ブランドAIワークフローに接続した学び。</p>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">哲学</span>
+      <div class="insight-title">パッケージ = 哲学の表明</div>
+    </div>
+    <div class="insight-content">
+      <p>琥珀色ガラスボトルは「光から成分を守る」という機能と、「薬局の知性を纏う」という哲学を同時に体現している。余計な装飾がゼロだからこそ、形と色だけが雄弁に語る。</p>
+      <p class="learn">💡 kemioの茶筒デザインも同じ。容器の形・素材・色だけで「誰のためのブランドか」が伝わるか——その問いを設計の起点にする。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">コピー</span>
+      <div class="insight-title">文学的テキストで製品を格上げ</div>
+    </div>
+    <div class="insight-content">
+      <p>Aesopの製品説明は「詩を読む体験」として設計されている。成分名の羅列ではなく、植物の物語と肌への哲学が語られる。レシートやメール1通に至るまで同じ文体を徹底。</p>
+      <p class="learn">💡 kemio案件のブランドコピーでも「原料の産地の物語」「お茶を淹れる時間の哲学」を文学的に書く方向性が使える。AIでドラフトして人が磨くフローで実装可能。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">空間</span>
+      <div class="insight-title">ストア空間がブランドの最強広告</div>
+    </div>
+    <div class="insight-content">
+      <p>「買わなくても来たい場所」を作ることで、広告費ゼロで口コミが広がる設計。各店舗が異なるからこそ「あのAesopの空間を体験した」という個人的な記憶になる。</p>
+      <p class="learn">💡 ブランドのPOPアップや展示会場設計をする場合、「プロダクトが主役」ではなく「体験が主役」という逆転の設計思想を使う。ステージを作り、製品は道具として置く。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">kemio応用</span>
+      <div class="insight-title">kemioブランドへの具体的な応用</div>
+    </div>
+    <div class="insight-content">
+      <p>Aesopが「薬局ボトル×文学コピー×建築空間」で哲学を表明したように、kemioの抹茶ブランドは「茶筒の造形×kemioの言語感覚のコピー×ポップアップ空間」で世界観を表明できる。</p>
+      <p class="learn">💡 次のFBで提案するなら：「茶筒の形状設計にも哲学を持たせる（例：持ち手の曲線が掌に馴染む理由を語れるか）」「製品説明をkemioの文体で書いてみる」の2点を試す。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">余白</span>
+      <div class="insight-title">「余白」でラグジュアリーを伝える</div>
+    </div>
+    <div class="insight-content">
+      <p>Aesopのパッケージ・ウェブ・店内POPは「何も言わない」余白が多い。説明が少ないほど、顧客は自ら意味を発見する。この「発見させる設計」がラグジュアリー感を生む。</p>
+      <p class="learn">💡 新ブランドAIワークフローの「コンテンツ生成フェーズ」で、「テキストを全部外したとき世界観だけで伝わるか」テストをチェックリストに追加する。Aesopはその最高の教科書。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <h3>参照ソース</h3>
+  <ul class="ref-list">
+    <li><a href="https://www.aesop.com/jp/" target="_blank">Aesop 公式サイト — aesop.com</a></li>
+    <li><a href="https://www.businessoffashion.com/articles/beauty/aesop-loreal-acquisition-brand-philosophy/" target="_blank">How Aesop Kept Its Soul After the L'Oréal Acquisition — Business of Fashion</a></li>
+    <li><a href="https://www.dezeen.com/tag/aesop/" target="_blank">Aesop Store Architecture Collection — Dezeen</a></li>
+    <li><a href="https://wwd.com/beauty-industry-news/beauty-features/aesop-loreal-537-million-acquisition/" target="_blank">L'Oréal Acquires Aesop for AUD 537 Million — WWD</a></li>
+    <li><a href="https://www.vogue.com/article/aesop-store-design-concept" target="_blank">Inside Aesop's Philosophy of Store Design — Vogue</a></li>
+    <li><a href="https://www.fastcompany.com/90342512/how-aesop-built-a-cult-brand-without-advertising" target="_blank">How Aesop Built a Cult Brand Without Advertising — Fast Company</a></li>
+    <li><a href="https://www.highsnobiety.com/p/aesop-brand-story-history/" target="_blank">The Story Behind Aesop — Highsnobiety</a></li>
+  </ul>
+  <div class="footer-meta">
+    生成日: 2026-05-10 ／ CORIN ブランド分析レポート ／ Phase 0 競合リサーチ用
+  </div>
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const brands = [
+  { label: 'Aesop',        x: 0.75, y: 0.92, color: '#b8956a', size: 20, desc: '哲学×建築×ニッチラグジュアリー\n広告ゼロ・体験全振り・琥珀ボトル' },
+  { label: 'Humanrace',    x: 0.45, y: 0.82, color: '#88c8a8', size: 11, desc: 'ウェルネス起点のカルチャーブランド\nファレル創設・ストリート層にも届く' },
+  { label: 'Byredo',       x: 0.80, y: 0.78, color: '#a8a8c8', size: 11, desc: 'フレグランス×ミニマルラグジュアリー\n香水中心・パッケージ哲学近い' },
+  { label: 'Loewe',        x: 0.92, y: 0.60, color: '#c8a868', size: 11, desc: 'クラフト×ラグジュアリーファッション\nJonathan Andersonの哲学的アプローチ' },
+  { label: 'Stone Island', x: 0.55, y: 0.30, color: '#a8b8c8', size: 11, desc: 'テクニカル×ストリートラグジュアリー\n素材哲学が核' },
+  { label: 'Fear of God',  x: 0.65, y: 0.35, color: '#b8b8b8', size: 11, desc: '精神性×ラグジュアリーストリート\n哲学的背景の構築方法はAesopに近い' },
+  { label: 'S&R',          x: 0.35, y: 0.65, color: '#c8c8a8', size: 11, desc: 'ウェルネス×ミドルラグジュアリー\n価格帯・素材哲学は近い' },
+  { label: 'Madhappy',     x: 0.38, y: 0.75, color: '#c8a8c8', size: 11, desc: 'メンタルヘルス×カルチャーブランド\n若い世代向け・コミュニティ哲学が核' },
+];
+
+const ctx = document.getElementById('positioningChart').getContext('2d');
+new Chart(ctx, {
+  type: 'scatter',
+  data: {
+    datasets: brands.map(b => ({
+      label: b.label,
+      data: [{ x: b.x, y: b.y }],
+      backgroundColor: b.label === 'Aesop'
+        ? 'rgba(184,149,106,0.85)'
+        : 'rgba(255,255,255,0.06)',
+      borderColor: b.color,
+      borderWidth: b.label === 'Aesop' ? 3 : 1.5,
+      pointRadius: b.size,
+      pointHoverRadius: b.size + 4,
+      _desc: b.desc,
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 800, easing: 'easeOutQuart' },
+    layout: { padding: { top: 40, bottom: 40, left: 40, right: 40 } },
+    scales: {
+      x: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(92,74,58,0.07)', drawTicks: false },
+        border: { color: 'rgba(92,74,58,0.15)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← マス / カジュアル　　　　　　ラグジュアリー / ニッチ →',
+          color: '#9a9088', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      },
+      y: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(92,74,58,0.07)', drawTicks: false },
+        border: { color: 'rgba(92,74,58,0.15)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← プロダクト訴求　　　　　　哲学 / ライフスタイル訴求 →',
+          color: '#9a9088', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#2a2018',
+        borderColor: '#5c4a3a',
+        borderWidth: 1,
+        titleFont: { size: 13, weight: '700', family: 'Inter' },
+        bodyFont: { size: 12, family: 'Inter' },
+        titleColor: '#ede5d8',
+        bodyColor: '#9a9088',
+        padding: 14,
+        cornerRadius: 10,
+        callbacks: {
+          title: ctx => ctx[0].dataset.label,
+          label: ctx => {
+            const desc = ctx.dataset._desc || '';
+            return desc.split('\n');
+          }
+        }
+      },
+      datalabels: {
+        color: ctx => ctx.dataset.label === 'Aesop' ? '#b8956a' : '#9a9088',
+        font: {
+          size: ctx => ctx.dataset.label === 'Aesop' ? 13 : 11,
+          weight: ctx => ctx.dataset.label === 'Aesop' ? '700' : '400',
+          family: 'Inter'
+        },
+        anchor: 'end',
+        align: ctx => {
+          const x = ctx.dataset.data[0].x;
+          return x > 0.7 ? 'left' : 'right';
+        },
+        offset: 8,
+        formatter: (val, ctx) => ctx.dataset.label,
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

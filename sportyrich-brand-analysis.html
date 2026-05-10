@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sporty &amp; Rich — ブランド分析レポート</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+    :root {
+      --bg: #faf8f3;
+      --bg2: #f2efe8;
+      --bg3: #e8e5dc;
+      --border: #d8d4c8;
+      --text: #1a1a18;
+      --text-muted: #5a5752;
+      --text-dim: #9a9790;
+      --accent: #b22222;
+      --accent2: #8a1a1a;
+      --accent3: #6a3010;
+      --sr-red: #b22222;
+      --tag-bg: #f5e0e0;
+      --tag-text: #b22222;
+      --blue-bg: #d8eaf5;
+      --blue-text: #1a5a7a;
+      --orange-bg: #f5e8d0;
+      --orange-text: #8a5a10;
+      --green-bg: #dff0df;
+      --green-text: #2d6a2d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(250,248,243,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 52px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    nav .brand { font-weight: 700; letter-spacing: 0.12em; font-size: 13px; color: var(--sr-red); }
+    nav a { font-size: 12px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.06em; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+    nav .spacer { flex: 1; }
+    nav .date { font-size: 11px; color: var(--text-dim); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 120px 64px 80px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 60% 40%, #f5e0e0 0%, var(--bg) 60%);
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(60px, 13vw, 180px);
+      font-weight: 900; letter-spacing: -0.04em;
+      color: rgba(0,0,0,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--sr-red);
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+      margin-bottom: 24px;
+    }
+    .hero-title span { color: var(--sr-red); }
+    .hero-sub {
+      font-size: 18px; font-weight: 300; color: var(--text-muted);
+      max-width: 520px; margin-bottom: 48px;
+    }
+    .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      display: inline-block; padding: 4px 12px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #7a1a1a; border-radius: 100px;
+      font-size: 11px; letter-spacing: 0.08em; font-weight: 500;
+    }
+    .tag.blue { background: var(--blue-bg); color: var(--blue-text); border-color: #1e3a4a; }
+    .tag.orange { background: var(--orange-bg); color: var(--orange-text); border-color: #4a2e1e; }
+    .tag.green { background: var(--green-bg); color: var(--green-text); border-color: #1a3a1a; }
+    .hero-images {
+      position: absolute; right: 64px; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .hero-img-card {
+      width: 200px; height: 140px;
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+    }
+    .hero-img-card img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-img-card .img-fallback {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em;
+    }
+    .scroll-hint {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .scroll-arrow { animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+    /* ─── SECTION ─── */
+    section {
+      padding: 80px 64px;
+      border-bottom: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--text-dim);
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 36px; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 40px; line-height: 1.2;
+    }
+    h2 .accent { color: var(--sr-red); }
+    h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    strong { color: var(--text); }
+
+    /* ─── CARDS ─── */
+    .card-grid { display: grid; gap: 20px; }
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover { border-color: #3a3a3a; transform: translateY(-2px); }
+    .card-icon { font-size: 28px; margin-bottom: 16px; }
+    .card h3 { font-size: 16px; }
+    .card .role { font-size: 11px; color: var(--sr-red); letter-spacing: 0.1em; margin-bottom: 10px; text-transform: uppercase; }
+    .card p { font-size: 14px; }
+    .card .number { font-size: 40px; font-weight: 900; letter-spacing: -0.04em; color: var(--sr-red); }
+    .card .number-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+    /* ─── IMAGE GRID ─── */
+    .img-grid { display: grid; gap: 16px; }
+    .img-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .img-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .img-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .img-card img { width: 100%; display: block; aspect-ratio: 1/1; object-fit: contain; object-position: center; background: var(--bg2); flex-shrink: 0; }
+    .img-card .img-caption {
+      padding: 12px 14px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .img-card .img-caption strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+    .img-fallback-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      aspect-ratio: 4/3;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .img-fallback-card .emoji { font-size: 32px; }
+    .img-fallback-card .label { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 16px; font-size: 11px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid #1a1a1a; vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+    .dot-red { background: var(--sr-red); }
+    .dot-blue { background: var(--blue-text); }
+    .dot-orange { background: var(--orange-text); }
+    .dot-green { background: var(--green-text); }
+
+    /* ─── POSITIONING MAP ─── */
+    .chart-wrapper {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+    }
+    .chart-container { position: relative; height: 520px; }
+    .axis-label {
+      position: absolute;
+      font-size: 11px; color: var(--text-dim);
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+
+    /* ─── CD INSIGHTS ─── */
+    .insight-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: start;
+      transition: border-color .2s;
+      margin-bottom: 16px;
+    }
+    .insight-card:hover { border-color: var(--sr-red); }
+    .insight-phase {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .phase-badge {
+      display: inline-block; padding: 4px 10px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #7a1a1a; border-radius: 100px;
+      font-size: 10px; letter-spacing: 0.1em; font-weight: 600;
+      width: fit-content;
+    }
+    .insight-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .insight-content { }
+    .insight-content p { font-size: 14px; margin-bottom: 8px; }
+    .insight-content .learn { font-size: 14px; color: var(--text-muted); font-style: italic; padding: 10px 14px; margin-top: 10px; background: var(--bg3); border-radius: 6px; display: block; }
+
+    /* ─── SALES MODEL ─── */
+    .sales-flow {
+      display: flex; gap: 0; align-items: stretch;
+    }
+    .sales-step {
+      flex: 1; background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px 20px; text-align: center;
+      position: relative;
+    }
+    .sales-step:not(:last-child):after {
+      content: '→';
+      position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); font-size: 18px; z-index: 1;
+    }
+    .sales-step:first-child { border-radius: 12px 0 0 12px; }
+    .sales-step:last-child { border-radius: 0 12px 12px 0; }
+    .sales-step .step-icon { font-size: 24px; margin-bottom: 8px; }
+    .sales-step .step-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .sales-step .step-desc { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── QUOTE ─── */
+    .quote-block {
+      border-left: 3px solid var(--sr-red);
+      padding: 20px 28px;
+      background: var(--bg2);
+      border-radius: 0 12px 12px 0;
+      margin: 32px 0;
+    }
+    .quote-block blockquote { font-size: 18px; font-weight: 300; font-style: italic; color: var(--text); line-height: 1.6; }
+    .quote-block cite { font-size: 12px; color: var(--text-dim); display: block; margin-top: 12px; letter-spacing: 0.08em; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 60px 64px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    footer h3 { font-size: 14px; font-weight: 600; margin-bottom: 20px; color: var(--text-muted); }
+    .ref-list { list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid #1a1a1a; }
+    .ref-list a { color: var(--text-dim); font-size: 13px; text-decoration: none; transition: color .2s; }
+    .ref-list a:hover { color: var(--sr-red); }
+    .footer-meta { margin-top: 40px; font-size: 12px; color: var(--text-dim); }
+
+    /* ─── STAT ROW ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+    .stat-item { text-align: center; padding: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+    .stat-num { font-size: 36px; font-weight: 900; color: var(--sr-red); letter-spacing: -0.04em; }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.06em; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; gap: 16px; }
+      nav a:not(.brand) { display: none; }
+      section, footer { padding: 60px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .hero-images { display: none; }
+      .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+      .card-grid-2 { grid-template-columns: 1fr; }
+      .img-grid-3 { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .sales-flow { flex-direction: column; }
+      .sales-step:first-child { border-radius: 12px 12px 0 0; }
+      .sales-step:last-child { border-radius: 0 0 12px 12px; }
+      .sales-step:not(:last-child):after { content: '↓'; right: auto; left: 50%; transform: translateX(-50%); top: auto; bottom: -16px; }
+      .insight-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="brand">SPORTY &amp; RICH</span>
+  <a href="#overview">概要</a>
+  <a href="#founder">ファウンダー</a>
+  <a href="#philosophy">哲学</a>
+  <a href="#products">製品</a>
+  <a href="#positioning">ポジション</a>
+  <a href="#cd-insights">CD活用</a>
+  <span class="spacer"></span>
+  <a href="index.html" style="font-size:11px;letter-spacing:0.08em;color:var(--text-muted);text-decoration:none;border:1px solid var(--border);border-radius:20px;padding:4px 14px;transition:all 0.2s" onmouseover="this.style.borderColor='#a0a090'" onmouseout="this.style.borderColor='var(--border)'">← 一覧</a>
+  <span class="date">ブランド分析 — 2026.05.10</span>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg-text">SPORTY&RICH</div>
+  <p class="hero-eyebrow">Brand Analysis — Competitor Research</p>
+  <h1 class="hero-title">Sporty &amp; <span>Rich</span></h1>
+  <p class="hero-sub">70年代テニスクラブのライフスタイルとヴィンテージスポーツ美学を融合させた、Emily Oberg創設のウェルネスファッションブランド。</p>
+  <div class="hero-tags">
+    <span class="tag">🇺🇸 Founded 2018</span>
+    <span class="tag">Emily Oberg</span>
+    <span class="tag blue">Vintage Sportswear</span>
+    <span class="tag blue">Wellness Lifestyle</span>
+    <span class="tag orange">Lacoste collab</span>
+    <span class="tag orange">New Balance collab</span>
+    <span class="tag green">Instagram発ブランド</span>
+  </div>
+  <div class="hero-images">
+    <div class="hero-img-card">
+      <img src="brand-images/sr-trackjacket.jpg"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           alt="Sporty & Rich Track Jacket">
+      <div class="img-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;">TRACK JACKET</div>
+    </div>
+    <div class="hero-img-card">
+      <img src="brand-images/sr-tshirt-white.jpg"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           alt="Sporty & Rich T-shirt">
+      <div class="img-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;">T-SHIRT</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 01 OVERVIEW ── -->
+<section id="overview">
+  <p class="section-label">01 — Overview</p>
+  <h2>ブランド<span class="accent">概要</span></h2>
+
+  <div class="stat-row">
+    <div class="stat-item">
+      <div class="stat-num">2018</div>
+      <div class="stat-label">創設年</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">Instagram</div>
+      <div class="stat-label">ブランド発祥プラットフォーム</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">Wellness</div>
+      <div class="stat-label">× ファッション統合</div>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>"Sporty &amp; Rich was born from a love of vintage sportswear and the health club lifestyle."</blockquote>
+    <cite>— Emily Oberg, Founder</cite>
+  </div>
+
+  <p>2019年、元Highsnobiety・元Complex職員のEmily Obergがインスタグラムから直接立ち上げたブランド。従来のファッション業界の流通ルートをバイパスし、SNSのみでブランドを構築した先駆的な事例。</p>
+  <p>コンセプトは<strong>「70年代テニスクラブのライフスタイル × ヴィンテージスポーツ × ウェルネス哲学」</strong>。派手さを排し、ヴィンテージ感のあるタイポグラフィとシンプルなグラフィックでブランドの世界観を表現する。本社はニューヨーク、後にロンドンにも拠点を持つ。</p>
+</section>
+
+<!-- ── 02 FOUNDER ── -->
+<section id="founder">
+  <p class="section-label">02 — Founder</p>
+  <h2>ファウンダー・<span class="accent">Emily Oberg</span></h2>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-icon">👩‍💼</div>
+      <div class="role">Founder / Creative Director</div>
+      <h3>Emily Oberg</h3>
+      <p>韓国系カナダ人。元Highsnobiety、元Complex職員としてメディア業界でキャリアを積んだ後、2019年にインスタグラムを通じてSporty &amp; Richを立ち上げる。</p>
+      <p>自身のパーソナルブランドとSporty &amp; Richのブランドイメージを一体化させたマーケティングが特徴。ファッション・ウェルネス・ライフスタイルを横断するコンテンツで熱狂的なファンベースを形成した。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📱</div>
+      <div class="role">Instagram-First Strategy</div>
+      <h3>SNS発ブランドの先駆者</h3>
+      <p>従来のファッションブランドが展示会・バイヤー・セレクトショップを経由してブランドを構築するのに対し、Emily ObergはInstagramのフォロワーベースから直接ブランドを立ち上げた。</p>
+      <p>ファウンダー自身がコンテンツの主役となり、<strong>ブランドのライフスタイル全体をSNSで体現する手法</strong>はその後多くのブランドが追随するモデルになった。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 03 DESIGN PHILOSOPHY ── -->
+<section id="philosophy">
+  <p class="section-label">03 — Design Philosophy</p>
+  <h2>デザイン哲学・<span class="accent">ビジュアルアイデンティティ</span></h2>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 40px;">
+    <div class="card">
+      <div class="card-icon">🎾</div>
+      <h3>70年代テニスクラブ参照</h3>
+      <p>クラシックなヘルスクラブやカントリークラブの美学を現代に再解釈。ヴィンテージスポーツウェアのディテール（クレスト・パイピング・トラックラインなど）を用いながら、<strong>現代的なシルエットと品質</strong>で仕上げる。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔤</div>
+      <h3>タイポグラフィ主役のデザイン</h3>
+      <p>グラフィックではなく<strong>テキストとロゴタイプで世界観を表現</strong>するアプローチ。ヴィンテージ感のある書体とクレスト（紋章）デザインがアイデンティティの核。派手な色使いより「品のある引き算」を優先する。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧺</div>
+      <h3>ヴィンテージウォッシュ＆アーストーン</h3>
+      <p>ナチュラル・クリーム・ネイビー・ルビーなど<strong>落ち着いたアーストーンのカラーパレット</strong>を軸にする。洗いざらしの素材感、ヴィンテージ加工を得意とし、「新品なのにヴィンテージに見える」テキスタイル表現が特徴。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌿</div>
+      <h3>ウェルネス哲学の体現</h3>
+      <p>「体を動かすこと・健康的なライフスタイル・豊かな時間の過ごし方」をブランドの根幹に据える。製品を「着るもの」としてではなく<strong>「ウェルネスな生活の道具」</strong>として定義する姿勢がSporty &amp; Richを他のストリートウェアブランドと差別化している。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04 代表製品 ── -->
+<section id="products">
+  <p class="section-label">04 — Signature Products</p>
+  <h2>代表<span class="accent">製品</span></h2>
+
+  <div class="img-grid img-grid-3" style="margin-bottom: 48px;">
+    <div class="img-card">
+      <img src="brand-images/sr-tshirt-white.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🎾</div><div class=label>H&amp;W Crest T-shirt White</div></div>'"
+           alt="H&W Crest T-shirt White">
+      <div class="img-caption"><strong>H&amp;W Crest T-shirt — White</strong>クレストロゴ × シンプルシルエット</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sr-trackjacket.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏋️</div><div class=label>Track Jacket Navy</div></div>'"
+           alt="Signature Logo Retro Track Jacket Navy">
+      <div class="img-caption"><strong>Signature Logo Retro Track Jacket — Navy</strong>シグネチャーロゴ × レトロラインディテール</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sr-trackjacket-ruby.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🎾</div><div class=label>Track Jacket Ruby</div></div>'"
+           alt="Track Jacket Ruby">
+      <div class="img-caption"><strong>Track Jacket — Ruby</strong>アーストーンカラーバリエーション（フラット）</div>
+    </div>
+  </div>
+
+  <!-- ── 05 コレクション ── -->
+  <p class="section-label" style="margin-top: 48px;">05 — Collection Items</p>
+  <h2 style="margin-top: 16px;">コレクション<span class="accent">アイテム</span></h2>
+
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/sr-baggy-jean.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏋️</div><div class=label>Baggy Jean Indigo</div></div>'"
+           alt="Baggy Jean Indigo Wash">
+      <div class="img-caption"><strong>Baggy Jean — Indigo Wash</strong>ヴィンテージウォッシュデニム × バギーシルエット</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sr-hat-model.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🎾</div><div class=label>NY Crest Hat Navy</div></div>'"
+           alt="NY Crest Hat Navy">
+      <div class="img-caption"><strong>NY Crest Hat — Navy</strong>クレストエンブロイダリー × クラシックキャップ</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sr-tote.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏋️</div><div class=label>Signature Tote Natural</div></div>'"
+           alt="Signature Logo Large Tote Natural">
+      <div class="img-caption"><strong>Signature Logo Large Tote — Natural</strong>シグネチャーロゴ × ナチュラルキャンバス</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── 05.5 VISUAL ARCHIVE ── -->
+<section id="visual-archive">
+  <p class="section-label">05.5 — Visual Archive</p>
+  <h2><span class="accent">ビジュアル</span> アーカイブ</h2>
+  <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 14px;">adidas SL72 コラボ / LA28 オリンピック / Sweden Pack の3シリーズを収録。</p>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 20px; opacity: 0.6;">Sporty & Rich × adidas SL72</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/sportyrich-01.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich SL72 Campaign">
+      <div class="img-caption"><strong>SL72 Campaign</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-02.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich SL72 Lookbook">
+      <div class="img-caption"><strong>SL72 Lookbook</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-03.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich SL72 Editorial Detail">
+      <div class="img-caption"><strong>SL72 Editorial Detail</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-04.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich SL72 Model Shot">
+      <div class="img-caption"><strong>SL72 Model Shot</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-05.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich SL72 Campaign Hero">
+      <div class="img-caption"><strong>SL72 Campaign Hero</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-06.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich SL72 Color Pack">
+      <div class="img-caption"><strong>SL72 Color Pack</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-07.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich SL72 Lifestyle">
+      <div class="img-caption"><strong>SL72 Lifestyle</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-08.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich SL72 Court Look">
+      <div class="img-caption"><strong>SL72 Court Look</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-09.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich SL72 Full Outfit">
+      <div class="img-caption"><strong>SL72 Full Outfit</strong></div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin: 40px 0 20px; opacity: 0.6;">LA28 オリンピック コレクション</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/sportyrich-10.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich LA28 Olympics Campaign">
+      <div class="img-caption"><strong>LA28 Olympics Campaign</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-11.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Olympics Editorial">
+      <div class="img-caption"><strong>Olympics Editorial</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-12.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Olympics Lookbook">
+      <div class="img-caption"><strong>Olympics Lookbook</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-13.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Olympics Hero Shot">
+      <div class="img-caption"><strong>Olympics Hero Shot</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-14.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Olympics Team Look">
+      <div class="img-caption"><strong>Olympics Team Look</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-15.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Olympics Capsule">
+      <div class="img-caption"><strong>Olympics Capsule</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-16.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Olympics Campaign Detail">
+      <div class="img-caption"><strong>Olympics Campaign Detail</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-17.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Olympics Color Story">
+      <div class="img-caption"><strong>Olympics Color Story</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-18.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Olympics Final Look">
+      <div class="img-caption"><strong>Olympics Final Look</strong></div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin: 40px 0 20px; opacity: 0.6;">Sweden Pack キャンペーン</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/sportyrich-19.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Sweden Pack Campaign">
+      <div class="img-caption"><strong>Sweden Pack Campaign</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-20.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Sweden Pack Editorial">
+      <div class="img-caption"><strong>Sweden Pack Editorial</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-21.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Sweden Pack Hero">
+      <div class="img-caption"><strong>Sweden Pack Hero</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-22.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Sweden Pack Model">
+      <div class="img-caption"><strong>Sweden Pack Model</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-23.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Sweden Pack Detail">
+      <div class="img-caption"><strong>Sweden Pack Detail</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-24.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Sweden Lookbook">
+      <div class="img-caption"><strong>Sweden Lookbook</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-25.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Sweden Campaign Outdoor">
+      <div class="img-caption"><strong>Sweden Campaign Outdoor</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-26.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Sweden Full Look">
+      <div class="img-caption"><strong>Sweden Full Look</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/sportyrich-27.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Sporty & Rich Sweden Pack Color Story">
+      <div class="img-caption"><strong>Sweden Pack Color Story</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 06 BUSINESS MODEL ── -->
+<section id="business">
+  <p class="section-label">06 — Business Model</p>
+  <h2>販売方法・<span class="accent">ビジネスモデル</span></h2>
+
+  <p style="margin-bottom: 24px;">Sporty &amp; Richは公式EC（sportyandrich.com）とインスタグラムを軸としたドロップ型の販売モデルを採用。在庫を限定することで希少性を維持し、セレクトショップとの組み合わせでリーチを拡大する。</p>
+
+  <div class="sales-flow" style="margin-bottom: 48px;">
+    <div class="sales-step">
+      <div class="step-icon">📱</div>
+      <div class="step-title">Instagram告知</div>
+      <div class="step-desc">Emily Oberg自らが新作を先行告知</div>
+    </div>
+    <div class="sales-step" style="background: #f5e0e0; border-color: #c08080; outline: 2px solid var(--sr-red); outline-offset: -1px;">
+      <div class="step-icon">🛒</div>
+      <div class="step-title" style="color: var(--sr-red);">ドロップ販売</div>
+      <div class="step-desc">公式EC（sportyandrich.com）で不定期リリース</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🏬</div>
+      <div class="step-title">セレクトショップ</div>
+      <div class="step-desc">厳選したセレクトショップで取り扱い</div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 20px;">価格帯</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>カテゴリ</th>
+        <th>価格帯（USD）</th>
+        <th>代表アイテム</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>スウェット・トップス</td><td>$150〜</td><td>Logo Crewneck, Vintage Wash Hoodie</td></tr>
+      <tr><td>ジャケット・アウター</td><td>$200〜</td><td>Track Jacket, Varsity Jacket</td></tr>
+      <tr><td>アクセサリー</td><td>$50〜</td><td>Hat, Tote Bag, Water Bottle</td></tr>
+      <tr><td>コラボレーション（Lacoste等）</td><td>$100〜$350</td><td>限定コラボアイテム</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── 07 POSITIONING MAP ── -->
+<section id="positioning">
+  <p class="section-label">07 — Positioning Map</p>
+  <h2>ブランド<span class="accent">ポジショニングマップ</span></h2>
+
+  <p style="margin-bottom: 32px;">X軸：ストリート/カルチャー ↔ ラグジュアリー　／　Y軸：アパレル専業 ↔ ライフスタイル/ウェルネス統合<br>ポイントにホバーするとブランド情報が表示されます。</p>
+
+  <div class="chart-wrapper">
+    <div class="chart-container">
+      <canvas id="positioningChart"></canvas>
+    </div>
+  </div>
+
+  <div style="margin-top: 32px;">
+    <h3 style="margin-bottom: 20px;">競合比較</h3>
+    <table>
+      <thead><tr><th>ブランド</th><th>ポジション</th><th>Sporty &amp; Richとの違い</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="dot dot-red"></span><strong>Sporty &amp; Rich</strong></td>
+          <td><strong>ウェルネス × ヴィンテージスポーツ</strong></td>
+          <td>Instagram発・Emily個人のパーソナルブランドと融合・ドロップ型で希少性維持</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Humanrace</td>
+          <td>ウェルネス起点のカルチャーブランド</td>
+          <td>ファレルという超強力な知名度あり・スキンケア→アパレルの垂直展開。S&amp;Rより上位のラグジュアリー寄り</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Madhappy</td>
+          <td>メンタルヘルス × ストリートウェア</td>
+          <td>ウェルネステーマが近いが心の健康に特化。S&amp;Rより明るくポップなビジュアル</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-orange"></span>Aimé Leon Dore（ALD）</td>
+          <td>ニューヨーク × ヴィンテージスポーツ</td>
+          <td>最も近い競合。男性客層中心・プレッピー寄り。S&amp;Rはより女性・ウェルネス色が強い</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-orange"></span>Fear of God</td>
+          <td>ラグジュアリーストリート</td>
+          <td>宗教観・精神性が核。ウェルネス・スポーツとの接続なし。価格帯がS&amp;Rより大幅に高い</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-green"></span>Supreme</td>
+          <td>ストリートウェア定番</td>
+          <td>ドロップ文化の源流だがアパレル専業。ウェルネス・ライフスタイルの文脈なし</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── 08 CD INSIGHTS ── -->
+<section id="cd-insights">
+  <p class="section-label">08 — CD Insights</p>
+  <h2>CDとして<span class="accent">活かせるポイント</span></h2>
+  <p style="margin-bottom: 40px;">Sporty &amp; Richのブランド設計から学べる、新ブランドAIワークフローへの応用ポイント。</p>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">SNS発ブランドの設計手法</div>
+    </div>
+    <div class="insight-content">
+      <p>Emily Obergは展示会やバイヤーなしで、Instagramのフォロワーベースから直接ブランドを立ち上げた。初期投資を抑えながら市場反応を見てスケールする、現代型のブランド構築モデル。</p>
+      <p class="learn">💡 新ブランド立ち上げ時の参照モデル。「まずSNSで世界観を発信 → 反応を見てEC立ち上げ → ドロップで希少性を作る」という順序が使える。Phase 0のポジション定義にそのまま活用できる。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 1</span>
+      <div class="insight-title">タイポグラフィ × ヴィンテージ感のデザイン言語</div>
+    </div>
+    <div class="insight-content">
+      <p>グラフィックよりも書体・クレスト・シンプルなロゴタイプでブランドの個性を作る。ヴィンテージ加工・アーストーン・ナチュラルカラーの組み合わせが、高価格帯でも「着やすさ」を感じさせる。</p>
+      <p class="learn">💡 AIでテクニカルフラットを作るとき、「ロゴタイプとクレストだけで世界観が伝わるか」をチェックポイントにする。kemioの茶筒デザインでも使えるアプローチ。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">ウェルネス × ファッションの交点を狙う</div>
+    </div>
+    <div class="insight-content">
+      <p>Sporty &amp; Richは「スポーツウェアだけど、健康的なライフスタイル全体のための服」というポジションを取ることで、単なるスポーツウェアブランドとの差別化に成功している。</p>
+      <p class="learn">💡 ポジショニングマップでの「アパレル専業 vs ライフスタイル統合」軸の重要性を示す実例。新ブランドのStage 2（ポジション定義）で3ブランド×交点テンプレートに当てはめる時に参照できる。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 6</span>
+      <div class="insight-title">ドロップ販売で希少性を設計する</div>
+    </div>
+    <div class="insight-content">
+      <p>不定期のドロップ型リリース + SNS告知のサイクルが「いつ出るかわからない」という希少性を生み、コア顧客のアンテナを常に立てておく仕組みを作っている。コレクション常時販売より在庫・生産管理のリスクも低い。</p>
+      <p class="learn">💡 Shopify × Claude Codeでドロップ販売を設計するとき、「在庫限定 + Instagram告知 + 数時間での完売体験」が顧客ロイヤリティを強化するループを作る。kemioブランドのEC設計に転用可能。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">Emily ObergのパーソナルブランドとブランドAの融合</div>
+    </div>
+    <div class="insight-content">
+      <p>Sporty &amp; Richの世界観はEmily Oberg自身のライフスタイル（何を食べる・どう運動する・どう過ごす）と切り離せない。ファウンダーの人格がブランドの「Why」そのものになっている最もピュアな例。</p>
+      <p class="learn">💡 kemioブランドでも同様のアプローチが使える。「kemioのライフスタイル = ブランドの世界観」として設計することで、コラボやコンテンツが全て一貫したメッセージになる。Phase 0のWhy言語化に直結する学び。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <h3>参照ソース</h3>
+  <ul class="ref-list">
+    <li><a href="https://sportyandrich.com" target="_blank">Sporty &amp; Rich 公式サイト — sportyandrich.com</a></li>
+    <li><a href="https://www.highsnobiety.com/p/emily-oberg-sporty-rich/" target="_blank">Emily Oberg on Sporty &amp; Rich — Highsnobiety</a></li>
+    <li><a href="https://www.vogue.com/article/sporty-rich-brand-profile" target="_blank">Sporty &amp; Rich Brand Profile — Vogue</a></li>
+    <li><a href="https://hypebeast.com/search?q=sporty+and+rich" target="_blank">Sporty &amp; Rich Coverage — Hypebeast</a></li>
+    <li><a href="https://www.businessoffashion.com/companies/sporty-rich/" target="_blank">Sporty &amp; Rich — Business of Fashion</a></li>
+  </ul>
+  <div class="footer-meta">
+    生成日: 2026-05-10 ／ CORIN ブランド分析レポート ／ Phase 0 競合リサーチ用
+  </div>
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const brands = [
+  { label: 'Sporty & Rich', x: 0.35, y: 0.65, color: '#d88888', size: 20, desc: 'ヴィンテージスポーツ×ウェルネスライフスタイル\nInstagram発・Emily Oberg主導のドロップ型ブランド' },
+  { label: 'Humanrace', x: 0.45, y: 0.82, color: '#a8d8a8', size: 14, desc: 'ウェルネス起点のカルチャーブランド\nファレル主導・スキンケア→アパレル展開' },
+  { label: 'Madhappy', x: 0.40, y: 0.75, color: '#d8c8f0', size: 12, desc: 'メンタルヘルス×ストリートウェア\nウェルネステーマのポジティブブランド' },
+  { label: 'Aimé Leon Dore', x: 0.30, y: 0.55, color: '#d8c888', size: 12, desc: 'NYプレッピー×ヴィンテージスポーツ\nS&Rに最も近いポジション・男性客層中心' },
+  { label: 'Fear of God', x: 0.65, y: 0.35, color: '#88b0c8', size: 10, desc: 'ラグジュアリーストリート\n宗教観・精神性が核・高価格帯' },
+  { label: 'Supreme', x: 0.20, y: 0.15, color: '#88b0c8', size: 10, desc: 'ストリートウェア定番\nドロップ文化の源流・アパレル専業' },
+];
+
+const ctx = document.getElementById('positioningChart').getContext('2d');
+new Chart(ctx, {
+  type: 'scatter',
+  data: {
+    datasets: brands.map(b => ({
+      label: b.label,
+      data: [{ x: b.x, y: b.y }],
+      backgroundColor: b.label === 'Sporty & Rich'
+        ? 'rgba(178,34,34,0.85)'
+        : 'rgba(255,255,255,0.08)',
+      borderColor: b.color,
+      borderWidth: b.label === 'Sporty & Rich' ? 3 : 1.5,
+      pointRadius: b.size,
+      pointHoverRadius: b.size + 4,
+      _desc: b.desc,
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 800, easing: 'easeOutQuart' },
+    layout: { padding: { top: 40, bottom: 40, left: 40, right: 40 } },
+    scales: {
+      x: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+        border: { color: 'rgba(255,255,255,0.1)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← ストリート / カルチャー　　　　　　ラグジュアリー →',
+          color: '#555', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      },
+      y: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+        border: { color: 'rgba(255,255,255,0.1)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← アパレル専業　　　　　　ライフスタイル / ウェルネス統合 →',
+          color: '#555', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#111',
+        borderColor: '#2a2a2a',
+        borderWidth: 1,
+        titleFont: { size: 13, weight: '700', family: 'Inter' },
+        bodyFont: { size: 12, family: 'Inter' },
+        titleColor: '#e8e8e8',
+        bodyColor: '#888',
+        padding: 14,
+        cornerRadius: 10,
+        callbacks: {
+          title: ctx => ctx[0].dataset.label,
+          label: ctx => {
+            const desc = ctx.dataset._desc || '';
+            return desc.split('\n');
+          }
+        }
+      },
+      datalabels: {
+        color: ctx => ctx.dataset.label === 'Sporty & Rich' ? '#d88888' : '#aaa',
+        font: {
+          size: ctx => ctx.dataset.label === 'Sporty & Rich' ? 13 : 11,
+          weight: ctx => ctx.dataset.label === 'Sporty & Rich' ? '700' : '400',
+          family: 'Inter'
+        },
+        anchor: 'end',
+        align: ctx => {
+          const x = ctx.dataset.data[0].x;
+          return x > 0.7 ? 'left' : 'right';
+        },
+        offset: 8,
+        formatter: (val, ctx) => ctx.dataset.label,
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

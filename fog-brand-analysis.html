@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fear of God — ブランド分析レポート</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+    :root {
+      --bg: #faf8f3;
+      --bg2: #f2efe8;
+      --bg3: #e8e5dc;
+      --border: #d8d4c8;
+      --text: #1a1a18;
+      --text-muted: #5a5752;
+      --text-dim: #9a9790;
+      --accent: #1a1a1a;
+      --accent2: #3a3a3a;
+      --accent3: #5a5a5a;
+      --fog-charcoal: #1a1a1a;
+      --tag-bg: #e0ddd8;
+      --tag-text: #1a1a1a;
+      --blue-bg: #d8e0e8;
+      --blue-text: #2a3a4a;
+      --orange-bg: #ece8e0;
+      --orange-text: #4a3a28;
+      --red-accent: #c04040;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(250,248,243,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 52px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    nav .brand { font-weight: 700; letter-spacing: 0.18em; font-size: 12px; color: var(--fog-charcoal); text-transform: uppercase; }
+    nav a { font-size: 12px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.06em; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+    nav .spacer { flex: 1; }
+    nav .date { font-size: 11px; color: var(--text-dim); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 120px 64px 80px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 55% 35%, #d8d4cc 0%, var(--bg) 65%);
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(60px, 14vw, 200px);
+      font-weight: 900; letter-spacing: -0.04em;
+      color: rgba(0,0,0,0.05);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--fog-charcoal);
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: clamp(40px, 7vw, 88px);
+      font-weight: 900; letter-spacing: -0.02em; line-height: 1.05;
+      margin-bottom: 24px;
+    }
+    .hero-title span { color: var(--fog-charcoal); border-bottom: 3px solid var(--fog-charcoal); }
+    .hero-sub {
+      font-size: 18px; font-weight: 300; color: var(--text-muted);
+      max-width: 540px; margin-bottom: 48px;
+    }
+    .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      display: inline-block; padding: 4px 12px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #4a4a4a; border-radius: 100px;
+      font-size: 11px; letter-spacing: 0.08em; font-weight: 500;
+    }
+    .tag.blue { background: var(--blue-bg); color: var(--blue-text); border-color: #2a3a4a; }
+    .tag.orange { background: var(--orange-bg); color: var(--orange-text); border-color: #4a3a28; }
+    .hero-images {
+      position: absolute; right: 64px; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .hero-img-card {
+      width: 200px; height: 140px;
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+    }
+    .hero-img-card img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-img-card .img-fallback {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em;
+    }
+    .scroll-hint {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .scroll-arrow { animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+    /* ─── SECTION ─── */
+    section {
+      padding: 80px 64px;
+      border-bottom: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--text-dim);
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 36px; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 40px; line-height: 1.2;
+    }
+    h2 .accent { color: var(--fog-charcoal); }
+    h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    strong { color: var(--text); }
+
+    /* ─── CARDS ─── */
+    .card-grid { display: grid; gap: 20px; }
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .card-grid-5 { grid-template-columns: repeat(5, 1fr); }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover { border-color: var(--fog-charcoal); transform: translateY(-2px); }
+    .card-icon { font-size: 28px; margin-bottom: 16px; }
+    .card h3 { font-size: 16px; }
+    .card .role { font-size: 11px; color: var(--fog-charcoal); letter-spacing: 0.1em; margin-bottom: 10px; text-transform: uppercase; }
+    .card p { font-size: 14px; }
+    .card .number { font-size: 40px; font-weight: 900; letter-spacing: -0.04em; color: var(--fog-charcoal); }
+    .card .number-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+    /* ─── IMAGE GRID ─── */
+    .img-grid { display: grid; gap: 16px; }
+    .img-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .img-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .img-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .img-card img { width: 100%; display: block; aspect-ratio: 1/1; object-fit: contain; object-position: center; background: var(--bg2); flex-shrink: 0; }
+    .img-card .img-caption {
+      padding: 12px 14px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .img-card .img-caption strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+    .img-fallback-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      aspect-ratio: 4/3;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .img-fallback-card .emoji { font-size: 32px; }
+    .img-fallback-card .label { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 16px; font-size: 11px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid var(--border); vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:hover td { background: rgba(0,0,0,0.01); }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+    .dot-charcoal { background: var(--fog-charcoal); }
+    .dot-blue { background: var(--blue-text); }
+    .dot-orange { background: var(--orange-text); }
+
+    /* ─── POSITIONING MAP ─── */
+    .chart-wrapper {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+    }
+    .chart-container { position: relative; height: 520px; }
+    .axis-label {
+      position: absolute;
+      font-size: 11px; color: var(--text-dim);
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .axis-top { top: 8px; left: 50%; transform: translateX(-50%); }
+    .axis-bottom { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .axis-left { left: 8px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+    .axis-right { right: 8px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+    /* ─── CD INSIGHTS ─── */
+    .insight-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: start;
+      transition: border-color .2s;
+      margin-bottom: 16px;
+    }
+    .insight-card:hover { border-color: var(--fog-charcoal); }
+    .insight-phase {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .phase-badge {
+      display: inline-block; padding: 4px 10px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #4a4a4a; border-radius: 100px;
+      font-size: 10px; letter-spacing: 0.1em; font-weight: 600;
+      width: fit-content;
+    }
+    .insight-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .insight-content { }
+    .insight-content p { font-size: 14px; margin-bottom: 8px; }
+    .insight-content .learn { font-size: 14px; color: var(--text-muted); font-style: italic; padding: 10px 14px; margin-top: 10px; background: var(--bg3); border-radius: 6px; display: block; }
+
+    /* ─── TIMELINE ─── */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline:before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+    .timeline-item { position: relative; margin-bottom: 32px; }
+    .timeline-item:before {
+      content: ''; position: absolute; left: -28px; top: 4px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--fog-charcoal); border: 2px solid var(--bg);
+    }
+    .timeline-year { font-size: 11px; color: var(--fog-charcoal); letter-spacing: 0.1em; margin-bottom: 6px; font-weight: 600; }
+    .timeline-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .timeline-content p { font-size: 14px; color: var(--text-muted); }
+
+    /* ─── STAT ROW ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+    .stat-item { text-align: center; padding: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+    .stat-num { font-size: 36px; font-weight: 900; color: var(--fog-charcoal); letter-spacing: -0.04em; }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.06em; }
+
+    /* ─── QUOTE ─── */
+    .quote-block {
+      border-left: 3px solid var(--fog-charcoal);
+      padding: 20px 28px;
+      background: var(--bg2);
+      border-radius: 0 12px 12px 0;
+      margin: 32px 0;
+    }
+    .quote-block blockquote { font-size: 18px; font-weight: 300; font-style: italic; color: var(--text); line-height: 1.6; }
+    .quote-block cite { font-size: 12px; color: var(--text-dim); display: block; margin-top: 12px; letter-spacing: 0.08em; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 60px 64px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    footer h3 { font-size: 14px; font-weight: 600; margin-bottom: 20px; color: var(--text-muted); }
+    .ref-list { list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .ref-list a { color: var(--text-dim); font-size: 13px; text-decoration: none; transition: color .2s; }
+    .ref-list a:hover { color: var(--fog-charcoal); }
+    .footer-meta { margin-top: 40px; font-size: 12px; color: var(--text-dim); }
+
+    /* ─── PRICE BADGE ─── */
+    .price-badge {
+      display: inline-block; padding: 2px 8px;
+      background: var(--tag-bg); color: var(--fog-charcoal);
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 12px; font-weight: 600; margin-left: 8px;
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; gap: 16px; }
+      nav a:not(.brand) { display: none; }
+      section, footer { padding: 60px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .hero-images { display: none; }
+      .card-grid-3, .card-grid-4, .card-grid-5 { grid-template-columns: 1fr; }
+      .card-grid-2 { grid-template-columns: 1fr; }
+      .img-grid-3 { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .insight-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="brand">FEAR OF GOD</span>
+  <a href="#overview">概要</a>
+  <a href="#founder">創設者</a>
+  <a href="#philosophy">哲学</a>
+  <a href="#products">製品</a>
+  <a href="#athletics">Athletics</a>
+  <a href="#collab">コラボ</a>
+  <a href="#positioning">ポジション</a>
+  <a href="#cd-insights">CD活用</a>
+  <span class="spacer"></span>
+  <a href="index.html" style="font-size:11px;letter-spacing:0.08em;color:var(--text-muted);text-decoration:none;border:1px solid var(--border);border-radius:20px;padding:4px 14px;transition:all 0.2s" onmouseover="this.style.borderColor='#a0a090'" onmouseout="this.style.borderColor='var(--border)'">← 一覧</a>
+  <span class="date">ブランド分析 — 2026.05.10</span>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg-text">FEAR OF GOD</div>
+  <p class="hero-eyebrow">Brand Analysis — Competitor Research</p>
+  <h1 class="hero-title">Fear of <span>God</span></h1>
+  <p class="hero-sub">宗教的敬虔さ × LAストリート × 高級素材。聖書的世界観から生まれたラグジュアリーストリートの頂点。</p>
+  <div class="hero-tags">
+    <span class="tag">🇺🇸 Founded 2013</span>
+    <span class="tag">Jerry Lorenzo</span>
+    <span class="tag blue">Luxury × Sacred</span>
+    <span class="tag blue">LA Street</span>
+    <span class="tag orange">Adidas collab</span>
+    <span class="tag orange">Zegna × FOG</span>
+  </div>
+  <div class="hero-images">
+    <div class="hero-img-card">
+      <img src="brand-images/fog-hoodie.jpg"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           alt="Fear of God Hoodie">
+      <div class="img-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;">HOODIE</div>
+    </div>
+    <div class="hero-img-card">
+      <img src="brand-images/fog-basketball.jpg"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           alt="Fear of God Basketball">
+      <div class="img-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;">ATHLETICS</div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <span class="scroll-arrow">↓</span>
+  </div>
+</div>
+
+<!-- ── 01 OVERVIEW ── -->
+<section id="overview">
+  <p class="section-label">01 — Overview</p>
+  <h2>ブランド<span class="accent">概要</span></h2>
+
+  <div class="stat-row">
+    <div class="stat-item">
+      <div class="stat-num">2013</div>
+      <div class="stat-label">創設年</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">LA</div>
+      <div class="stat-label">本拠地（ロサンゼルス）</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">7th</div>
+      <div class="stat-label">Seventh Collection（転換点）</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">$300+</div>
+      <div class="stat-label">スウェット価格帯（USD）</div>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>"Fear of God is my way of translating spiritual intention into something physical you can wear every day."</blockquote>
+    <cite>— Jerry Lorenzo, Founder</cite>
+  </div>
+
+  <p>2013年、Jerry Lorenzo（ジェリー・ロレンゾ）がロサンゼルスで創設。ブランド名「Fear of God（神への畏敬）」は聖書的な表現に由来し、宗教的敬虔さを現代のラグジュアリーストリートウェアとして昇華させる哲学を持つ。</p>
+  <p>オーバーサイズシルエット、ニュートラルカラーパレット、テーラーリングとストリートカルチャーの融合が特徴。<strong>Frank OceanやJustin Bieberに着用されたことでマス認知を獲得</strong>し、2018年の「Seventh Collection」でブレークスルーを迎えた。</p>
+
+  <div class="img-grid img-grid-3" style="margin-top: 32px;">
+    <div class="img-card">
+      <img src="brand-images/fog-hoodie.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🖤</div><div class=label>DFYF Hoodie Black</div></div>'"
+           alt="DFYF Hoodie Black">
+      <div class="img-caption"><strong>DFYF Hoodie — Black</strong>フラットショット / シグネチャーアイテム</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-model-hoodie.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👤</div><div class=label>Model Hoodie Shot</div></div>'"
+           alt="Model Hoodie Shot">
+      <div class="img-caption"><strong>着用モデルショット</strong>オーバーサイズシルエットの体現</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-basketball.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏀</div><div class=label>Athletics Basketball</div></div>'"
+           alt="Athletics Basketball">
+      <div class="img-caption"><strong>Athletics III Basketball Shoe</strong>Wonder Alumina — サブライン旗艦モデル</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 02 FOUNDER ── -->
+<section id="founder">
+  <p class="section-label">02 — Founder</p>
+  <h2>創設者 <span class="accent">Jerry Lorenzo</span></h2>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-icon">✝️</div>
+      <div class="role">Founder / Creative Director</div>
+      <h3>Jerry Lorenzo</h3>
+      <p>本名 Jerry Lorenzo Manuel Jr.。敬虔なキリスト教徒の家庭に育ち、信仰を創作の核に置く。父はMLBのプロ野球選手という異色のバックグラウンドを持つ。大学でビジネスを学んだ後、ファッション業界に転身。</p>
+      <p>デザイン学校には通っておらず、<strong>独学でブランドを立ち上げた異例のデザイナー</strong>。スポーツ・音楽・宗教という3つの文化的参照点がブランドの世界観を形成している。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎵</div>
+      <div class="role">Celebrity Endorsement Effect</div>
+      <h3>セレブ着用→マス認知の軌跡</h3>
+      <p><strong>Frank Ocean</strong>がFear of Godを早期から支持し、音楽シーンとのつながりが確立。<strong>Justin Bieber</strong>が着用したことで一般層への認知が爆発的に拡大した。</p>
+      <p>狙ったアンバサダー戦略ではなく、ブランドの精神性に共鳴したアーティストが自発的に選んだことが、<strong>オーセンティシティの担保</strong>につながっている。</p>
+    </div>
+  </div>
+
+  <div class="quote-block" style="margin-top: 32px;">
+    <blockquote>"I want to make the most luxurious basics on earth. Things you want to wear every single day."</blockquote>
+    <cite>— Jerry Lorenzo</cite>
+  </div>
+</section>
+
+<!-- ── 03 PHILOSOPHY ── -->
+<section id="philosophy">
+  <p class="section-label">03 — Design Philosophy</p>
+  <h2>デザイン<span class="accent">哲学</span></h2>
+
+  <div class="card-grid card-grid-4" style="margin-bottom: 40px;">
+    <div class="card">
+      <div class="card-icon">✝️</div>
+      <h3>聖書的審美眼</h3>
+      <p>「神への畏敬」をブランド名に持つ唯一のメゾン。聖書的な世界観を服という世俗的プロダクトに昇華させることで、精神性とファッションの新しい接続点を生んだ。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📐</div>
+      <h3>オーバーサイズの再定義</h3>
+      <p>ただ大きいのではなく、<strong>比率・ドレープ・シルエットが計算されたオーバーサイズ</strong>。イタリアの高級素材を使ったリラックスシルエットは「着られている感」がない。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧥</div>
+      <h3>テーラード × ストリート</h3>
+      <p>テーラーリングのドレープとストリートのカジュアルさを一つのアイテムで共存させる。<strong>スーツジャケットとスウェットを同じ空間に置く</strong>デザイン言語が特徴。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎨</div>
+      <h3>ニュートラルパレット</h3>
+      <p>ブラック、チャコール、エクリュ、ストーン、アルミナ。彩度を抑えた<strong>タイムレスなカラーパレット</strong>で素材の質感を最大限に引き出す設計。</p>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+    <div>
+      <h3 style="margin-bottom: 16px; color: var(--text-muted); font-size: 15px;">特徴的なデザインコード</h3>
+      <table>
+        <thead>
+          <tr><th>要素</th><th>内容</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>シルエット</td><td>オーバーサイズ、ドロップショルダー、ロングレングス</td></tr>
+          <tr><td>素材</td><td>イタリア製プレミアムコットン、ウール、カシミア</td></tr>
+          <tr><td>カラー</td><td>ブラック / チャコール / エクリュ / ストーングレー</td></tr>
+          <tr><td>ディテール</td><td>ミニマルブランディング、クロスモチーフ、ヴィンテージウォッシュ</td></tr>
+          <tr><td>参照点</td><td>宗教建築、90年代スポーツウェア、イタリアクラシック</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3 style="margin-bottom: 16px; color: var(--text-muted); font-size: 15px;">Seventh Collection（2018）</h3>
+      <div class="card" style="margin: 0;">
+        <div class="card-icon">7️⃣</div>
+        <h3>ブレークスルーの転換点</h3>
+        <p style="margin-bottom: 0;">2018年の「Seventh Collection」は単なる新作ではなく、<strong>ブランドの世界観・美学・ビジョンを完全体で提示した転換点</strong>。シーズン縛りを超えた「コレクション」概念の再解釈が話題を呼んだ。全アイテムが一つの宗教的叙事詩のように連なるコレクション設計がメディア・バイヤー・セレブに衝撃を与えた。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04 PRODUCTS ── -->
+<section id="products">
+  <p class="section-label">04 — Signature Products</p>
+  <h2>代表<span class="accent">製品</span></h2>
+
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/fog-basketball.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏀</div><div class=label>Athletics Basketball Shoe</div></div>'"
+           alt="Athletics III Basketball Shoe">
+      <div class="img-caption">
+        <strong>Athletics III Basketball Shoe</strong>
+        Wonder Alumina カラー<span class="price-badge">$250〜</span>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-hoodie.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🖤</div><div class=label>DFYF Hoodie Black</div></div>'"
+           alt="DFYF Hoodie Black">
+      <div class="img-caption">
+        <strong>DFYF Hoodie — Black</strong>
+        フラットレイ / シグネチャーアイテム<span class="price-badge">$300〜</span>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-model-hoodie.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👤</div><div class=label>Model Hoodie Shot</div></div>'"
+           alt="Model with Hoodie">
+      <div class="img-caption">
+        <strong>着用モデルショット</strong>
+        オーバーサイズシルエット表現
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 05 ATHLETICS ── -->
+<section id="athletics">
+  <p class="section-label">05 — Athletics Subline</p>
+  <h2>Athleticsサブ<span class="accent">ライン</span></h2>
+
+  <p style="max-width: 680px; margin-bottom: 32px;">Fearof God Athleticsは、スポーツウェアとして独立したサブラインとして展開。<strong>バスケットボールカルチャーを軸に、スポーツとラグジュアリーを接続する</strong>新しいポジションを確立。Adidasとのコラボレーションがこのラインを世界に広めた。</p>
+
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/fog-sweatpant.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏃</div><div class=label>DFYF Relaxed Sweatpant</div></div>'"
+           alt="DFYF Relaxed Sweatpant Black">
+      <div class="img-caption">
+        <strong>DFYF Relaxed Sweatpant — Black</strong>
+        Athletics ボトム<span class="price-badge">$300〜</span>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-tee-clay.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👕</div><div class=label>Liberation Now Tee Clay</div></div>'"
+           alt="Liberation Now Tee Clay">
+      <div class="img-caption">
+        <strong>Liberation Now Tee — Clay</strong>
+        フラットレイ / ニュートラルカラー<span class="price-badge">$150〜</span>
+      </div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-model-tee.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👤</div><div class=label>Liberty Now Tee — Model</div></div>'"
+           alt="Liberty Now Tee Model">
+      <div class="img-caption">
+        <strong>Liberty Now Tee — 着用モデル</strong>
+        スポーティ × ラグジュアリーの共存
+      </div>
+    </div>
+  </div>
+
+  <div class="card-grid card-grid-2" style="margin-top: 32px;">
+    <div class="card">
+      <div class="card-icon">🏀</div>
+      <h3>バスケットボールを軸にした世界観</h3>
+      <p>90年代のバスケットボールカルチャーへの敬意をブランド全体に通底させている。スポーツという「聖域」とファッションの交差点がAthletics ラインのDNA。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <h3>スポーツとラグジュアリーの接続</h3>
+      <p>スポーツウェアとしての機能性を持ちながら、<strong>$250以上の価格帯とプレミアム素材</strong>でラグジュアリー市場に着地させる。どちらの文脈でも成立する設計思想。</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── 05.5 VISUAL ARCHIVE ── -->
+<section id="visual-archive">
+  <p class="section-label">05.5 — Visual Archive</p>
+  <h2><span class="accent">ビジュアル</span> アーカイブ</h2>
+  <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 14px;">ESSENTIALS Holiday 2024 / Collection 8 FW24 "American Symphony" を収録。</p>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 20px; opacity: 0.6;">ESSENTIALS Holiday 2024</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/fog-07.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday 2024 Look 1">
+      <div class="img-caption"><strong>ESSENTIALS Holiday 2024 Look 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-08.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday 2024 Look 2">
+      <div class="img-caption"><strong>ESSENTIALS Holiday 2024 Look 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-09.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 3">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-10.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 4">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 4</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-11.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 5">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 5</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-12.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 6">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 6</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-13.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 7">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 7</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-14.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 8">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 8</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-15.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 9">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 9</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-16.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 10">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 10</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-17.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 11">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 11</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-18.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 12">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 12</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-19.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 13">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 13</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-20.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Look 14">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Look 14</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-21.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God ESSENTIALS Holiday Finale">
+      <div class="img-caption"><strong>ESSENTIALS Holiday Finale</strong></div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin: 40px 0 20px; opacity: 0.6;">Collection 8 FW24 "American Symphony"</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/fog-22.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God Collection 8 FW24 American Symphony">
+      <div class="img-caption"><strong>Collection 8 FW24 American Symphony</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-23.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God FW24 American Symphony Look 2">
+      <div class="img-caption"><strong>FW24 American Symphony Look 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-24.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God FW24 American Symphony Look 3">
+      <div class="img-caption"><strong>FW24 American Symphony Look 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/fog-25.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Fear of God FW24 American Symphony Look 4">
+      <div class="img-caption"><strong>FW24 American Symphony Look 4</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 06 COLLAB ── -->
+<section id="collab">
+  <p class="section-label">06 — Collaborations</p>
+  <h2>コラボ<span class="accent">レーション</span></h2>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <div class="timeline-content">
+        <h4>Fear of God × Adidas — Athletics ライン</h4>
+        <p>スニーカーおよびアパレルにわたる大型コラボ。Adidasのスポーツ技術とFear of Godのラグジュアリー美学を融合。Athletics ラインのグローバル展開の起点となった。バスケットボールシューズが特に話題を集め、$250〜の価格帯にもかかわらず即完売を繰り返した。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <div class="timeline-content">
+        <h4>Fear of God × Ermenegildo Zegna</h4>
+        <p>イタリアの老舗ラグジュアリーテーラードブランドとの協業。<strong>ストリートとクチュールの最高峰を直接接続した</strong>コラボレーション。ウール・カシミア素材を用いたオーバーサイズアイテムが展開され、FOGのラグジュアリー軸をさらに強化した。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">継続中</div>
+      <div class="timeline-content">
+        <h4>RRR123 および他コラボレーション</h4>
+        <p>スタイリスト・アーティストとの限定コラボを継続的に展開。毎回の限定リリースが希少性を担保し、セカンダリーマーケットでの高額取引につながっている。</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px;">
+    <h3 style="margin-bottom: 20px; font-size: 16px; color: var(--text-muted);">コラボ比較</h3>
+    <table>
+      <thead>
+        <tr><th>パートナー</th><th>カテゴリ</th><th>意義</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Adidas</td><td>スポーツ × ストリートラグジュアリー</td><td>Athleticsラインのグローバル流通と認知を担う。スニーカー市場への本格参入</td></tr>
+        <tr><td>Ermenegildo Zegna</td><td>ラグジュアリーテーラード</td><td>クチュールの素材・職人技をストリート文脈に持ち込む。ポジションの上方移動</td></tr>
+        <tr><td>RRR123</td><td>アーティスト・スタイリスト</td><td>コアファンへのリーチとオーセンティシティの維持</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── 07 BUSINESS MODEL ── -->
+<section id="business">
+  <p class="section-label">07 — Business Model</p>
+  <h2>ビジネス<span class="accent">モデル</span></h2>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px;">
+    <div>
+      <h3 style="margin-bottom: 20px;">シーズン制と「コレクション」戦略</h3>
+      <p>通常のファッションカレンダー（SS/FW）に縛られない<strong>「シーズンレス・コレクション」</strong>アプローチを採用。一つのコレクションを深く作り込み、世界観として完結させる。</p>
+      <p>Seventh Collection（2018年）はその象徴で、<strong>「ファッションショー」ではなく「世界観の発表」</strong>として発表された。この姿勢がプレス・バイヤー・ファンに強い印象を与えた。</p>
+    </div>
+    <div>
+      <h3 style="margin-bottom: 20px;">流通・販売チャネル</h3>
+      <div class="card" style="margin: 0;">
+        <p style="margin-bottom: 12px;"><strong>公式EC</strong> — fearofgod.com での直販（DTC）</p>
+        <p style="margin-bottom: 12px;"><strong>セレクトショップ</strong> — Barneys（閉店前）、SSENSE、END Clothing 等</p>
+        <p style="margin-bottom: 12px;"><strong>Adidas チャネル</strong> — Athletics ラインはAdidas経由でグローバル展開</p>
+        <p style="margin-bottom: 0;"><strong>ポップアップ / 限定ドロップ</strong> — 希少性の演出</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 20px;">価格帯</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>プロダクト</th>
+        <th>価格（USD）</th>
+        <th>カテゴリ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Liberation Now Tee / Tシャツ</td><td>$150〜</td><td>トップス</td></tr>
+      <tr><td>DFYF Hoodie / フーディー</td><td>$300〜</td><td>スウェット</td></tr>
+      <tr><td>DFYF Relaxed Sweatpant</td><td>$300〜</td><td>ボトムス</td></tr>
+      <tr><td>Athletics Basketball Shoe</td><td>$250〜</td><td>フットウェア（Athletics）</td></tr>
+      <tr><td>Adidas × FOG コラボスニーカー</td><td>$200〜$400</td><td>フットウェア（コラボ）</td></tr>
+      <tr><td>Zegna × FOG ジャケット</td><td>$1,500〜</td><td>アウター（ラグジュアリーライン）</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── 08 POSITIONING ── -->
+<section id="positioning">
+  <p class="section-label">08 — Positioning Map</p>
+  <h2>ブランド<span class="accent">ポジショニングマップ</span></h2>
+
+  <p style="margin-bottom: 32px;">X軸：ストリート/カルチャー ↔ ラグジュアリー　／　Y軸：スポーツ/カジュアル ↔ テーラード/フォーマル<br>ポイントにホバーするとブランド情報が表示されます。</p>
+
+  <div class="chart-wrapper">
+    <div class="chart-container">
+      <canvas id="positioningChart"></canvas>
+    </div>
+  </div>
+
+  <div style="margin-top: 32px;">
+    <h3 style="margin-bottom: 20px;">競合比較</h3>
+    <table>
+      <thead>
+        <tr><th>ブランド</th><th>ポジション</th><th>Fear of God との違い</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="dot dot-charcoal"></span><strong>Fear of God</strong></td>
+          <td><strong>聖書的精神性 × ラグジュアリーストリート</strong></td>
+          <td>「宗教的世界観を世俗的ファッションに昇華」という独自軸。スポーツ×クチュールの垂直統合</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Off-White</td>
+          <td>ストリート×ラグジュアリー（ヴァージル・アブロー）</td>
+          <td>コンセプチュアル・脱構築的アプローチ。宗教的要素なし。より広義のカルチャー参照</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Supreme</td>
+          <td>ストリートウェア頂点</td>
+          <td>アパレル専業・ドロップ文化の源流。ラグジュアリーテーラード要素なし</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-orange"></span>Rick Owens</td>
+          <td>ダークラグジュアリー / アバンギャルド</td>
+          <td>精神性は共通するが、よりアバンギャルド寄り。バスケ/スポーツカルチャーとの接続なし</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-orange"></span>Humanrace</td>
+          <td>ウェルネス起点のカルチャーブランド</td>
+          <td>スキンケア × ライフスタイル統合が核。精神性よりウェルネス・ジェンダーレスが強調軸</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Balenciaga</td>
+          <td>ハイブランド × ストリート大衆化</td>
+          <td>規模・流通が圧倒的に大きい。コンセプチュアル度合いはFOGより低く大衆寄り</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── 09 CD INSIGHTS ── -->
+<section id="cd-insights">
+  <p class="section-label">09 — CD Insights</p>
+  <h2>CDとして<span class="accent">活かせるポイント</span></h2>
+  <p style="margin-bottom: 40px;">新ブランドAIワークフロー・kemio案件・今後のブランドディレクションに活かせる学び。</p>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">宗教的世界観を世俗的製品に昇華する</div>
+    </div>
+    <div class="insight-content">
+      <p>「神への畏敬」という普通なら近寄りがたいコンセプトを、日常着というもっとも世俗的なプロダクトに昇華させた。大切なのは<strong>「コンセプトの大きさ」ではなく「具体化できるか」</strong>。</p>
+      <p class="learn">💡 kemioの抹茶ブランドも「オフラインという聖域」という精神的コンセプトを日常のお茶体験に落とし込む構造が近い。"Why" の言語化→製品設計の順番はFOGと同じ。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">スポーツとラグジュアリーを垂直に接続する</div>
+    </div>
+    <div class="insight-content">
+      <p>Athletics サブラインはバスケットボールカルチャーへの敬意を起点に、そこにプレミアム素材と高価格を接続した。<strong>「バスケ × $250シューズ」は矛盾ではなく、むしろ価値を高める掛け算</strong>として機能している。</p>
+      <p class="learn">💡 新ブランドのポジション設計で「スポーツ × ラグジュアリー」「ストリート × テーラード」などの垂直接続を意図的に設計する手法として参照できる。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">Seventh Collectionの「シーズンレス」戦略</div>
+    </div>
+    <div class="insight-content">
+      <p>通常のSS/FWカレンダーに縛られず、「世界観が完結したとき」に発表するアプローチ。<strong>カレンダー駆動でなく「コンセプト完成」駆動のリリース戦略</strong>は、小規模ブランドが大手に対抗するときに有効。</p>
+      <p class="learn">💡 kemioブランドの発売タイミングや、新ブランドのコレクション設計で参照できる。ファッション的スピードより「世界観の完成度」を優先する判断基準。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">セレブ着用→マス認知の流れ設計</div>
+    </div>
+    <div class="insight-content">
+      <p>Justin Bieber / Frank Oceanによる「自発的な着用」がFOGをメジャーに押し上げた。ポイントは<strong>アンバサダーを「選んだ」のではなく「選ばれた」</strong>こと。世界観に共鳴したセレブが自然と着用するブランドの磁力を作ること。</p>
+      <p class="learn">💡 kemioブランドではkemio本人のオーセンティシティが同じ役割を果たす。「このブランドはkemioがいないと成立しない」という共鳴設計が重要。インフルエンサー起用とは根本的に異なる。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 1</span>
+      <div class="insight-title">"Sacred Casual"という美学の言語化</div>
+    </div>
+    <div class="insight-content">
+      <p>「聖なるカジュアル」——FOGが体現するこの美学は、言語化されていないが作品全体から伝わる一貫した空気感。<strong>言葉にならない世界観をビジュアルで語り続ける</strong>ことがCDの仕事であることをFOGは証明している。</p>
+      <p class="learn">💡 新ブランドAIワークフローのPhase 1「スケッチ→フラット」段階で、この「空気感の一貫性」をチェックポイントにする。ロゴ・タグ・パッケージング・撮影まで同じ「聖なる空気感」が貫かれているか問い続ける。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <h3>参照ソース</h3>
+  <ul class="ref-list">
+    <li><a href="https://fearofgod.com" target="_blank">Fear of God 公式サイト — fearofgod.com</a></li>
+    <li><a href="https://www.businessoffashion.com/people/jerry-lorenzo/" target="_blank">Jerry Lorenzo Profile — Business of Fashion</a></li>
+    <li><a href="https://hypebeast.com/tags/fear-of-god" target="_blank">Fear of God coverage — Hypebeast</a></li>
+    <li><a href="https://www.highsnobiety.com/tag/fear-of-god/" target="_blank">Fear of God — Highsnobiety</a></li>
+    <li><a href="https://www.gq.com/story/fear-of-god-jerry-lorenzo-profile" target="_blank">Jerry Lorenzo's Fear of God — GQ</a></li>
+    <li><a href="https://ssense.com/en-us/editorial/fashion/fear-of-god-jerry-lorenzo" target="_blank">Fear of God — SSENSE Editorial</a></li>
+  </ul>
+  <div class="footer-meta">
+    生成日: 2026-05-10 ／ CORIN ブランド分析レポート ／ Phase 0 競合リサーチ用
+  </div>
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const brands = [
+  { label: 'Fear of God', x: 0.68, y: 0.62, color: '#1a1a1a', size: 20, desc: '聖書的精神性 × ラグジュアリーストリート\nスポーツ×クチュールの垂直統合' },
+  { label: 'Off-White', x: 0.58, y: 0.40, color: '#7a7a7a', size: 10, desc: 'ストリート×ラグジュアリー\nコンセプチュアル・脱構築アプローチ' },
+  { label: 'Supreme', x: 0.22, y: 0.30, color: '#9a5a5a', size: 10, desc: 'ストリートウェア頂点\nアパレル専業・ドロップ文化の源流' },
+  { label: 'Rick Owens', x: 0.72, y: 0.75, color: '#6a6a8a', size: 10, desc: 'ダークラグジュアリー / アバンギャルド\n精神性は共通するが前衛的' },
+  { label: 'Humanrace', x: 0.45, y: 0.50, color: '#4a8a4a', size: 10, desc: 'ウェルネス起点のカルチャーブランド\nスキンケア×ライフスタイル統合' },
+  { label: 'Balenciaga', x: 0.55, y: 0.35, color: '#8a7a5a', size: 10, desc: 'ハイブランド×ストリート大衆化\n規模・流通が圧倒的に大きい' },
+  { label: 'Zegna', x: 0.90, y: 0.88, color: '#5a4a7a', size: 10, desc: 'ラグジュアリーテーラード頂点\nFOGとのコラボでストリートに進出' },
+  { label: 'CACTUS PLANT', x: 0.18, y: 0.45, color: '#7a8a5a', size: 10, desc: 'ポップ×ストリート\nFOGとのコラボ実績あり' },
+  { label: 'Adidas Athletics', x: 0.35, y: 0.22, color: '#5a5a9a', size: 10, desc: 'スポーツブランド大手\nFOG Athleticsラインのパートナー' },
+];
+
+const ctx = document.getElementById('positioningChart').getContext('2d');
+new Chart(ctx, {
+  type: 'scatter',
+  data: {
+    datasets: brands.map(b => ({
+      label: b.label,
+      data: [{ x: b.x, y: b.y }],
+      backgroundColor: b.label === 'Fear of God'
+        ? 'rgba(26,26,26,0.85)'
+        : 'rgba(255,255,255,0.06)',
+      borderColor: b.color,
+      borderWidth: b.label === 'Fear of God' ? 3 : 1.5,
+      pointRadius: b.size,
+      pointHoverRadius: b.size + 4,
+      _desc: b.desc,
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 800, easing: 'easeOutQuart' },
+    layout: { padding: { top: 40, bottom: 40, left: 40, right: 40 } },
+    scales: {
+      x: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(200,196,188,0.3)', drawTicks: false },
+        border: { color: 'rgba(200,196,188,0.4)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← ストリート / カルチャー　　　　　　ラグジュアリー →',
+          color: '#888', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      },
+      y: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(200,196,188,0.3)', drawTicks: false },
+        border: { color: 'rgba(200,196,188,0.4)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← スポーツ / カジュアル　　　　　　テーラード / フォーマル →',
+          color: '#888', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1a1a1a',
+        borderColor: '#3a3a3a',
+        borderWidth: 1,
+        titleFont: { size: 13, weight: '700', family: 'Inter' },
+        bodyFont: { size: 12, family: 'Inter' },
+        titleColor: '#f0ece4',
+        bodyColor: '#888',
+        padding: 14,
+        cornerRadius: 10,
+        callbacks: {
+          title: ctx => ctx[0].dataset.label,
+          label: ctx => {
+            const desc = ctx.dataset._desc || '';
+            return desc.split('\n');
+          }
+        }
+      },
+      datalabels: {
+        color: ctx => ctx.dataset.label === 'Fear of God' ? '#1a1a1a' : '#888',
+        font: {
+          size: ctx => ctx.dataset.label === 'Fear of God' ? 13 : 11,
+          weight: ctx => ctx.dataset.label === 'Fear of God' ? '700' : '400',
+          family: 'Inter'
+        },
+        anchor: 'end',
+        align: ctx => {
+          const x = ctx.dataset.data[0].x;
+          return x > 0.7 ? 'left' : 'right';
+        },
+        offset: 8,
+        formatter: (val, ctx) => ctx.dataset.label,
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

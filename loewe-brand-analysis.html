@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loewe — ブランド分析レポート</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+    :root {
+      --bg: #f5f7f5;
+      --bg2: #ecefec;
+      --bg3: #e0e5e0;
+      --border: #ccd4cc;
+      --text: #141a14;
+      --text-muted: #50594f;
+      --text-dim: #8a9688;
+      --accent: #2c4a2c;
+      --accent2: #1a5a7a;
+      --accent3: #5a3a10;
+      --lw-green: #2c4a2c;
+      --tag-bg: #d8e8d8;
+      --tag-text: #2c4a2c;
+      --blue-bg: #d5e8f0;
+      --blue-text: #1a5068;
+      --amber-bg: #f0e8d5;
+      --amber-text: #7a5010;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(245,247,245,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 52px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    nav .brand { font-weight: 700; letter-spacing: 0.18em; font-size: 13px; color: var(--lw-green); }
+    nav a { font-size: 12px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.06em; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+    nav .spacer { flex: 1; }
+    nav .date { font-size: 11px; color: var(--text-dim); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 120px 64px 80px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 60% 40%, #c8d8c8 0%, var(--bg) 60%);
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(80px, 16vw, 220px);
+      font-weight: 900; letter-spacing: -0.04em;
+      color: rgba(0,0,0,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--lw-green);
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900; letter-spacing: 0.06em; line-height: 1;
+      margin-bottom: 24px;
+    }
+    .hero-title span { color: var(--lw-green); }
+    .hero-sub {
+      font-size: 18px; font-weight: 300; color: var(--text-muted);
+      max-width: 520px; margin-bottom: 48px;
+    }
+    .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      display: inline-block; padding: 4px 12px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #2c4a2c; border-radius: 100px;
+      font-size: 11px; letter-spacing: 0.08em; font-weight: 500;
+    }
+    .tag.blue { background: var(--blue-bg); color: var(--blue-text); border-color: #1a3a50; }
+    .tag.amber { background: var(--amber-bg); color: var(--amber-text); border-color: #5a3a10; }
+    .scroll-hint {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .scroll-arrow { animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+    /* ─── SECTION ─── */
+    section {
+      padding: 80px 64px;
+      border-bottom: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--text-dim);
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 36px; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 40px; line-height: 1.2;
+    }
+    h2 .accent { color: var(--lw-green); }
+    h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    strong { color: var(--text); }
+
+    /* ─── CARDS ─── */
+    .card-grid { display: grid; gap: 20px; }
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover { border-color: var(--lw-green); transform: translateY(-2px); }
+    .card-icon { font-size: 28px; margin-bottom: 16px; }
+    .card h3 { font-size: 16px; }
+    .card .role { font-size: 11px; color: var(--lw-green); letter-spacing: 0.1em; margin-bottom: 10px; text-transform: uppercase; }
+    .card p { font-size: 14px; }
+    .card .number { font-size: 40px; font-weight: 900; letter-spacing: -0.04em; color: var(--lw-green); }
+
+    /* ─── IMG GRID ─── */
+    .img-grid { display: grid; gap: 16px; }
+    .img-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .img-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .img-card {
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+    }
+    .img-card img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; background: var(--bg2); }
+    .img-caption {
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .img-caption strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+
+    /* ─── IMG FALLBACK ─── */
+    .img-fallback-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      aspect-ratio: 4/3;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .img-fallback-card .emoji { font-size: 32px; }
+    .img-fallback-card .label { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── PRODUCT GRID ─── */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .product-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      aspect-ratio: 4/3;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px; padding: 20px;
+      transition: border-color .2s, transform .2s;
+    }
+    .product-card:hover { border-color: var(--lw-green); transform: translateY(-2px); }
+    .product-card .p-emoji { font-size: 36px; }
+    .product-card .p-name { font-size: 13px; font-weight: 600; color: var(--text); text-align: center; }
+    .product-card .p-desc { font-size: 11px; color: var(--text-dim); text-align: center; }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 16px; font-size: 11px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid #1a1a1a; vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+    .dot-green { background: var(--lw-green); }
+    .dot-blue { background: var(--blue-text); }
+    .dot-amber { background: var(--amber-text); }
+
+    /* ─── POSITIONING MAP ─── */
+    .chart-wrapper {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+    }
+    .chart-container { position: relative; height: 520px; }
+
+    /* ─── CD INSIGHTS ─── */
+    .insight-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: start;
+      transition: border-color .2s;
+      margin-bottom: 16px;
+    }
+    .insight-card:hover { border-color: var(--lw-green); }
+    .insight-phase { display: flex; flex-direction: column; gap: 8px; }
+    .phase-badge {
+      display: inline-block; padding: 4px 10px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #2c4a2c; border-radius: 100px;
+      font-size: 10px; letter-spacing: 0.1em; font-weight: 600;
+      width: fit-content;
+    }
+    .insight-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .insight-content p { font-size: 14px; margin-bottom: 8px; }
+    .insight-content .learn { font-size: 14px; color: var(--text-muted); font-style: italic; padding: 10px 14px; margin-top: 10px; background: var(--bg3); border-radius: 6px; display: block; }
+
+    /* ─── STAT ROW ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+    .stat-item { text-align: center; padding: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+    .stat-num { font-size: 36px; font-weight: 900; color: var(--lw-green); letter-spacing: -0.04em; }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.06em; }
+
+    /* ─── BEFORE/AFTER ─── */
+    .before-after {
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr;
+      gap: 0;
+      align-items: center;
+      margin: 32px 0;
+    }
+    .ba-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+    }
+    .ba-label {
+      font-size: 11px; letter-spacing: 0.12em; color: var(--text-dim);
+      text-transform: uppercase; margin-bottom: 16px;
+    }
+    .ba-label.before { color: var(--text-dim); }
+    .ba-label.after { color: var(--lw-green); }
+    .ba-arrow {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: var(--lw-green);
+    }
+    .ba-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 12px; font-size: 14px; color: var(--text-muted);
+    }
+    .ba-item .icon { flex-shrink: 0; font-size: 16px; }
+
+    /* ─── QUOTE ─── */
+    .quote-block {
+      border-left: 3px solid var(--lw-green);
+      padding: 20px 28px;
+      background: var(--bg2);
+      border-radius: 0 12px 12px 0;
+      margin: 32px 0;
+    }
+    .quote-block blockquote { font-size: 18px; font-weight: 300; font-style: italic; color: var(--text); line-height: 1.6; }
+    .quote-block cite { font-size: 12px; color: var(--text-dim); display: block; margin-top: 12px; letter-spacing: 0.08em; }
+
+    /* ─── SALES FLOW ─── */
+    .sales-flow { display: flex; gap: 0; align-items: stretch; }
+    .sales-step {
+      flex: 1; background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px 20px; text-align: center; position: relative;
+    }
+    .sales-step:not(:last-child):after {
+      content: '→';
+      position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); font-size: 18px; z-index: 1;
+    }
+    .sales-step:first-child { border-radius: 12px 0 0 12px; }
+    .sales-step:last-child { border-radius: 0 12px 12px 0; }
+    .sales-step .step-icon { font-size: 24px; margin-bottom: 8px; }
+    .sales-step .step-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .sales-step .step-desc { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 60px 64px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    footer h3 { font-size: 14px; font-weight: 600; margin-bottom: 20px; color: var(--text-muted); }
+    .ref-list { list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid #1a1a1a; }
+    .ref-list a { color: var(--text-dim); font-size: 13px; text-decoration: none; transition: color .2s; }
+    .ref-list a:hover { color: var(--lw-green); }
+    .footer-meta { margin-top: 40px; font-size: 12px; color: var(--text-dim); }
+
+    /* ─── FOUNDATION ─── */
+    .foundation-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 32px;
+    }
+    .foundation-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+    }
+    .foundation-card .f-year { font-size: 13px; color: var(--lw-green); font-weight: 700; margin-bottom: 10px; }
+    .foundation-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+    .foundation-card p { font-size: 14px; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; gap: 16px; }
+      nav a:not(.brand) { display: none; }
+      section, footer { padding: 60px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+      .card-grid-2 { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .before-after { grid-template-columns: 1fr; }
+      .ba-arrow { display: none; }
+      .insight-card { grid-template-columns: 1fr; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+      .foundation-grid { grid-template-columns: 1fr; }
+      .sales-flow { flex-direction: column; }
+      .sales-step:first-child { border-radius: 12px 12px 0 0; }
+      .sales-step:last-child { border-radius: 0 0 12px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="brand">LOEWE</span>
+  <a href="#overview">概要</a>
+  <a href="#cd">Jonathan Anderson</a>
+  <a href="#philosophy">哲学</a>
+  <a href="#products">製品</a>
+  <a href="#positioning">ポジション</a>
+  <a href="#cd-insights">CD活用</a>
+  <span class="spacer"></span>
+  <a href="index.html" style="font-size:11px;letter-spacing:0.08em;color:var(--text-muted);text-decoration:none;border:1px solid var(--border);border-radius:20px;padding:4px 14px;transition:all 0.2s" onmouseover="this.style.borderColor='#607860'" onmouseout="this.style.borderColor='var(--border)'">← 一覧</a>
+  <span class="date">ブランド分析 — 2026.05.10</span>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg-text">LOEWE</div>
+  <p class="hero-eyebrow">Brand Analysis — Competitor Research</p>
+  <h1 class="hero-title"><span>LOEWE</span></h1>
+  <p class="hero-sub">「職人技はLoeweの心臓」——1846年創設、スペイン最古のラグジュアリーハウスがJonathan Andersonのもとでアートとユーモアを武器にラグジュアリーの再定義を続けている。</p>
+  <div class="hero-tags">
+    <span class="tag">🇪🇸 Founded 1846</span>
+    <span class="tag">177年の歴史</span>
+    <span class="tag blue">LVMH傘下</span>
+    <span class="tag blue">Jonathan Anderson 2013〜</span>
+    <span class="tag amber">Craft × Art</span>
+    <span class="tag amber">Puzzle Bag</span>
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <span class="scroll-arrow">↓</span>
+  </div>
+</div>
+
+<!-- ── 01 OVERVIEW ── -->
+<section id="overview">
+  <p class="section-label">01 — Overview</p>
+  <h2>ブランド<span class="accent">概要</span></h2>
+
+  <div class="stat-row">
+    <div class="stat-item">
+      <div class="stat-num">1846</div>
+      <div class="stat-label">創設年</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">177+</div>
+      <div class="stat-label">年の歴史</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">LVMH</div>
+      <div class="stat-label">グループ傘下（1996年〜）</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">2013</div>
+      <div class="stat-label">Anderson就任（2025年3月退任）</div>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>"Craft is the heart of Loewe. It's what makes us alive."</blockquote>
+    <cite>— Loewe, Brand Identity</cite>
+  </div>
+
+  <p>1846年、スペイン・マドリードで職人たちの協同組合として設立。創設から170年以上にわたって<strong>レザークラフトマンシップ</strong>を核に据えてきたスペイン最古のラグジュアリーハウス。1996年よりLVMHグループ傘下に入り、グローバルな展開が加速。</p>
+  <p>2013年、北アイルランド出身のデザイナー<strong>Jonathan Anderson（ジョナサン・アンダーソン）</strong>がクリエイティブディレクターに就任。独自のユーモアセンス・アート引用・奇妙さをラグジュアリーの文脈に持ち込み、ブランドを世界的に注目されるハウスへと転換させた。</p>
+</section>
+
+<!-- ── 02 CD ── -->
+<section id="cd">
+  <p class="section-label">02 — Creative Director</p>
+  <h2>Jonathan Anderson — <span class="accent">ブランドの革命家</span></h2>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 40px;">
+    <div class="card">
+      <div class="card-icon">👤</div>
+      <div class="role">Creative Director</div>
+      <h3>Jonathan Anderson（1984〜）</h3>
+      <p>北アイルランド・マグヒレフェルト出身。ロンドン・カレッジ・オブ・ファッション（LCF）卒業後、自身のブランド「JW Anderson」を創設。2013年、Loeweのクリエイティブディレクターに就任。</p>
+      <p>Loewe CD就任と並行してJW Andersonも継続。ラグジュアリーとストリートの二軸でファッション界を横断する唯一無二の存在。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">💡</div>
+      <div class="role">Revolution</div>
+      <h3>Andersonが変えたこと</h3>
+      <p>就任以前のLoeweは「上品だが地味なスペインのレザーブランド」というイメージが強かった。Andersonはこれを維持しながら、<strong>ユーモア・奇妙さ・コンテンポラリーアートの引用</strong>を大胆に注入。</p>
+      <p>「なぜそれをラグジュアリーにするのか」という問いを常に持ち、人々が思わず二度見するような要素をコレクションに組み込み続けている。</p>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>"I'm always trying to find the strangeness in something. The job is to find out why something doesn't work and make it work."</blockquote>
+    <cite>— Jonathan Anderson, Creative Director</cite>
+  </div>
+
+  <h3 style="margin-bottom: 24px;">就任前後の比較</h3>
+  <div class="before-after">
+    <div class="ba-card">
+      <div class="ba-label before">Before 2013 — 就任前</div>
+      <div class="ba-item"><span class="icon">😐</span><span>上品だが目立たないスペインのレザーブランド</span></div>
+      <div class="ba-item"><span class="icon">🧳</span><span>レザーバッグ中心の安定したビジネス</span></div>
+      <div class="ba-item"><span class="icon">📰</span><span>プレスでの露出・話題性に乏しかった</span></div>
+      <div class="ba-item"><span class="icon">🌍</span><span>主にスペイン・欧州での強みが中心</span></div>
+    </div>
+    <div class="ba-arrow">→</div>
+    <div class="ba-card" style="border-color: var(--lw-green);">
+      <div class="ba-label after">After 2013 — Anderson就任後</div>
+      <div class="ba-item"><span class="icon">🎨</span><span>アート・ユーモア・奇妙さをラグジュアリーに統合</span></div>
+      <div class="ba-item"><span class="icon">👜</span><span>Puzzle Bag・Balloon Bagで世界的アイコン製品を確立</span></div>
+      <div class="ba-item"><span class="icon">📱</span><span>SNS・プレスで常に話題になるブランドへ転換</span></div>
+      <div class="ba-item"><span class="icon">🌐</span><span>グローバルラグジュアリー市場での確固たる地位を確立</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 03 PHILOSOPHY ── -->
+<section id="philosophy">
+  <p class="section-label">03 — Design Philosophy</p>
+  <h2>デザイン哲学・<span class="accent">ブランドアイデンティティ</span></h2>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 40px;">
+    <div class="card">
+      <div class="card-icon">🤲</div>
+      <h3>職人技の再定義</h3>
+      <p>1846年から続くレザークラフトマンシップをベースに、現代の文脈で職人技を語り直す。<strong>「古い技術を古く見せない」</strong>というのがLoeweの一貫した姿勢。Loewe Foundationによるクラフト賞でその思想を社会的に表現。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🖼️</div>
+      <h3>アート × ファッション</h3>
+      <p>コレクションにコンテンポラリーアートの参照を意識的に組み込む。陶芸・彫刻・テキスタイルアートをファッションに翻訳する手法。<strong>ファッションを着る彫刻</strong>として設計する思想がAndersonの根底にある。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">😄</div>
+      <h3>ユーモアと奇妙さ</h3>
+      <p>ラグジュアリーに「笑い」を持ち込む。野菜を模したバッグ・目玉焼きプリント・人形の頭を模したクラッチ——これらは人々を驚かせ、<strong>ブランドを記憶させる仕掛け</strong>として機能している。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧩</div>
+      <h3>Puzzle Bagの設計哲学</h3>
+      <p>Puzzle Bagはパズルのピースのように組み合わされた革の面で構成される。純粋な機能性ではなく、<strong>「形そのものが問いを立てる」</strong>デザイン。見るたびに新しい気づきがある設計が最高傑作と言われる所以。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04 PRODUCTS ── -->
+<section id="products">
+  <p class="section-label">04 — Signature Products</p>
+  <h2>代表<span class="accent">製品</span></h2>
+
+  <p style="margin-bottom: 32px;">Loeweのシグネチャー製品はバッグが中心。しかし単なる「バッグ」ではなく、それぞれが建築・彫刻・パズルとしての独自コンセプトを持つ。</p>
+
+  <div class="product-grid">
+    <div class="product-card">
+      <div class="p-emoji">🧩</div>
+      <div class="p-name">Puzzle Bag</div>
+      <div class="p-desc">幾何学的な革のピース構成。Loeweの最高傑作。€2,400〜</div>
+    </div>
+    <div class="product-card">
+      <div class="p-emoji">🎈</div>
+      <div class="p-name">Balloon Bag</div>
+      <div class="p-desc">膨らんだ風船のようなフォルム。ユーモアとクラフトの統合</div>
+    </div>
+    <div class="product-card">
+      <div class="p-emoji">🔲</div>
+      <div class="p-name">Anagram Tote</div>
+      <div class="p-desc">L+O+E+W+Eのアナグラムロゴ刻印。シグネチャーパターン</div>
+    </div>
+    <div class="product-card">
+      <div class="p-emoji">🏺</div>
+      <div class="p-name">Craft Collection</div>
+      <div class="p-desc">職人技を前面に出したコレクション。陶器・テキスタイルとの融合</div>
+    </div>
+    <div class="product-card">
+      <div class="p-emoji">🌿</div>
+      <div class="p-name">Eye/Loewe/Nature</div>
+      <div class="p-desc">自然素材・持続可能なラインへの取り組み</div>
+    </div>
+    <div class="product-card">
+      <div class="p-emoji">👕</div>
+      <div class="p-name">Anderson Sweatshirt</div>
+      <div class="p-desc">ユーモラスなグラフィックプリント。RTWの象徴的アイテム</div>
+    </div>
+  </div>
+
+  <!-- Campaign Images: FW26 Paula's Ibiza -->
+  <div style="margin-top: 40px;">
+    <h3 style="margin-bottom: 16px; color: var(--text-muted);">FW26 Paula's Ibiza — キャンペーンビジュアル</h3>
+    <div class="img-grid img-grid-3">
+      <div class="img-card">
+        <img src="brand-images/loewe-01.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🪡</div><div class=label>FW26 Campaign</div></div>'"
+             alt="Loewe FW26 Paula's Ibiza Campaign 01">
+        <div class="img-caption"><strong>FW26 Paula's Ibiza</strong>Anderson最終シーズンのキャンペーン</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/loewe-02.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🌊</div><div class=label>FW26 Campaign</div></div>'"
+             alt="Loewe FW26 Paula's Ibiza Campaign 02">
+        <div class="img-caption"><strong>FW26 Paula's Ibiza</strong>地中海的カラーパレットとクラフトマンシップ</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/loewe-03.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🌿</div><div class=label>FW26 Campaign</div></div>'"
+             alt="Loewe FW26 Paula's Ibiza Campaign 03">
+        <div class="img-caption"><strong>FW26 Paula's Ibiza</strong>自然素材との共鳴・アーシーなトーン</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/loewe-04.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🧩</div><div class=label>Puzzle Bag</div></div>'"
+             alt="Loewe FW26 Campaign 04">
+        <div class="img-caption"><strong>シグネチャーバッグ</strong>Puzzle Bag × 新シーズンカラー</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/loewe-05.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👗</div><div class=label>RTW Collection</div></div>'"
+             alt="Loewe FW26 Campaign 05">
+        <div class="img-caption"><strong>RTW コレクション</strong>レザーとテキスタイルの融合</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/loewe-06.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>✨</div><div class=label>FW26 Detail</div></div>'"
+             alt="Loewe FW26 Campaign 06">
+        <div class="img-caption"><strong>クラフトディテール</strong>スペイン伝統工芸へのオマージュ</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px;">
+    <h3 style="margin-bottom: 20px; color: var(--text-muted);">価格帯</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>カテゴリ</th>
+          <th>価格帯（EUR）</th>
+          <th>代表アイテム</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>バッグ（シグネチャー）</td><td>€1,500〜€4,000</td><td>Puzzle Bag / Balloon Bag / Gate Bag</td></tr>
+        <tr><td>シューズ</td><td>€700〜€1,500</td><td>レザーローファー・バレエフラット</td></tr>
+        <tr><td>RTW（レディース）</td><td>€1,000〜€5,000+</td><td>ドレス・コート・ニット</td></tr>
+        <tr><td>RTW（メンズ）</td><td>€800〜€3,000</td><td>ジャケット・スウェット・パンツ</td></tr>
+        <tr><td>スモールレザーグッズ</td><td>€200〜€700</td><td>カードホルダー・コインパース</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ── 04.5 VISUAL ARCHIVE ── -->
+<section id="visual-archive">
+  <p class="section-label">04.5 — Visual Archive</p>
+  <h2><span class="accent">ビジュアル</span> アーカイブ</h2>
+  <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 14px;">FW24 Pre-Collection キャンペーン / Daniel Craig × LOEWE FW24 Men's を収録。</p>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 20px; opacity: 0.6;">FW24 Pre-Collection Campaign</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/loewe-09.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection Campaign 1">
+      <div class="img-caption"><strong>FW24 Pre-Collection Campaign 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-10.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 2">
+      <div class="img-caption"><strong>FW24 Pre-Collection 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-11.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 3">
+      <div class="img-caption"><strong>FW24 Pre-Collection 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-12.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 4">
+      <div class="img-caption"><strong>FW24 Pre-Collection 4</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-13.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 5">
+      <div class="img-caption"><strong>FW24 Pre-Collection 5</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-14.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 6">
+      <div class="img-caption"><strong>FW24 Pre-Collection 6</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-15.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 7">
+      <div class="img-caption"><strong>FW24 Pre-Collection 7</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-16.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 8">
+      <div class="img-caption"><strong>FW24 Pre-Collection 8</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-17.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 9">
+      <div class="img-caption"><strong>FW24 Pre-Collection 9</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-18.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 10">
+      <div class="img-caption"><strong>FW24 Pre-Collection 10</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-19.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 11">
+      <div class="img-caption"><strong>FW24 Pre-Collection 11</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-20.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 12">
+      <div class="img-caption"><strong>FW24 Pre-Collection 12</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-21.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 13">
+      <div class="img-caption"><strong>FW24 Pre-Collection 13</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-22.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection 14">
+      <div class="img-caption"><strong>FW24 Pre-Collection 14</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-23.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE FW24 Pre-Collection Hero">
+      <div class="img-caption"><strong>FW24 Pre-Collection Hero</strong></div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin: 40px 0 20px; opacity: 0.6;">Daniel Craig × LOEWE FW24 Men's</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/loewe-24.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE Daniel Craig × LOEWE FW24 Men's 1">
+      <div class="img-caption"><strong>Daniel Craig × LOEWE FW24 Men's 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-25.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE Daniel Craig × LOEWE FW24 Men's 2">
+      <div class="img-caption"><strong>Daniel Craig × LOEWE FW24 Men's 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-26.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE Daniel Craig × LOEWE FW24 Men's 3">
+      <div class="img-caption"><strong>Daniel Craig × LOEWE FW24 Men's 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/loewe-27.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="LOEWE Daniel Craig × LOEWE FW24 Final">
+      <div class="img-caption"><strong>Daniel Craig × LOEWE FW24 Final</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 05 REVOLUTION ── -->
+<section id="revolution">
+  <p class="section-label">05 — Jonathan Anderson Revolution</p>
+  <h2>Anderson革命 — <span class="accent">ブランド価値の変化</span></h2>
+
+  <p style="margin-bottom: 32px;">Jonathan Anderson就任（2013年）後の具体的な変化。ブランドの売上・メディア露出・文化的影響力が劇的に向上した。</p>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <div class="card-icon">📱</div>
+      <h3>SNS文化との統合</h3>
+      <p>インスタグラム時代を意識した「写真映えする奇妙さ」の設計。Balloon Bagは発売直後にSNSで爆発的に拡散。<strong>ウイルス性（Virality）を計算に入れたデザイン</strong>が現代ラグジュアリーの新手法として注目された。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎭</div>
+      <h3>コレクションのテーマ性</h3>
+      <p>毎シーズン、一つのアートや思想をテーマに掲げる。陶芸家との協業・特定のアーティストへのオマージュ・民俗芸術の引用。<strong>コレクションが「展覧会」として機能する</strong>ようになった。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌍</div>
+      <h3>グローバルカルチャーへの浸透</h3>
+      <p>Zendaya・Beyoncé・Harry Styles等のセレブリティ着用。アジア市場でも若い世代に強くリーチ。<strong>「クラフト」という古い価値を若い世代に再翻訳</strong>することに成功した。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 06 FOUNDATION ── -->
+<section id="foundation">
+  <p class="section-label">06 — Loewe Foundation</p>
+  <h2>Loewe Foundation — <span class="accent">クラフトの哲学を世界へ</span></h2>
+
+  <p style="margin-bottom: 32px;">Loewe Foundationは1988年に設立された文化財団。職人技・クラフトマンシップの普及と支援が目的。ブランドの「Craft is the heart of Loewe」という哲学を社会的に体現する活動拠点。</p>
+
+  <div class="foundation-grid">
+    <div class="foundation-card">
+      <div class="f-year">Loewe Foundation Craft Prize</div>
+      <h4>工芸の世界賞</h4>
+      <p>世界中の卓越した職人・工芸家を発掘・支援する国際賞。陶芸・テキスタイル・ガラス工芸・金属工芸など多様な分野から毎年選出。ブランドが「クラフトの守護者」として世界的に認知される基盤となっている。</p>
+    </div>
+    <div class="foundation-card">
+      <div class="f-year">Poetry Series / Translation Prize</div>
+      <h4>詩と文学の支援</h4>
+      <p>詩の翻訳に特化した国際賞。スペイン詩・現代詩の普及を支援。ファッションブランドが「詩」を支援するという意外性がLoeweのインテレクチュアルなポジションを強化している。</p>
+    </div>
+    <div class="foundation-card">
+      <div class="f-year">アーティストとのコラボレーション</div>
+      <h4>生きている工芸との対話</h4>
+      <p>Foundationが発掘した工芸家とのコレクションへの統合。陶芸作品をバッグのモチーフに、テキスタイルアーティストの技法をウェアに適用。コレクションとFoundationの活動が循環する設計。</p>
+    </div>
+    <div class="foundation-card">
+      <div class="f-year">文化センター</div>
+      <h4>スペイン文化の発信拠点</h4>
+      <p>マドリードのFoundationスペースでの展覧会・イベント開催。スペイン文化の文脈でLoeweのブランドを語る場として機能。ブランドが国家文化遺産と接続している希有な例。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 07 BUSINESS ── -->
+<section id="business">
+  <p class="section-label">07 — Business Model</p>
+  <h2>ビジネス<span class="accent">モデル</span></h2>
+
+  <div class="sales-flow" style="margin-bottom: 40px;">
+    <div class="sales-step">
+      <div class="step-icon">🏭</div>
+      <div class="step-title">レザー工房</div>
+      <div class="step-desc">スペイン職人による製造</div>
+    </div>
+    <div class="sales-step" style="background: #d8e8d8; border-color: #6a9a6a; outline: 2px solid var(--lw-green); outline-offset: -1px;">
+      <div class="step-icon">🎨</div>
+      <div class="step-title" style="color: var(--lw-green);">Anderson デザイン監修</div>
+      <div class="step-desc">アート・クラフト・ユーモアの統合</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🏬</div>
+      <div class="step-title">旗艦店（直販）</div>
+      <div class="step-desc">世界主要都市・公式EC</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🛍️</div>
+      <div class="step-title">セレクト / 百貨店</div>
+      <div class="step-desc">ラグジュアリーセレクト・高級百貨店</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>カテゴリ</th>
+        <th>価格帯（EUR）</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>バッグ（エントリー）</td><td>€1,500〜€2,500</td><td>Gate Bag / Squeeze Bag</td></tr>
+      <tr><td>バッグ（シグネチャー）</td><td>€2,400〜€4,000</td><td>Puzzle Bag / Balloon Bag</td></tr>
+      <tr><td>シューズ</td><td>€700〜€1,500</td><td>ローファー・ブーツ・サンダル</td></tr>
+      <tr><td>RTW（ウェア）</td><td>€1,000〜€5,000+</td><td>ドレス・コート・スウェット</td></tr>
+      <tr><td>スモールレザーグッズ</td><td>€200〜€700</td><td>ウォレット・カードホルダー</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── 08 POSITIONING ── -->
+<section id="positioning">
+  <p class="section-label">08 — Positioning Map</p>
+  <h2>ブランド<span class="accent">ポジショニングマップ</span></h2>
+
+  <p style="margin-bottom: 32px;">X軸：クラシック/クラフト ↔ コンテンポラリー/アート　／　Y軸：ステータス/権威 ↔ インテレクチュアル/ユーモア<br>ポイントにホバーするとブランド情報が表示されます。</p>
+
+  <div class="chart-wrapper">
+    <div class="chart-container">
+      <canvas id="positioningChart"></canvas>
+    </div>
+  </div>
+
+  <div style="margin-top: 32px;">
+    <h3 style="margin-bottom: 20px;">競合比較</h3>
+    <table>
+      <thead><tr><th>ブランド</th><th>ポジション</th><th>Loeweとの違い</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="dot dot-blue"></span>Hermès</td>
+          <td>クラフト×ステータスの頂点</td>
+          <td>職人技は共通だが、Hermèsはより権威的・伝統的。ユーモアや奇妙さはない</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Bottega Veneta</td>
+          <td>ステルスラグジュアリー・クラフト重視</td>
+          <td>クラフト哲学は近い。しかしBVはロゴレス・目立たない路線でユーモアや社交性がない</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-amber"></span>Marni</td>
+          <td>アート×カラー×遊び心</td>
+          <td>遊び心は共通だが、Marniはより前衛的・ファッション内向き。職人技へのコミットメントが薄い</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Louis Vuitton</td>
+          <td>グローバルラグジュアリー最大手</td>
+          <td>同じLVMH傘下。LVはステータス・トラベルバッグが核。クラフト哲学よりブランド力が前面</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-green"></span><strong>Loewe</strong></td>
+          <td><strong>クラフト × インテレクチュアル × ユーモアの唯一無二ゾーン</strong></td>
+          <td>177年の職人技を現代のアート・ユーモアで語り直す。Andersonの知性と奇妙さがブランドを唯一無二にしている</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── 09 CD INSIGHTS ── -->
+<section id="cd-insights">
+  <p class="section-label">09 — CD Insights</p>
+  <h2>CDとして<span class="accent">活かせるポイント</span></h2>
+  <p style="margin-bottom: 40px;">Loewe / Jonathan Andersonから抽出できる、新ブランドAIワークフロー各フェーズへの接続ポイント。</p>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">職人技を現代的に語る方法</div>
+    </div>
+    <div class="insight-content">
+      <p>Loeweの最も重要な学びは「古い技術を古く見せない語り方」。177年の職人技が「時代遅れ」ではなく「時代を超えた」ものとして伝わるのは、Jonathan Andersonが<strong>現代の文脈（アート・ユーモア・SNS）で語り直している</strong>から。</p>
+      <p class="learn">💡 新ブランドでも「伝統・技術・素材」は武器になる。ただし伝え方を現代のコンテキストに翻訳することが必須。kemio案件の「茶道」もLoeweのアプローチで語り直せる可能性がある。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">アート引用でブランドを知的に見せる</div>
+    </div>
+    <div class="insight-content">
+      <p>LoeweはFoundationを通じてアートとの接続を「本物」にしている。単なる「アートっぽいデザイン」ではなく、<strong>実際に陶芸家・彫刻家・詩人とリレーションシップを持つ</strong>ことでインテレクチュアルなポジションを確立。</p>
+      <p class="learn">💡 新ブランドでアートを引用するとき、「本物のクリエイターとの関係」を作れるかを問う。コラボは点ではなく継続的な関係として設計する。AIワークフローでも「アーティスト × ブランド」の接続フェーズを作る。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">ユーモアをラグジュアリーに導入する</div>
+    </div>
+    <div class="insight-content">
+      <p>Balloon Bag・野菜バッグ・人形クラッチ——Andersonは「なぜこれを作るのか」という問いに常に「面白いから」という理由も含める。<strong>ユーモアはブランドを親しみやすくすると同時に記憶させる</strong>最強の武器。</p>
+      <p class="learn">💡 ラグジュアリーに「笑い」を持ち込む勇気。新ブランドで「真剣すぎる」デザインに固執していないか問い直す。一つのアイテムに「なぜか笑える要素」を入れる実験を試みる価値がある。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 1</span>
+      <div class="insight-title">Puzzle Bagに見る：機能 × デザイン × コンセプトの統合</div>
+    </div>
+    <div class="insight-content">
+      <p>Puzzle Bagは「なぜパズルのピース状なのか」という問いに明確に答えられる。幾何学的な面の組み合わせが構造強度・容量・視覚的インパクトをすべて同時に実現している。<strong>コンセプトが機能を生み、機能がフォルムを決める</strong>設計。</p>
+      <p class="learn">💡 アイテム設計で「形の理由を3つ言えるか」を毎回問う。装飾のための装飾ではなく、コンセプト・機能・美しさが統合されているか。Puzzle Bagはそのチェックリストの完璧な解答例。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 3</span>
+      <div class="insight-title">CDが何を「守り」何を「壊す」か</div>
+    </div>
+    <div class="insight-content">
+      <p>Andersonが就任後、守ったもの：レザークラフトマンシップ・スペインとの接続・職人との関係。壊したもの：「上品で地味」というイメージ・ステータス主義的なブランド設計・真剣すぎるコミュニケーション。</p>
+      <p class="learn">💡 新ブランドへの参加時、「何を守り何を壊すか」のリストを最初に作る。壊してはいけないものと壊すべきものを明確にしてから手を動かす。これはCDとしての最初の仕事。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <h3>参照ソース</h3>
+  <ul class="ref-list">
+    <li><a href="https://www.loewe.com" target="_blank">Loewe Official — loewe.com</a></li>
+    <li><a href="https://loewefoundation.com" target="_blank">Loewe Foundation — loewefoundation.com</a></li>
+    <li><a href="https://www.businessoffashion.com/organisations/loewe/" target="_blank">Loewe — Business of Fashion</a></li>
+    <li><a href="https://www.vogue.com/fashion/designer/loewe" target="_blank">Loewe Coverage — Vogue</a></li>
+    <li><a href="https://www.lvmh.com/houses/fashion-leather-goods/loewe/" target="_blank">Loewe — LVMH Official</a></li>
+    <li><a href="https://www.highsnobiety.com/tag/loewe/" target="_blank">Loewe Coverage — Highsnobiety</a></li>
+    <li><a href="https://www.dezeen.com/tag/loewe/" target="_blank">Loewe Coverage — Dezeen</a></li>
+  </ul>
+  <div class="footer-meta">
+    生成日: 2026-05-10 ／ CORIN ブランド分析レポート ／ Phase 0 競合リサーチ用
+  </div>
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const brands = [
+  { label: 'Loewe', x: 0.62, y: 0.80, color: '#2c4a2c', size: 20, desc: 'クラフト × インテレクチュアル × ユーモア\nAndersonによる現代的再定義' },
+  { label: 'Hermès', x: 0.18, y: 0.32, color: '#d8a840', size: 12, desc: 'クラフト × ステータスの頂点\n伝統・権威・希少性' },
+  { label: 'Bottega Veneta', x: 0.25, y: 0.60, color: '#88a8d8', size: 12, desc: 'ステルスラグジュアリー\nロゴレス・職人技重視' },
+  { label: 'Marni', x: 0.72, y: 0.88, color: '#d888a8', size: 10, desc: 'アート × カラー × 遊び心\n前衛的・ファッション内向き' },
+  { label: 'Louis Vuitton', x: 0.48, y: 0.22, color: '#c8b840', size: 12, desc: 'グローバルラグジュアリー最大手\nステータス・トラベルバッグ中心' },
+  { label: 'Prada', x: 0.55, y: 0.45, color: '#88b8d8', size: 10, desc: 'インテレクチュアルラグジュアリー\n哲学的アプローチ・コンセプトウェア' },
+  { label: 'JW Anderson', x: 0.82, y: 0.78, color: '#a8d888', size: 10, desc: 'Jonathan Anderson自身のブランド\nLoeweより実験的・ストリート寄り' },
+  { label: 'Gucci', x: 0.65, y: 0.38, color: '#d8a888', size: 10, desc: 'マキシマリスト×ラグジュアリー\nポップカルチャー接続' },
+  { label: 'Loro Piana', x: 0.12, y: 0.50, color: '#b8b8a8', size: 10, desc: '究極のクワイエットラグジュアリー\n素材・クラフト至上主義' },
+];
+
+const ctx = document.getElementById('positioningChart').getContext('2d');
+new Chart(ctx, {
+  type: 'scatter',
+  data: {
+    datasets: brands.map(b => ({
+      label: b.label,
+      data: [{ x: b.x, y: b.y }],
+      backgroundColor: b.label === 'Loewe'
+        ? 'rgba(44,74,44,0.85)'
+        : 'rgba(255,255,255,0.06)',
+      borderColor: b.color,
+      borderWidth: b.label === 'Loewe' ? 3 : 1.5,
+      pointRadius: b.size,
+      pointHoverRadius: b.size + 4,
+      _desc: b.desc,
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 800, easing: 'easeOutQuart' },
+    layout: { padding: { top: 40, bottom: 40, left: 40, right: 40 } },
+    scales: {
+      x: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+        border: { color: 'rgba(255,255,255,0.1)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← クラシック / クラフト　　　　　　コンテンポラリー / アート →',
+          color: '#555', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      },
+      y: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+        border: { color: 'rgba(255,255,255,0.1)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← ステータス / 権威　　　　　　インテレクチュアル / ユーモア →',
+          color: '#555', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#111',
+        borderColor: '#2a2a2a',
+        borderWidth: 1,
+        titleFont: { size: 13, weight: '700', family: 'Inter' },
+        bodyFont: { size: 12, family: 'Inter' },
+        titleColor: '#e8e8e8',
+        bodyColor: '#888',
+        padding: 14,
+        cornerRadius: 10,
+        callbacks: {
+          title: ctx => ctx[0].dataset.label,
+          label: ctx => {
+            const desc = ctx.dataset._desc || '';
+            return desc.split('\n');
+          }
+        }
+      },
+      datalabels: {
+        color: ctx => ctx.dataset.label === 'Loewe' ? '#5a8a5a' : '#aaa',
+        font: {
+          size: ctx => ctx.dataset.label === 'Loewe' ? 13 : 11,
+          weight: ctx => ctx.dataset.label === 'Loewe' ? '700' : '400',
+          family: 'Inter'
+        },
+        anchor: 'end',
+        align: ctx => {
+          const x = ctx.dataset.data[0].x;
+          return x > 0.7 ? 'left' : 'right';
+        },
+        offset: 8,
+        formatter: (val, ctx) => ctx.dataset.label,
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

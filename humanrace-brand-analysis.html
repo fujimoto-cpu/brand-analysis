@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Humanrace — ブランド分析レポート</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+    :root {
+      --bg: #faf8f3;
+      --bg2: #f2efe8;
+      --bg3: #e8e5dc;
+      --border: #d8d4c8;
+      --text: #1a1a18;
+      --text-muted: #5a5752;
+      --text-dim: #9a9790;
+      --accent: #2d6a2d;
+      --accent2: #1a5a7a;
+      --accent3: #8a5a10;
+      --hr-green: #2d6a2d;
+      --tag-bg: #dff0df;
+      --tag-text: #2d6a2d;
+      --blue-bg: #d8eaf5;
+      --blue-text: #1a5a7a;
+      --orange-bg: #f5e8d0;
+      --orange-text: #8a5a10;
+      --red-accent: #c04040;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(250,248,243,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 52px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    nav .brand { font-weight: 700; letter-spacing: 0.12em; font-size: 13px; color: var(--hr-green); }
+    nav a { font-size: 12px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.06em; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+    nav .spacer { flex: 1; }
+    nav .date { font-size: 11px; color: var(--text-dim); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 120px 64px 80px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 60% 40%, #d8ead8 0%, var(--bg) 60%);
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(80px, 18vw, 240px);
+      font-weight: 900; letter-spacing: -0.04em;
+      color: rgba(0,0,0,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--hr-green);
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+      margin-bottom: 24px;
+    }
+    .hero-title span { color: var(--hr-green); }
+    .hero-sub {
+      font-size: 18px; font-weight: 300; color: var(--text-muted);
+      max-width: 520px; margin-bottom: 48px;
+    }
+    .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      display: inline-block; padding: 4px 12px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #2e4a2e; border-radius: 100px;
+      font-size: 11px; letter-spacing: 0.08em; font-weight: 500;
+    }
+    .tag.blue { background: var(--blue-bg); color: var(--blue-text); border-color: #1e3a4a; }
+    .tag.orange { background: var(--orange-bg); color: var(--orange-text); border-color: #4a2e1e; }
+    .hero-images {
+      position: absolute; right: 64px; top: 50%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .hero-img-card {
+      width: 200px; height: 140px;
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+    }
+    .hero-img-card img { width: 100%; height: 100%; object-fit: cover; }
+    .hero-img-card .img-fallback {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em;
+    }
+    .scroll-hint {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .scroll-arrow { animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+    /* ─── SECTION ─── */
+    section {
+      padding: 80px 64px;
+      border-bottom: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--text-dim);
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 36px; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 40px; line-height: 1.2;
+    }
+    h2 .accent { color: var(--hr-green); }
+    h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    strong { color: var(--text); }
+
+    /* ─── CARDS ─── */
+    .card-grid { display: grid; gap: 20px; }
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover { border-color: #3a3a3a; transform: translateY(-2px); }
+    .card-icon { font-size: 28px; margin-bottom: 16px; }
+    .card h3 { font-size: 16px; }
+    .card .role { font-size: 11px; color: var(--hr-green); letter-spacing: 0.1em; margin-bottom: 10px; text-transform: uppercase; }
+    .card p { font-size: 14px; }
+    .card .number { font-size: 40px; font-weight: 900; letter-spacing: -0.04em; color: var(--hr-green); }
+    .card .number-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+    /* ─── IMAGE GRID ─── */
+    .img-grid { display: grid; gap: 16px; }
+    .img-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .img-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .img-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column;
+    }
+    .img-card img { width: 100%; display: block; aspect-ratio: 1/1; object-fit: contain; object-position: center; background: var(--bg2); flex-shrink: 0; }
+    .img-card .img-caption {
+      padding: 12px 14px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .img-card .img-caption strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+    .img-fallback-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      aspect-ratio: 4/3;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .img-fallback-card .emoji { font-size: 32px; }
+    .img-fallback-card .label { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 16px; font-size: 11px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid #1a1a1a; vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+    .dot-green { background: var(--hr-green); }
+    .dot-blue { background: var(--blue-text); }
+    .dot-orange { background: var(--orange-text); }
+
+    /* ─── BRAND NETWORK ─── */
+    .network-diagram {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 480px;
+      position: relative;
+      overflow: visible;
+    }
+    .network-svg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 1;
+      overflow: visible;
+    }
+    .network-center {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: 148px; height: 148px;
+      background: var(--tag-bg);
+      border: 2.5px solid var(--hr-green);
+      border-radius: 50%;
+      text-align: center;
+      z-index: 3; position: relative;
+      box-shadow: 0 0 0 8px rgba(45,106,45,0.07);
+    }
+    .network-center .name { font-weight: 800; font-size: 13px; letter-spacing: 0.1em; color: var(--hr-green); line-height: 1.3; }
+    .network-center .year { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+    .network-nodes {
+      position: absolute; inset: 0;
+      z-index: 2;
+    }
+    .node {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+      transform: translate(-50%, -50%);
+    }
+    .node-circle {
+      width: 86px; height: 86px; border-radius: 50%;
+      background: var(--bg); border: 1.5px solid;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .node:hover .node-circle { transform: scale(1.08); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .node-year { font-size: 10px; color: var(--text-dim); letter-spacing: 0.04em; }
+    /* radius 155px, 60° intervals */
+    .node-1 { top: calc(50% - 155px); left: 50%; }
+    .node-2 { top: calc(50% - 77.5px); left: calc(50% + 134px); }
+    .node-3 { top: calc(50% + 77.5px); left: calc(50% + 134px); }
+    .node-4 { top: calc(50% + 155px); left: 50%; }
+    .node-5 { top: calc(50% + 77.5px); left: calc(50% - 134px); }
+    .node-6 { top: calc(50% - 77.5px); left: calc(50% - 134px); }
+
+    /* ─── POSITIONING MAP ─── */
+    .chart-wrapper {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+    }
+    .chart-container { position: relative; height: 520px; }
+    .axis-label {
+      position: absolute;
+      font-size: 11px; color: var(--text-dim);
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .axis-top { top: 8px; left: 50%; transform: translateX(-50%); }
+    .axis-bottom { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .axis-left { left: 8px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+    .axis-right { right: 8px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+
+    /* ─── CD INSIGHTS ─── */
+    .insight-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: start;
+      transition: border-color .2s;
+      margin-bottom: 16px;
+    }
+    .insight-card:hover { border-color: var(--hr-green); }
+    .insight-phase {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .phase-badge {
+      display: inline-block; padding: 4px 10px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #2e4a2e; border-radius: 100px;
+      font-size: 10px; letter-spacing: 0.1em; font-weight: 600;
+      width: fit-content;
+    }
+    .insight-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .insight-content { }
+    .insight-content p { font-size: 14px; margin-bottom: 8px; }
+    .insight-content .learn { font-size: 14px; color: var(--text-muted); font-style: italic; padding: 10px 14px; margin-top: 10px; background: var(--bg3); border-radius: 6px; display: block; }
+
+    /* ─── SALES MODEL ─── */
+    .sales-flow {
+      display: flex; gap: 0; align-items: stretch;
+    }
+    .sales-step {
+      flex: 1; background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px 20px; text-align: center;
+      position: relative;
+    }
+    .sales-step:not(:last-child):after {
+      content: '→';
+      position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); font-size: 18px; z-index: 1;
+    }
+    .sales-step:first-child { border-radius: 12px 0 0 12px; }
+    .sales-step:last-child { border-radius: 0 12px 12px 0; }
+    .sales-step .step-icon { font-size: 24px; margin-bottom: 8px; }
+    .sales-step .step-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .sales-step .step-desc { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── QUOTE ─── */
+    .quote-block {
+      border-left: 3px solid var(--hr-green);
+      padding: 20px 28px;
+      background: var(--bg2);
+      border-radius: 0 12px 12px 0;
+      margin: 32px 0;
+    }
+    .quote-block blockquote { font-size: 18px; font-weight: 300; font-style: italic; color: var(--text); line-height: 1.6; }
+    .quote-block cite { font-size: 12px; color: var(--text-dim); display: block; margin-top: 12px; letter-spacing: 0.08em; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 60px 64px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    footer h3 { font-size: 14px; font-weight: 600; margin-bottom: 20px; color: var(--text-muted); }
+    .ref-list { list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid #1a1a1a; }
+    .ref-list a { color: var(--text-dim); font-size: 13px; text-decoration: none; transition: color .2s; }
+    .ref-list a:hover { color: var(--hr-green); }
+    .footer-meta { margin-top: 40px; font-size: 12px; color: var(--text-dim); }
+
+    /* ─── STAT ROW ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+    .stat-item { text-align: center; padding: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+    .stat-num { font-size: 36px; font-weight: 900; color: var(--hr-green); letter-spacing: -0.04em; }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.06em; }
+
+    /* ─── COLLAB TIMELINE ─── */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline:before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+    .timeline-item { position: relative; margin-bottom: 32px; }
+    .timeline-item:before {
+      content: ''; position: absolute; left: -28px; top: 4px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--hr-green); border: 2px solid var(--bg);
+    }
+    .timeline-year { font-size: 11px; color: var(--hr-green); letter-spacing: 0.1em; margin-bottom: 6px; }
+    .timeline-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .timeline-content p { font-size: 14px; color: var(--text-muted); }
+    .timeline-img {
+      width: 100%; max-width: 400px; border-radius: 10px;
+      margin-top: 12px; border: 1px solid var(--border);
+      aspect-ratio: 16/9; object-fit: cover;
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; gap: 16px; }
+      nav a:not(.brand) { display: none; }
+      section, footer { padding: 60px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .hero-images { display: none; }
+      .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+      .card-grid-2 { grid-template-columns: 1fr; }
+      .img-grid-3 { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .sales-flow { flex-direction: column; }
+      .sales-step:first-child { border-radius: 12px 12px 0 0; }
+      .sales-step:last-child { border-radius: 0 0 12px 12px; }
+      .sales-step:not(:last-child):after { content: '↓'; right: auto; left: 50%; transform: translateX(-50%); top: auto; bottom: -16px; }
+      .insight-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="brand">HUMANRACE</span>
+  <a href="#overview">概要</a>
+  <a href="#philosophy">哲学</a>
+  <a href="#collections">作品</a>
+  <a href="#sales">販売</a>
+  <a href="#positioning">ポジション</a>
+  <a href="#cd-insights">CD活用</a>
+  <span class="spacer"></span>
+  <a href="index.html" style="font-size:11px;letter-spacing:0.08em;color:var(--text-muted);text-decoration:none;border:1px solid var(--border);border-radius:20px;padding:4px 14px;transition:all 0.2s" onmouseover="this.style.borderColor='#a0a090'" onmouseout="this.style.borderColor='var(--border)'">← 一覧</a>
+  <span class="date">ブランド分析 — 2026.05.09</span>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg-text">HUMAN</div>
+  <p class="hero-eyebrow">Brand Analysis — Competitor Research</p>
+  <h1 class="hero-title">Human<span>race</span></h1>
+  <p class="hero-sub">ウェルネスを起点に、スキンケア・アパレル・カルチャーを横断するファレル・ウィリアムス創設のライフスタイルブランド。</p>
+  <div class="hero-tags">
+    <span class="tag">🇺🇸 Founded 2020</span>
+    <span class="tag">Pharrell Williams</span>
+    <span class="tag blue">Wellness × Streetwear</span>
+    <span class="tag blue">Genderless</span>
+    <span class="tag orange">adidas collab</span>
+    <span class="tag orange">Louis Vuitton連携</span>
+  </div>
+  <div class="hero-images">
+    <div class="hero-img-card">
+      <img src="brand-images/hr-skincare-kit.png"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           alt="Humanrace Skincare">
+      <div class="img-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;">SKINCARE</div>
+    </div>
+    <div class="hero-img-card">
+      <img src="brand-images/hr-adizero.png"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           alt="Humanrace Samba">
+      <div class="img-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;color:var(--text-dim);font-size:11px;">SAMBA</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 01 OVERVIEW ── -->
+<section id="overview">
+  <p class="section-label">01 — Overview</p>
+  <h2>ブランド<span class="accent">概要</span></h2>
+
+  <div class="stat-row">
+    <div class="stat-item">
+      <div class="stat-num">2020</div>
+      <div class="stat-label">創設年</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">2.5h</div>
+      <div class="stat-label">初回在庫完売時間</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">50:50</div>
+      <div class="stat-label">男女比（顧客層）</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">1,300+</div>
+      <div class="stat-label">除外成分数（EU基準）</div>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>"Humanrace doesn't differentiate by race or gender. We're creating for humans."</blockquote>
+    <cite>— Pharrell Williams, Founder</cite>
+  </div>
+
+  <p>2020年11月、ファレル・ウィリアムスが25年にわたる自身のスキンケア習慣と、かかりつけ皮膚科医 Dr. Elena Jones との関係を起点に創設。ローンチ直後に初回在庫を2.5時間で完売した。</p>
+  <p>ブランドのコアコンセプトは「<strong>日常のルーティンをリチュアル（儀式）に変える</strong>」こと。スキンケアを哲学の根幹に置き、アパレル・オブジェはその延長線上にある「生活ツール」として設計されている。</p>
+
+  <div class="img-grid img-grid-3" style="margin-top: 32px;">
+    <div class="img-card">
+      <img src="brand-images/hr-campaign-face.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🌿</div><div class=label>Campaign Visual</div></div>'"
+           alt="Humanrace Campaign">
+      <div class="img-caption"><strong>キャンペーンビジュアル</strong>Humidifying Face Cream</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/hr-campaign.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>✈️</div><div class=label>Travel Notes</div></div>'"
+           alt="Humanrace Travel Notes">
+      <div class="img-caption"><strong>Travel Notes</strong>2025年キャンペーン</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/hr-skincare-kit.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🧴</div><div class=label>Skincare Kit</div></div>'"
+           alt="Humanrace Skincare">
+      <div class="img-caption"><strong>Three-Minute Facial Kit</strong>ブランドのアイコン製品</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 02 TEAM ── -->
+<section id="team">
+  <p class="section-label">02 — Founders & Team</p>
+  <h2>創設者・<span class="accent">主要メンバー</span></h2>
+
+  <div class="card-grid card-grid-2" style="grid-template-columns: repeat(2,1fr)">
+    <div class="card">
+      <div class="card-icon">🎵</div>
+      <div class="role">Founder / Visionary</div>
+      <h3>Pharrell Williams</h3>
+      <p>グラミー賞受賞ミュージシャン・プロデューサー。2023年よりLouis Vuitton メンズクリエイティブディレクターにも就任。Humanraceでは「デザイナー」というより<strong>ビジョナリー・創業者</strong>として関与し、自身のスキンケア哲学とライフスタイルをブランドの核に据える。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">👔</div>
+      <div class="role">CEO / Co-Founder</div>
+      <h3>Rachel Muscat</h3>
+      <p>adidas でKanye West（YEEZY）やJeremy Scottなど伝説的コラボレーションを設計してきたコラボ専門家。メルボルン出身。<strong>コラボレーションを戦略的に設計する能力</strong>がブランドの急拡大を支えている。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎨</div>
+      <div class="role">CD — Visual Identity</div>
+      <h3>Edward Robinson</h3>
+      <p>インダストリアルデザインスタジオ「Working Method」主宰。製品の造形・ビジュアルアイデンティティを統括。積み木を思わせるシンプルな立体フォルムと、<strong>ラベルなしでステップ順がわかる造形設計</strong>を生み出した。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🩺</div>
+      <div class="role">Chief Dermatologist</div>
+      <h3>Dr. Elena Jones</h3>
+      <p>ファレルのかかりつけ皮膚科医。処方開発を最初から最終製造まで監修。ブランド創設の原点であり、科学的信頼性の根拠。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 03 PHILOSOPHY ── -->
+<section id="philosophy">
+  <p class="section-label">03 — Design Philosophy</p>
+  <h2>デザイン哲学・<span class="accent">ビジュアルアイデンティティ</span></h2>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <div class="card-icon">⚧️</div>
+      <h3>ジェンダーレス設計</h3>
+      <p>人種・性別で分類しない。すべての人間のためのブランドを標榜。スキンケア未経験のストリートウェア系男性ユーザーの取り込みに成功した。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌿</div>
+      <h3>サステナビリティ</h3>
+      <p>EU禁止成分1,300種以上を除外。ボトルは51%以上のポストコンシューマーリサイクルプラスチック。詰め替えボトル設計（1時間に1,200個以上の使い捨てキャップを削減）。製品に<strong>点字表記</strong>あり。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📐</div>
+      <h3>機能美 × ミニマル</h3>
+      <p>積み木型ボトルはラベルを読まなくてもステップ順がわかる造形設計。色・形・サイズで製品の役割を直感的に伝える。<strong>インダストリアルデザインの思想が宿った製品</strong>。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔡</div>
+      <h3>彫刻テキストグラフィック</h3>
+      <p><strong>ラベルなし設計</strong>で、視覚・触覚でブランドを伝えるアプローチ。キャップには点字（ブライユ）を直接施工。外箱はGF Smith Colorplan紙にSmooth/Granular/Sandgrainの3種エンボス加工（Black Ink Projects施工）。パッケージ設計：Edward Robinson（CD / Working Method）、ブランドアイデンティティ：Noë &amp; Associates。</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px;">
+    <h3 style="margin-bottom: 20px; color: var(--text-muted);">製品ビジュアル</h3>
+    <div class="img-grid img-grid-3">
+      <div class="img-card">
+        <img src="brand-images/hr-routine-kit.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🧴</div><div class=label>Rice Powder Cleanser</div></div>'"
+             alt="Humanrace Skincare">
+        <div class="img-caption"><strong>The Three-Minute Facial</strong>スキンケア 3点セット</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/hr-discovery-kit.png"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🎨</div><div class=label>Product Design — Edward Robinson</div></div>'"
+             alt="Humanrace Products">
+        <div class="img-caption"><strong>ディスカバリーキット</strong>スキンケア 4アイテムセット</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/hr-face-cream.png"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>✨</div><div class=label>Brand World</div></div>'"
+             alt="Humanrace Brand">
+        <div class="img-caption"><strong>彫刻テキスト</strong>ボトルに直接刻印されたブランド名</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/hr-bodybar.png"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🌿</div><div class=label>Body Bar — Natural Ingredients</div></div>'"
+             alt="Humanrace Body Bar">
+        <div class="img-caption"><strong>Whiteclay Body Bar</strong>点字表記・リサイクル素材パッケージ</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/hr-longsleeve-white.png"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👕</div><div class=label>Genderless Apparel</div></div>'"
+             alt="Humanrace Longsleeve">
+        <div class="img-caption"><strong>Long Sleeve Tee</strong>ジェンダーレス設計 — ユニセックスシルエット</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/hr-cleanser.png"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🫧</div><div class=label>Rice Powder Cleanser</div></div>'"
+             alt="Rice Powder Cleanser">
+        <div class="img-caption"><strong>Rice Powder Cleanser</strong>$43 — ステップ1</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/hr-exfoliator.png"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🌸</div><div class=label>Lotus Enzyme Exfoliator</div></div>'"
+             alt="Lotus Enzyme Exfoliator">
+        <div class="img-caption"><strong>Lotus Enzyme Exfoliator</strong>$46 — ステップ2</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04 COLLECTIONS ── -->
+<section id="collections">
+  <p class="section-label">04 — Collections & Collabs</p>
+  <h2>代表的な<span class="accent">作品・コラボレーション</span></h2>
+
+  <div class="img-grid img-grid-3" style="margin-bottom: 48px;">
+    <div class="img-card">
+      <img src="brand-images/hr-adizero.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👟</div><div class=label>adidas Humanrace Samba</div></div>'"
+           alt="adidas Humanrace Samba">
+      <div class="img-caption"><strong>adidas Humanrace Samba</strong>6カラー展開</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/hr-jacket.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>⚽</div><div class=label>Football Jersey Collection</div></div>'"
+           alt="Humanrace Football Jersey">
+      <div class="img-caption"><strong>Football Jersey</strong>5大クラブのユニフォームリデザイン</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/hr-evo.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🎾</div><div class=label>Humanrace × Evian Tennis</div></div>'"
+           alt="Humanrace Evian Tennis">
+      <div class="img-caption"><strong>Humanrace × Evian</strong>2024 US Open テニスコレクション</div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 20px; color: var(--text-muted);">新スキンケアライン</h3>
+  <div class="img-grid img-grid-3" style="margin-bottom: 48px;">
+    <div class="img-card">
+      <img src="brand-images/hr-7d-gel-set.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🧬</div><div class=label>7D Gel Facial Set</div></div>'"
+           alt="7D Gel Facial Set">
+      <div class="img-caption"><strong>7D Gel Facial Set</strong>新世代ゲルテクスチャーライン</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/hr-bodycream.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>💧</div><div class=label>Humidifying Body Cream</div></div>'"
+           alt="Humidifying Body Cream">
+      <div class="img-caption"><strong>Humidifying Body Cream</strong>ボディケアライン拡充</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/hr-adizero-shorts.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🏃</div><div class=label>Adizero Running Shorts</div></div>'"
+           alt="Adizero Running Shorts">
+      <div class="img-caption"><strong>Adizero Running Shorts</strong>adidas × Humanrace ランニングコレクション</div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 20px; color: var(--text-muted);">アパレルライン</h3>
+  <div class="img-grid img-grid-3" style="margin-bottom: 48px;">
+    <div class="img-card">
+      <img src="brand-images/hr-longsleeve-white.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👕</div><div class=label>Long Sleeve White</div></div>'"
+           alt="Humanrace Longsleeve White">
+      <div class="img-caption"><strong>Long Sleeve Tee — White</strong>ユニセックス・ミニマルロゴ</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/hr-longsleeve-black.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🖤</div><div class=label>Long Sleeve Black</div></div>'"
+           alt="Humanrace Longsleeve Black">
+      <div class="img-caption"><strong>Long Sleeve Tee — Black</strong>ベーシック × 高品質素材</div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/hr-tshirt-brown.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🤎</div><div class=label>T-Shirt Brown</div></div>'"
+           alt="Humanrace T-Shirt Brown">
+      <div class="img-caption"><strong>S/S Tee — Brown</strong>アーストーン × ジェンダーレス</div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 24px;">コラボレーション タイムライン</h3>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <div class="timeline-content">
+        <h4>ブランド創設・adidas Humanrace Samba ローンチ</h4>
+        <p>初回在庫が2.5時間で完売。adidas とのコラボを第1弾として6カラー展開でリリース。スキンケア「The Three-Minute Facial」も同時ローンチ。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <div class="timeline-content">
+        <h4>adidas Football Jersey コレクション</h4>
+        <p>Arsenal / Bayern Munich / Juventus / Manchester United / Real Madrid 5大クラブの伝説的ユニフォームをリデザイン。スポーツ×ストリートの文脈で大きな話題を呼ぶ。</p>
+        <img class="timeline-img"
+             src="brand-images/hr-jacket.png"
+             onerror="this.style.display='none'"
+             alt="Football Jerseys">
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2023</div>
+      <div class="timeline-content">
+        <h4>ファレル → Louis Vuitton メンズCD就任</h4>
+        <p>直接のHumanraceコラボではないが、LVのクリエイティブディレクターとしての活動がHumanraceのブランド価値をラグジュアリー寄りに引き上げる間接効果をもたらした。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2024</div>
+      <div class="timeline-content">
+        <h4>Humanrace × Evian テニスコレクション</h4>
+        <p>2024年US Openにあわせた限定アパレルコレクション。スポーツ×ウェルネスの接点を再び示した。</p>
+        <img class="timeline-img"
+             src="brand-images/hr-evo.png"
+             onerror="this.style.display='none'"
+             alt="Evian Tennis">
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2024</div>
+      <div class="timeline-content">
+        <h4>adidas EVOLUTION Pro（$1,000）</h4>
+        <p>触覚センサー搭載の高機能ランニングシューズ。テクノロジー×ウェルネスのフロンティアへ進出。価格帯の上限を大幅に引き上げた戦略的プロダクト。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ── 04.5 VISUAL ARCHIVE ── -->
+<section id="visual-archive">
+  <p class="section-label">04.5 — Visual Archive</p>
+  <h2><span class="accent">ビジュアル</span> アーカイブ</h2>
+  <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 14px;">Humanrace × evian コラボ / Humanrace × adidas Samba Colors Pack を収録。</p>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 20px; opacity: 0.6;">Humanrace × evian — "Fountain of Life" Collaboration</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/humanrace-009.png" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Humanrace evian collab 1">
+      <div class="img-caption"><strong>evian × Humanrace 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-010.png" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Humanrace evian 2">
+      <div class="img-caption"><strong>evian × Humanrace 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-011.png" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Humanrace evian 3">
+      <div class="img-caption"><strong>evian × Humanrace 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-012.png" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Humanrace evian 4">
+      <div class="img-caption"><strong>evian × Humanrace 4</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-013.png" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Humanrace evian 5">
+      <div class="img-caption"><strong>evian × Humanrace 5</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-014.png" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Humanrace evian 6">
+      <div class="img-caption"><strong>evian × Humanrace 6</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-015.png" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Humanrace evian 7">
+      <div class="img-caption"><strong>evian × Humanrace 7</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-016.png" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Humanrace evian 8">
+      <div class="img-caption"><strong>evian × Humanrace 8</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-017.png" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Humanrace evian 9">
+      <div class="img-caption"><strong>evian × Humanrace 9</strong></div>
+    </div>
+  </div>
+  <div class="img-grid img-grid-1" style="margin-top: 16px;">
+    <div class="img-card">
+      <img src="brand-images/humanrace-018.png" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'" alt="Humanrace evian 10">
+      <div class="img-caption"><strong>evian × Humanrace — Fountain of Life Hero Shot</strong></div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin: 40px 0 20px; opacity: 0.6;">Humanrace × adidas Originals — Samba Colors Pack</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/humanrace-019.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👟</div></div>'" alt="Humanrace Samba 1">
+      <div class="img-caption"><strong>adidas Humanrace Samba 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-020.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👟</div></div>'" alt="Humanrace Samba 2">
+      <div class="img-caption"><strong>adidas Humanrace Samba 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-021.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👟</div></div>'" alt="Humanrace Samba 3">
+      <div class="img-caption"><strong>adidas Humanrace Samba 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-022.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👟</div></div>'" alt="Humanrace Samba 4">
+      <div class="img-caption"><strong>adidas Humanrace Samba — カラーバリエーション</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-023.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👟</div></div>'" alt="Humanrace Samba 5">
+      <div class="img-caption"><strong>adidas Humanrace Samba — 全カラー展開</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/humanrace-024.jpg" onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>👟</div></div>'" alt="Humanrace Samba 6">
+      <div class="img-caption"><strong>adidas Humanrace Samba — Hero Shot</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 05 SALES ── -->
+<section id="sales">
+  <p class="section-label">05 — Business Model</p>
+  <h2>販売方法・<span class="accent">ビジネスモデル</span></h2>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px; align-items: center;">
+    <div>
+      <p style="margin-bottom: 16px;">HumanraceはDTC（直販）× ドロップ × メンバーシップの三位一体モデルで希少性と顧客ロイヤリティを同時に実現している。</p>
+      <p style="color: var(--text-muted); font-size: 15px;">通常はクリーム色のパッケージだが、<strong>ドロップ限定でブラックエディション</strong>を不定期リリース。先行メンバーのみが一般公開の1日前に購入可能。</p>
+    </div>
+    <div class="img-card" style="max-width: 100%;">
+      <img src="brand-images/hr-black-routinekit.png"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🖤</div><div class=label>Black Routine Kit — Limited Drop</div></div>'"
+           alt="Humanrace Black Routine Kit">
+      <div class="img-caption"><strong>Black Routine Kit</strong>限定ドロップ版 — メンバー先行販売</div>
+    </div>
+  </div>
+
+  <div class="sales-flow" style="margin-bottom: 48px;">
+    <div class="sales-step">
+      <div class="step-icon">📧</div>
+      <div class="step-title">メール登録</div>
+      <div class="step-desc">先行アクセス権を獲得</div>
+    </div>
+    <div class="sales-step" style="background: #dff0df; border-color: #a8c8a8; outline: 2px solid var(--hr-green); outline-offset: -1px;">
+      <div class="step-icon">🔐</div>
+      <div class="step-title" style="color: var(--hr-green);">先行アクセス</div>
+      <div class="step-desc">一般公開の<strong>1日前</strong>にパスワード付きで購入可能</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🛒</div>
+      <div class="step-title">一般ドロップ</div>
+      <div class="step-desc">公式EC（humanrace.com）で不定期リリース</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🏬</div>
+      <div class="step-title">セレクト拡販</div>
+      <div class="step-desc">Nordstrom / Saks / SSENSE / Niche Beauty</div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom: 20px;">価格帯</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>プロダクト</th>
+        <th>価格（USD）</th>
+        <th>カテゴリ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Rice Powder Cleanser</td><td>$43</td><td>スキンケア</td></tr>
+      <tr><td>Lotus Enzyme Exfoliator</td><td>$46</td><td>スキンケア</td></tr>
+      <tr><td>Humidifying Cream</td><td>$48</td><td>スキンケア</td></tr>
+      <tr><td>The Three-Minute Facial（3点セット）</td><td>$130</td><td>スキンケア</td></tr>
+      <tr><td>adidas Humanrace Samba</td><td>$100〜$130</td><td>フットウェア</td></tr>
+      <tr><td>adidas EVOLUTION Pro</td><td>$1,000</td><td>フットウェア（ハイエンド）</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── 06 BRAND NETWORK ── -->
+<section id="network">
+  <p class="section-label">06 — Brand Network</p>
+  <h2>ファレルの<span class="accent">ブランドポートフォリオ</span></h2>
+
+  <div class="network-diagram">
+    <svg class="network-svg" id="networkSvg"></svg>
+    <div class="network-nodes">
+      <!-- 時系列順（時計回り）: 2003 → 2012 → 2014 → 2021 → 2023 → 2024 -->
+      <div class="node node-1">
+        <div class="node-circle" style="border-color: var(--orange-text); color: var(--orange-text);">BBC/<br>Ice Cream</div>
+        <div class="node-year">創設 2003</div>
+      </div>
+      <div class="node node-2">
+        <div class="node-circle" style="border-color: #88d8;">I Am<br>Other</div>
+        <div class="node-year">創設 2012</div>
+      </div>
+      <div class="node node-3">
+        <div class="node-circle" style="border-color: var(--orange-text); color: var(--orange-text);">adidas<br>Hu</div>
+        <div class="node-year">開始 2014</div>
+      </div>
+      <div class="node node-4">
+        <div class="node-circle" style="border-color: #d888;">adidas<br>Football</div>
+        <div class="node-year">2021</div>
+      </div>
+      <div class="node node-5">
+        <div class="node-circle" style="border-color: var(--blue-text); color: var(--blue-text);">Louis<br>Vuitton</div>
+        <div class="node-year">CD就任 2023</div>
+      </div>
+      <div class="node node-6">
+        <div class="node-circle" style="border-color: #d8a8;">Evian</div>
+        <div class="node-year">コラボ 2024</div>
+      </div>
+    </div>
+    <div class="network-center">
+      <div class="name">HUMAN<br>RACE</div>
+      <div class="year">▲ Core 2020</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 32px;">
+    <table>
+      <thead><tr><th>ブランド</th><th>概要</th><th>Humanraceとの関係</th></tr></thead>
+      <tbody>
+        <tr><td>Billionaire Boys Club（BBC）</td><td>2003年NIGO®と共同創設。ストリート×スペース×スケーター</td><td>ストリートウェアの源流。BBC公式サイトでHumanraceスキンケアも販売</td></tr>
+        <tr><td>adidas Hu（Human Race）</td><td>2014年〜のスニーカーコラボ。Humanraceの名前の由来</td><td>Humanraceブランドのアパレル・シューズはadidas経由で流通</td></tr>
+        <tr><td>Louis Vuitton Men's</td><td>2023年〜クリエイティブディレクター就任</td><td>Humanraceのポジションをラグジュアリー寄りに引き上げる効果</td></tr>
+        <tr><td>I Am Other</td><td>2012年創設の傘下メディア・クリエイティブカンパニー</td><td>BBCの親組織として機能。ファレルのクリエイティブ全体を統括</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+<script>
+(function() {
+  function drawSpokes() {
+    var svg = document.getElementById('networkSvg');
+    if (!svg) return;
+    svg.innerHTML = '';
+    var diagram = svg.closest('.network-diagram');
+    var dRect = diagram.getBoundingClientRect();
+    var cEl = diagram.querySelector('.network-center');
+    var cRect = cEl.getBoundingClientRect();
+    if (cRect.width === 0) { setTimeout(drawSpokes, 100); return; }
+    var cx = cRect.left + cRect.width/2 - dRect.left;
+    var cy = cRect.top + cRect.height/2 - dRect.top;
+    var cr = cRect.width/2;
+    diagram.querySelectorAll('.node-circle').forEach(function(circle) {
+      var nRect = circle.getBoundingClientRect();
+      var nx = nRect.left + nRect.width/2 - dRect.left;
+      var ny = nRect.top + nRect.height/2 - dRect.top;
+      var nr = nRect.width/2;
+      var dx = nx-cx, dy = ny-cy, dist = Math.sqrt(dx*dx+dy*dy);
+      if (dist === 0) return;
+      var ux = dx/dist, uy = dy/dist;
+      var line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', cx + ux*(cr+6));
+      line.setAttribute('y1', cy + uy*(cr+6));
+      line.setAttribute('x2', nx - ux*(nr+6));
+      line.setAttribute('y2', ny - uy*(nr+6));
+      line.setAttribute('stroke','#b8ceb8');
+      line.setAttribute('stroke-width','1.5');
+      line.setAttribute('stroke-dasharray','5,4');
+      svg.appendChild(line);
+    });
+  }
+  setTimeout(drawSpokes, 0);
+  setTimeout(drawSpokes, 300);
+  window.addEventListener('resize', drawSpokes);
+})();
+</script>
+
+<!-- ── 07 POSITIONING MAP ── -->
+<section id="positioning">
+  <p class="section-label">07 — Positioning Map</p>
+  <h2>ブランド<span class="accent">ポジショニングマップ</span></h2>
+
+  <p style="margin-bottom: 32px;">X軸：ストリート/カルチャー ↔ ラグジュアリー　／　Y軸：アパレル専業 ↔ ライフスタイル/ウェルネス統合<br>ポイントにホバーするとブランド情報が表示されます。</p>
+
+  <div class="chart-wrapper">
+    <div class="chart-container">
+      <canvas id="positioningChart"></canvas>
+    </div>
+  </div>
+
+  <div style="margin-top: 32px;">
+    <h3 style="margin-bottom: 20px;">競合比較</h3>
+    <table>
+      <thead><tr><th>ブランド</th><th>ポジション</th><th>Humanraceとの違い</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="dot dot-blue"></span>Supreme</td>
+          <td>ストリートウェア頂点（VF Corp傘下）</td>
+          <td>ドロップ文化は近いが、アパレル専業でウェルネス要素なし。音楽・スポーツとの接続がない</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Fear of God</td>
+          <td>ラグジュアリーストリート</td>
+          <td>宗教観・精神性が核だが、スキンケア×ライフスタイル統合はしていない</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-green"></span>Aesop</td>
+          <td>ライフスタイル×スキンケア高級路線</td>
+          <td>カルチャー接続がなく、ストリート層へのリーチがない</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-green"></span>Byredo</td>
+          <td>フレグランス×ライフスタイル</td>
+          <td>香水中心でスキンケアの科学的アプローチが薄い。カルチャー接続も限定的</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-orange"></span><strong>Humanrace</strong></td>
+          <td><strong>ウェルネス起点のカルチャーブランド</strong></td>
+          <td>スキンケア哲学をベースにアパレル・オブジェまで展開。ジェンダーレス・人種横断。音楽・スポーツ・ファッション全軸にファレルのネットワークが直結</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── 08 CD INSIGHTS ── -->
+<section id="cd-insights">
+  <p class="section-label">08 — CD Insights</p>
+  <h2>CDとして<span class="accent">活かせるポイント</span></h2>
+  <p style="margin-bottom: 40px;">新ブランドAIワークフロー（<code style="background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:12px;">2026-05-09-new-brand-ai-workflow.md</code>）の各フェーズと紐づけた学び。</p>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">Step 1 — Why の言語化</div>
+    </div>
+    <div class="insight-content">
+      <p>「スキンケアを哲学の根幹に置き、アパレルはその延長」——これはまさに「何を売るか」より先に「なぜ存在するか」を決めたブランドの典型例。</p>
+      <p class="learn">💡 kemio の「この一杯の中には自分しかいない」と同じアプローチ。新ブランドでも製品ではなく"体験の哲学"から言語化を始める。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">Step 2 — 3ブランド × 交点でポジション定義</div>
+    </div>
+    <div class="insight-content">
+      <p>Humanrace = <strong>Aesop（ウェルネス）× Supreme（ドロップ文化）× BBC（カルチャー接続）</strong>の交点として定義できる。</p>
+      <p class="learn">💡 3ブランド×交点テンプレートの実例。新ブランドのポジション設計に使えるフォーマット。ワークフローのStep 2をそのまま使える。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">Step 3 — タグラインの設計</div>
+    </div>
+    <div class="insight-content">
+      <p>"We're creating for humans" ——シンプルで普遍的。ジェンダー・人種・国籍に縛られない言葉の設計。英語で、かつ意思がはっきりある。</p>
+      <p class="learn">💡 タグラインは「限定しない」ことで最大の包括性を持てる。kemio の "Offline is the new luxury." も同じ構造。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">Step 4 — CDの思考順序（形 → 素材 → 色）</div>
+    </div>
+    <div class="insight-content">
+      <p>積み木型ボトルは「読まなくてもステップ順がわかる造形」。① 形（シルエット）→ ② 素材（サステナ思想の表明）→ ③ 色（ミニマル）の順で設計されている。</p>
+      <p class="learn">💡 CDの思考順序そのもの。「置いておきたいか」テストにも合格している。新ブランドのアイテム設計で同じ順序を使う。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 1</span>
+      <div class="insight-title">スケッチ → フラット：引き算のデザイン</div>
+    </div>
+    <div class="insight-content">
+      <p>アパレルラインは「上質なベーシック」路線。派手さを排した引き算のデザインで、素材・縫製の質で勝負する姿勢。</p>
+      <p class="learn">💡 AIでテクニカルフラットを作るとき、装飾を引いてシルエットと素材感で語れるかをチェックポイントにする。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 3</span>
+      <div class="insight-title">素材選定 = 思想の表明</div>
+    </div>
+    <div class="insight-content">
+      <p>EU禁止成分除外・リサイクルPL・点字表記——全部「素材の選択＝思想の表明」として一貫している。素材の選び方がブランドのWhy を語る。</p>
+      <p class="learn">💡 テキスタイル選定の際、「この素材を選ぶ理由がブランドの哲学と一致しているか」を毎回問う習慣をつける。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 5</span>
+      <div class="insight-title">コンテンツ：「世界観だけ」で売る設計</div>
+    </div>
+    <div class="insight-content">
+      <p>ブランドカラーはニュートラル・アーストーン。製品が主役になるシンプルなビジュアル。SNSでセールスコピーを使わず「世界観だけ」で購買意欲を生む設計。</p>
+      <p class="learn">💡 Canva × Kling O3でコンテンツを作るとき、「テキストを全部外したとき、世界観だけで伝わるか」をテストする。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 6</span>
+      <div class="insight-title">EC設計：DTC × ドロップ × メンバーシップ</div>
+    </div>
+    <div class="insight-content">
+      <p>公式EC直販（DTC）＋不定期ドロップ＋メンバーシップ先行アクセス（1日前）——この3層モデルが希少性と顧客ロイヤリティを両立させている。</p>
+      <p class="learn">💡 Shopify × Claude Codeで新ブランドのEC設計をするとき、この3層モデルをそのまま参照できる。メール登録者への1日前先行アクセスは実装コストが低く効果が高い。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 7</span>
+      <div class="insight-title">ナレッジ管理：このノートがPhase 0 の素材になる</div>
+    </div>
+    <div class="insight-content">
+      <p>このブランド分析自体がPhase 0「競合・市場リサーチ」の成果物。NotebookLMに投入することで、新ブランドのコンセプト設計に直接使える。</p>
+      <p class="learn">💡 次のアクション → このHTMLをNotebookLMのソースとして登録する。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <h3>参照ソース</h3>
+  <ul class="ref-list">
+    <li><a href="https://humanrace.com/pages/about-us" target="_blank">Humanrace About Us — humanrace.com</a></li>
+    <li><a href="https://www.glossy.co/beauty/humanrace-subscription-model/" target="_blank">Inside Humanrace's subscription-based business model — Glossy</a></li>
+    <li><a href="https://www.highsnobiety.com/p/pharrell-interview-human-race-skincare/" target="_blank">Pharrell Williams On His Human Race Skincare Brand — Highsnobiety</a></li>
+    <li><a href="https://wwd.com/beauty-industry-news/beauty-features/pharrell-williams-new-humanrace-launch-louis-vuitton-1235836567/" target="_blank">Pharrell Williams Chats New Humanrace Launch — WWD</a></li>
+    <li><a href="https://hypebeast.com/2024/5/pharrell-williams-adidas-originals-humanrace-samba-colors-pack-id9064-prlogr-id9065-cblack-id9066-glored-id9067-clowh-id9068-bogold-ig2088-alumin-info" target="_blank">adidas Humanrace Samba Colors Pack — Hypebeast</a></li>
+    <li><a href="https://www.dezeen.com/2024/08/15/pharrell-williams-tennis-collection-humanrace-evian/" target="_blank">Humanrace × Evian Tennis Collection — Dezeen</a></li>
+    <li><a href="https://fashionunited.com/news/fashion/the-many-hats-of-pharrell-williams-from-billionaire-boys-club-to-louis-vuitton/2023021752352" target="_blank">The many hats of Pharrell Williams — FashionUnited</a></li>
+    <li><a href="https://www.glossy.co/beauty/pharrell-williams-humanrace-glossy-50/" target="_blank">Glossy 50 2021: Pharrell Williams, founder of Humanrace</a></li>
+  </ul>
+  <div class="footer-meta">
+    生成日: 2026-05-09 ／ CORIN ブランド分析レポート ／ Phase 0 競合リサーチ用
+  </div>
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const brands = [
+  { label: 'Humanrace', x: 0.45, y: 0.82, color: '#a8d8a8', size: 20, desc: 'ウェルネス起点のカルチャーブランド\nストリート×ラグジュアリー×ライフスタイル統合' },
+  { label: 'Supreme', x: 0.25, y: 0.15, color: '#88c0d8', size: 10, desc: 'ストリートウェア頂点\nアパレル専業・ドロップ文化の源流' },
+  { label: 'Fear of God', x: 0.62, y: 0.35, color: '#88c0d8', size: 10, desc: 'ラグジュアリーストリート\n宗教観・精神性が核' },
+  { label: 'Aesop', x: 0.72, y: 0.88, color: '#d8c888', size: 10, desc: 'ライフスタイル×スキンケア高級路線\nカルチャー接続なし' },
+  { label: 'Byredo', x: 0.78, y: 0.80, color: '#d8c888', size: 10, desc: 'フレグランス×ライフスタイル\n香水中心' },
+  { label: 'BBC', x: 0.15, y: 0.20, color: '#88c0d8', size: 10, desc: 'ファレル創設のストリートブランド\nHumanraceの源流' },
+  { label: 'Louis Vuitton', x: 0.95, y: 0.55, color: '#d8a868', size: 10, desc: 'ラグジュアリートップ\nファレルがCD就任（2023）' },
+  { label: 'Off-White', x: 0.57, y: 0.28, color: '#88c0d8', size: 10, desc: 'ストリート×ラグジュアリー\nヴァージル・アブロー創設' },
+  { label: 'CACTUS PLANT', x: 0.20, y: 0.50, color: '#c8a8d8', size: 10, desc: 'ポップ×ストリート\nファレルともコラボ実績あり' },
+];
+
+const ctx = document.getElementById('positioningChart').getContext('2d');
+new Chart(ctx, {
+  type: 'scatter',
+  data: {
+    datasets: brands.map(b => ({
+      label: b.label,
+      data: [{ x: b.x, y: b.y }],
+      backgroundColor: b.label === 'Humanrace'
+        ? 'rgba(168,216,168,0.9)'
+        : 'rgba(255,255,255,0.08)',
+      borderColor: b.color,
+      borderWidth: b.label === 'Humanrace' ? 3 : 1.5,
+      pointRadius: b.size,
+      pointHoverRadius: b.size + 4,
+      _desc: b.desc,
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 800, easing: 'easeOutQuart' },
+    layout: { padding: { top: 40, bottom: 40, left: 40, right: 40 } },
+    scales: {
+      x: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+        border: { color: 'rgba(255,255,255,0.1)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← ストリート / カルチャー　　　　　　ラグジュアリー →',
+          color: '#555', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      },
+      y: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+        border: { color: 'rgba(255,255,255,0.1)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← アパレル専業　　　　　　ライフスタイル / ウェルネス統合 →',
+          color: '#555', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#111',
+        borderColor: '#2a2a2a',
+        borderWidth: 1,
+        titleFont: { size: 13, weight: '700', family: 'Inter' },
+        bodyFont: { size: 12, family: 'Inter' },
+        titleColor: '#e8e8e8',
+        bodyColor: '#888',
+        padding: 14,
+        cornerRadius: 10,
+        callbacks: {
+          title: ctx => ctx[0].dataset.label,
+          label: ctx => {
+            const desc = ctx.dataset._desc || '';
+            return desc.split('\n');
+          }
+        }
+      },
+      datalabels: {
+        color: ctx => ctx.dataset.label === 'Humanrace' ? '#a8d8a8' : '#aaa',
+        font: { size: ctx => ctx.dataset.label === 'Humanrace' ? 13 : 11, weight: ctx => ctx.dataset.label === 'Humanrace' ? '700' : '400', family: 'Inter' },
+        anchor: 'end',
+        align: ctx => {
+          const x = ctx.dataset.data[0].x;
+          return x > 0.7 ? 'left' : 'right';
+        },
+        offset: 8,
+        formatter: (val, ctx) => ctx.dataset.label,
+      }
+    }
+  }
+});
+
+// Quadrant lines
+const origDraw = Chart.instances[Chart.instances.length - 1].draw;
+
+</script>
+</body>
+</html>

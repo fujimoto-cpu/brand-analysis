@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stone Island — ブランド分析レポート</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <style>
+    :root {
+      --bg: #faf8f3;
+      --bg2: #f2efe8;
+      --bg3: #e8e5dc;
+      --border: #d8d4c8;
+      --text: #1a1a18;
+      --text-muted: #5a5752;
+      --text-dim: #9a9790;
+      --accent: #c8871a;
+      --accent2: #1a5a7a;
+      --accent3: #7a3a10;
+      --si-orange: #c8871a;
+      --tag-bg: #f5e8d0;
+      --tag-text: #7a4a10;
+      --blue-bg: #d8eaf5;
+      --blue-text: #1a5a7a;
+      --orange-bg: #f5e8d0;
+      --orange-text: #8a5a10;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(250,248,243,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 52px;
+      display: flex; align-items: center; gap: 24px;
+    }
+    nav .brand { font-weight: 700; letter-spacing: 0.12em; font-size: 13px; color: var(--si-orange); }
+    nav a { font-size: 12px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.06em; transition: color .2s; }
+    nav a:hover { color: var(--text); }
+    nav .spacer { flex: 1; }
+    nav .date { font-size: 11px; color: var(--text-dim); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 120px 64px 80px;
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 60% 40%, #f0dfc0 0%, var(--bg) 60%);
+    }
+    .hero-bg-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(60px, 14vw, 200px);
+      font-weight: 900; letter-spacing: -0.04em;
+      color: rgba(0,0,0,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-eyebrow {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--si-orange);
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 900; letter-spacing: -0.03em; line-height: 1;
+      margin-bottom: 24px;
+    }
+    .hero-title span { color: var(--si-orange); }
+    .hero-sub {
+      font-size: 18px; font-weight: 300; color: var(--text-muted);
+      max-width: 520px; margin-bottom: 48px;
+    }
+    .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      display: inline-block; padding: 4px 12px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #8a5a10; border-radius: 100px;
+      font-size: 11px; letter-spacing: 0.08em; font-weight: 500;
+    }
+    .tag.blue { background: var(--blue-bg); color: var(--blue-text); border-color: #1e3a4a; }
+    .tag.orange { background: var(--orange-bg); color: var(--orange-text); border-color: #4a2e1e; }
+    .scroll-hint {
+      position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+      font-size: 11px; color: var(--text-dim); letter-spacing: 0.15em;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .scroll-arrow { animation: bounce 1.5s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+    /* ─── SECTION ─── */
+    section {
+      padding: 80px 64px;
+      border-bottom: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.2em; color: var(--text-dim);
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 36px; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 40px; line-height: 1.2;
+    }
+    h2 .accent { color: var(--si-orange); }
+    h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+    p { color: var(--text-muted); margin-bottom: 16px; }
+    strong { color: var(--text); }
+
+    /* ─── CARDS ─── */
+    .card-grid { display: grid; gap: 20px; }
+    .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover { border-color: #8a5a10; transform: translateY(-2px); }
+    .card-icon { font-size: 28px; margin-bottom: 16px; }
+    .card h3 { font-size: 16px; }
+    .card .role { font-size: 11px; color: var(--si-orange); letter-spacing: 0.1em; margin-bottom: 10px; text-transform: uppercase; }
+    .card p { font-size: 14px; }
+    .card .number { font-size: 40px; font-weight: 900; letter-spacing: -0.04em; color: var(--si-orange); }
+    .card .number-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+    /* ─── IMG GRID ─── */
+    .img-grid { display: grid; gap: 16px; }
+    .img-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .img-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .img-card {
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+    }
+    .img-card img { width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover; background: var(--bg2); }
+    .img-caption {
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .img-caption strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+
+    /* ─── IMG FALLBACK ─── */
+    .img-fallback-card {
+      border-radius: 12px; overflow: hidden;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      aspect-ratio: 4/3;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 8px;
+    }
+    .img-fallback-card .emoji { font-size: 32px; }
+    .img-fallback-card .label { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── TABLE ─── */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 16px; font-size: 11px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; font-size: 14px; color: var(--text-muted); border-bottom: 1px solid #1a1a1a; vertical-align: top; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+    .dot-orange { background: var(--si-orange); }
+    .dot-blue { background: var(--blue-text); }
+
+    /* ─── POSITIONING MAP ─── */
+    .chart-wrapper {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+    }
+    .chart-container { position: relative; height: 520px; }
+
+    /* ─── CD INSIGHTS ─── */
+    .insight-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: start;
+      transition: border-color .2s;
+      margin-bottom: 16px;
+    }
+    .insight-card:hover { border-color: var(--si-orange); }
+    .insight-phase { display: flex; flex-direction: column; gap: 8px; }
+    .phase-badge {
+      display: inline-block; padding: 4px 10px;
+      background: var(--tag-bg); color: var(--tag-text);
+      border: 1px solid #8a5a10; border-radius: 100px;
+      font-size: 10px; letter-spacing: 0.1em; font-weight: 600;
+      width: fit-content;
+    }
+    .insight-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .insight-content p { font-size: 14px; margin-bottom: 8px; }
+    .insight-content .learn { font-size: 14px; color: var(--text-muted); font-style: italic; padding: 10px 14px; margin-top: 10px; background: var(--bg3); border-radius: 6px; display: block; }
+
+    /* ─── STAT ROW ─── */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+    .stat-item { text-align: center; padding: 24px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+    .stat-num { font-size: 36px; font-weight: 900; color: var(--si-orange); letter-spacing: -0.04em; }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.06em; }
+
+    /* ─── TIMELINE ─── */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline:before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+    .timeline-item { position: relative; margin-bottom: 32px; }
+    .timeline-item:before {
+      content: ''; position: absolute; left: -28px; top: 4px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--si-orange); border: 2px solid var(--bg);
+    }
+    .timeline-year { font-size: 11px; color: var(--si-orange); letter-spacing: 0.1em; margin-bottom: 6px; }
+    .timeline-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+    .timeline-content p { font-size: 14px; color: var(--text-muted); }
+
+    /* ─── QUOTE ─── */
+    .quote-block {
+      border-left: 3px solid var(--si-orange);
+      padding: 20px 28px;
+      background: var(--bg2);
+      border-radius: 0 12px 12px 0;
+      margin: 32px 0;
+    }
+    .quote-block blockquote { font-size: 18px; font-weight: 300; font-style: italic; color: var(--text); line-height: 1.6; }
+    .quote-block cite { font-size: 12px; color: var(--text-dim); display: block; margin-top: 12px; letter-spacing: 0.08em; }
+
+    /* ─── SALES FLOW ─── */
+    .sales-flow { display: flex; gap: 0; align-items: stretch; }
+    .sales-step {
+      flex: 1; background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px 20px; text-align: center;
+      position: relative;
+    }
+    .sales-step:not(:last-child):after {
+      content: '→';
+      position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); font-size: 18px; z-index: 1;
+    }
+    .sales-step:first-child { border-radius: 12px 0 0 12px; }
+    .sales-step:last-child { border-radius: 0 12px 12px 0; }
+    .sales-step .step-icon { font-size: 24px; margin-bottom: 8px; }
+    .sales-step .step-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .sales-step .step-desc { font-size: 12px; color: var(--text-dim); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 60px 64px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+    footer h3 { font-size: 14px; font-weight: 600; margin-bottom: 20px; color: var(--text-muted); }
+    .ref-list { list-style: none; }
+    .ref-list li { padding: 8px 0; border-bottom: 1px solid #1a1a1a; }
+    .ref-list a { color: var(--text-dim); font-size: 13px; text-decoration: none; transition: color .2s; }
+    .ref-list a:hover { color: var(--si-orange); }
+    .footer-meta { margin-top: 40px; font-size: 12px; color: var(--text-dim); }
+
+    /* ─── PRODUCT GRID (fallback) ─── */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .product-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      aspect-ratio: 4/3;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px;
+      padding: 20px;
+      transition: border-color .2s, transform .2s;
+    }
+    .product-card:hover { border-color: var(--si-orange); transform: translateY(-2px); }
+    .product-card .p-emoji { font-size: 36px; }
+    .product-card .p-name { font-size: 13px; font-weight: 600; color: var(--text); text-align: center; }
+    .product-card .p-desc { font-size: 11px; color: var(--text-dim); text-align: center; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; gap: 16px; }
+      nav a:not(.brand) { display: none; }
+      section, footer { padding: 60px 24px; }
+      .hero { padding: 100px 24px 60px; }
+      .card-grid-3, .card-grid-4 { grid-template-columns: 1fr; }
+      .card-grid-2 { grid-template-columns: 1fr; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .sales-flow { flex-direction: column; }
+      .sales-step:first-child { border-radius: 12px 12px 0 0; }
+      .sales-step:last-child { border-radius: 0 0 12px 12px; }
+      .sales-step:not(:last-child):after { content: '↓'; right: auto; left: 50%; transform: translateX(-50%); top: auto; bottom: -16px; }
+      .insight-card { grid-template-columns: 1fr; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="brand">STONE ISLAND</span>
+  <a href="#overview">概要</a>
+  <a href="#philosophy">哲学</a>
+  <a href="#products">製品</a>
+  <a href="#materials">素材実験</a>
+  <a href="#positioning">ポジション</a>
+  <a href="#cd-insights">CD活用</a>
+  <span class="spacer"></span>
+  <a href="index.html" style="font-size:11px;letter-spacing:0.08em;color:var(--text-muted);text-decoration:none;border:1px solid var(--border);border-radius:20px;padding:4px 14px;transition:all 0.2s" onmouseover="this.style.borderColor='#a0a090'" onmouseout="this.style.borderColor='var(--border)'">← 一覧</a>
+  <span class="date">ブランド分析 — 2026.05.10</span>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-bg-text">STONE</div>
+  <p class="hero-eyebrow">Brand Analysis — Competitor Research</p>
+  <h1 class="hero-title">Stone <span>Island</span></h1>
+  <p class="hero-sub">「素材研究がデザイン。機能が美しさ」——コンパスバッジとテキスタイル実験で40年以上ファッションの境界を拡張し続けるイタリア発ブランド。</p>
+  <div class="hero-tags">
+    <span class="tag">🇮🇹 Founded 1982</span>
+    <span class="tag">Massimo Osti</span>
+    <span class="tag blue">Textile Research</span>
+    <span class="tag blue">Garment Dye</span>
+    <span class="tag orange">Moncler Group傘下</span>
+    <span class="tag orange">コンパスバッジ</span>
+  </div>
+  <div class="scroll-hint">
+    <span>SCROLL</span>
+    <span class="scroll-arrow">↓</span>
+  </div>
+</div>
+
+<!-- ── 01 OVERVIEW ── -->
+<section id="overview">
+  <p class="section-label">01 — Overview</p>
+  <h2>ブランド<span class="accent">概要</span></h2>
+
+  <div class="stat-row">
+    <div class="stat-item">
+      <div class="stat-num">1982</div>
+      <div class="stat-label">創設年</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">40+</div>
+      <div class="stat-label">年の素材実験</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">Moncler</div>
+      <div class="stat-label">グループ傘下（2020年〜）</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">🧭</div>
+      <div class="stat-label">コンパスバッジ（全品）</div>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>"Research in Materials — The material is the beginning of design."</blockquote>
+    <cite>— Stone Island, Brand Philosophy</cite>
+  </div>
+
+  <p>1982年、Massimo Osti（マッシモ・オスタ）がイタリア・ラウーニャで創設。もともとは軍用・作業服向け素材メーカー「C.P. Company」のスピンオフとして誕生。創設当初から<strong>素材開発がデザインの核</strong>という哲学を持ち、通常のファッションブランドとは逆の「素材ありき」の設計思想でコレクションを作り続けている。</p>
+  <p>2020年、Moncler Group がおよそ<strong>11.5億ユーロ（約12億EUR）</strong>で買収。グループ傘下に入った後も、ブランドのアイデンティティとクリエイティブ方針は維持されている。</p>
+  <p>日本では1990年代からガーメントダイの技術を日本の職人から導入し、日本市場との関係が深い。UKでは1990年代のサッカーカルチャーと結びつき独自のサブカルチャー的地位を確立した。</p>
+</section>
+
+<!-- ── 02 PHILOSOPHY ── -->
+<section id="philosophy">
+  <p class="section-label">02 — Design Philosophy</p>
+  <h2>デザイン哲学・<span class="accent">ブランドアイデンティティ</span></h2>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 40px;">
+    <div class="card">
+      <div class="card-icon">🔬</div>
+      <h3>素材研究最優先</h3>
+      <p>通常のブランドが「デザイン → 素材選定」の順で動くのに対し、Stone Islandは<strong>「素材 → デザイン」</strong>の逆順。まず実験的な素材・加工技術を開発し、その素材の特性を生かす形でデザインを決定する。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎨</div>
+      <h3>ガーメントダイの哲学</h3>
+      <p>製品を縫い上げた<strong>後に染色する</strong>（Garment Dye）。縫い目・ファスナー・ボタンまで含めてすべてが同じ色に染まる「一体感」が特徴。日本の職人技術との融合で生まれた製法で、同一の型から毎回異なる表情が生まれる。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧭</div>
+      <h3>コンパスバッジの思想</h3>
+      <p>すべてのガーメントの左腕に縫い付けられた取り外し可能なコンパスローズバッジ。<strong>「着る人が自由に外せる」</strong>という思想は、ブランドのロゴを誇示しない反骨精神の表れ。バッジの存在自体がブランドを知る人へのサインになっている。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚙️</div>
+      <h3>機能が美しさ</h3>
+      <p>軍用・アウトドア機能から生まれた設計が美しさを持つ。防水・耐熱・熱変色などの<strong>機能的な工夫がそのままデザインになる</strong>。装飾のための装飾を排除し、すべての形に理由がある設計思想。</p>
+    </div>
+  </div>
+
+  <div class="quote-block">
+    <blockquote>"The compass badge can be removed. We don't need to shout. Those who know, know."</blockquote>
+    <cite>— Stone Island, on the Compass Badge</cite>
+  </div>
+</section>
+
+<!-- ── 03 PRODUCTS ── -->
+<section id="products">
+  <p class="section-label">03 — Signature Products</p>
+  <h2>代表<span class="accent">製品</span></h2>
+
+  <p style="margin-bottom: 32px;">Stone Islandの製品は「素材 × 加工技術」の組み合わせで命名される。同じシルエットでも素材が変われば別ラインとして扱われるほど、素材への執着が深い。</p>
+
+  <div class="product-grid">
+    <div class="product-card">
+      <div class="p-emoji">🧥</div>
+      <div class="p-name">Garment Dye Hoodie</div>
+      <div class="p-desc">後染め。縫い目まで均一に染色。最もアイコニックなアイテム</div>
+    </div>
+    <div class="product-card">
+      <div class="p-emoji">❄️</div>
+      <div class="p-name">Ice Jacket</div>
+      <div class="p-desc">熱変色インク使用。温度変化で色が変わるジャケット</div>
+    </div>
+    <div class="product-card">
+      <div class="p-emoji">🌊</div>
+      <div class="p-name">Nylon Metal Anorak</div>
+      <div class="p-desc">ステンレス鋼繊維混紡。金属光沢とソフトなタッチを両立</div>
+    </div>
+    <div class="product-card">
+      <div class="p-emoji">👻</div>
+      <div class="p-name">Ghost Piece</div>
+      <div class="p-desc">コンパスバッジなし・内タグのみ。ブランドを見えなくするライン</div>
+    </div>
+    <div class="product-card">
+      <div class="p-emoji">🌑</div>
+      <div class="p-name">Shadow Project</div>
+      <div class="p-desc">機能性重視の上位ライン。最先端素材を使用したハイテクコレクション</div>
+    </div>
+    <div class="product-card">
+      <div class="p-emoji">🔵</div>
+      <div class="p-name">Membrana 3L TC</div>
+      <div class="p-desc">3層ラミネート防水膜。テクニカルアウターウェアの代表作</div>
+    </div>
+  </div>
+
+  <!-- Campaign Images: FW24 "Community as a Form of Research" -->
+  <div style="margin-top: 40px;">
+    <h3 style="margin-bottom: 16px; color: var(--text-muted);">FW24 Campaign — "Community as a Form of Research"</h3>
+    <div class="img-grid img-grid-2" style="margin-bottom: 32px;">
+      <div class="img-card">
+        <img src="brand-images/stoneisland-01.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🧥</div><div class=label>FW24 Campaign</div></div>'"
+             alt="Stone Island FW24 Campaign 01">
+        <div class="img-caption"><strong>FW24 キャンペーン</strong>Liam Gallagher、Peggy Gou 出演。David Sims 撮影</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/stoneisland-02.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🔶</div><div class=label>FW24 Campaign</div></div>'"
+             alt="Stone Island FW24 Campaign 02">
+        <div class="img-caption"><strong>FW24 アウターウェア</strong>ガーメントダイとテクニカル素材の融合</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/stoneisland-03.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🌊</div><div class=label>FW24 Campaign</div></div>'"
+             alt="Stone Island FW24 Campaign 03">
+        <div class="img-caption"><strong>FW24 コレクション</strong>コンパスバッジとテクスチャー素材・研究所哲学の体現</div>
+      </div>
+      <div class="img-card">
+        <img src="brand-images/stoneisland-04.jpg"
+             onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>🔬</div><div class=label>FW24 Campaign</div></div>'"
+             alt="Stone Island FW24 Campaign 04">
+        <div class="img-caption"><strong>FW24 スタイリング</strong>"The Compass Inside" — 内なる羅針盤を持つ人々へ</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 40px;">
+    <h3 style="margin-bottom: 20px; color: var(--text-muted);">価格帯</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>カテゴリ</th>
+          <th>価格帯（EUR）</th>
+          <th>代表アイテム</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>ジャケット・アノラック</td><td>€600〜€1,200</td><td>Garment Dye Jacket / Nylon Metal</td></tr>
+        <tr><td>ダウン・アウター</td><td>€800〜€2,000</td><td>Membrana 3L / Shadow Project Down</td></tr>
+        <tr><td>スウェット・フリース</td><td>€280〜€500</td><td>Garment Dye Hoodie / Fleece</td></tr>
+        <tr><td>Tシャツ・ニット</td><td>€150〜€280</td><td>ロゴT / コンパスニット</td></tr>
+        <tr><td>Ghost Piece</td><td>€400〜€900</td><td>バッジなしモデル全般</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ── 03.5 VISUAL ARCHIVE ── -->
+<section id="visual-archive">
+  <p class="section-label">03.5 — Visual Archive</p>
+  <h2><span class="accent">ビジュアル</span> アーカイブ</h2>
+  <p style="color: var(--text-muted); margin-bottom: 32px; font-size: 14px;">FW24 Ghost ルックブック / SS25 "Community as Form of Research"（Spike Lee監督） / FW24 メインキャンペーン を収録。</p>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 20px; opacity: 0.6;">FW24 Ghost Lookbook</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/stoneisland-05.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 1">
+      <div class="img-caption"><strong>Ghost FW24 Look 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-06.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 2">
+      <div class="img-caption"><strong>Ghost FW24 Look 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-07.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 3">
+      <div class="img-caption"><strong>Ghost FW24 Look 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-08.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 4">
+      <div class="img-caption"><strong>Ghost FW24 Look 4</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-09.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 5">
+      <div class="img-caption"><strong>Ghost FW24 Look 5</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-10.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 6">
+      <div class="img-caption"><strong>Ghost FW24 Look 6</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-11.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 7">
+      <div class="img-caption"><strong>Ghost FW24 Look 7</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-12.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 8">
+      <div class="img-caption"><strong>Ghost FW24 Look 8</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-13.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 9">
+      <div class="img-caption"><strong>Ghost FW24 Look 9</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-14.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 10">
+      <div class="img-caption"><strong>Ghost FW24 Look 10</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-15.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 11">
+      <div class="img-caption"><strong>Ghost FW24 Look 11</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-16.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 12">
+      <div class="img-caption"><strong>Ghost FW24 Look 12</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-17.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Look 13">
+      <div class="img-caption"><strong>Ghost FW24 Look 13</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-18.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island Ghost FW24 Final">
+      <div class="img-caption"><strong>Ghost FW24 Final</strong></div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin: 40px 0 20px; opacity: 0.6;">SS25 Campaign — "Community as Form of Research" with Spike Lee</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/stoneisland-21.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island SS25 Spike Lee Campaign 1">
+      <div class="img-caption"><strong>SS25 Spike Lee Campaign 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-22.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island SS25 Spike Lee 2">
+      <div class="img-caption"><strong>SS25 Spike Lee 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-23.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island SS25 Spike Lee 3">
+      <div class="img-caption"><strong>SS25 Spike Lee 3</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-24.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island SS25 Spike Lee 4">
+      <div class="img-caption"><strong>SS25 Spike Lee 4</strong></div>
+    </div>
+  </div>
+
+  <h3 style="font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; margin: 40px 0 20px; opacity: 0.6;">FW24 Main Campaign</h3>
+  <div class="img-grid img-grid-3">
+    <div class="img-card">
+      <img src="brand-images/stoneisland-25.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island FW24 Campaign 1">
+      <div class="img-caption"><strong>FW24 Campaign 1</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-26.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island FW24 Campaign 2">
+      <div class="img-caption"><strong>FW24 Campaign 2</strong></div>
+    </div>
+    <div class="img-card">
+      <img src="brand-images/stoneisland-27.jpg"
+           onerror="this.parentElement.innerHTML='<div class=img-fallback-card><div class=emoji>📸</div></div>'"
+           alt="Stone Island FW24 Campaign Hero">
+      <div class="img-caption"><strong>FW24 Campaign Hero</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04 MATERIALS ── -->
+<section id="materials">
+  <p class="section-label">04 — Material Laboratory</p>
+  <h2>素材<span class="accent">実験室</span></h2>
+
+  <p style="margin-bottom: 40px;">Stone Islandの歴史は「素材革新の歴史」でもある。40年以上にわたって試みてきた素材実験の主要なマイルストーン。</p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">1982</div>
+      <div class="timeline-content">
+        <h4>ブランド創設・ガーメントダイの確立</h4>
+        <p>C.P. Companyから独立し、Stone Island創設。縫製後に製品ごと染色する「Garment Dye」製法を確立。同一型でも染色ロットごとに微妙に異なる表情が生まれる手法は、大量生産時代における「工業的な一点もの」という矛盾を体現した。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1988〜1989</div>
+      <div class="timeline-content">
+        <h4>Ice Jacket — 熱変色インク（1988〜1989年）</h4>
+        <p>温度によって色が変わるサーモクロミック（熱変色）インクを採用したジャケット。着用すると体温の高い部分の色が変化する。機能であるはずの温度反応がビジュアルエフェクトになるという逆転の発想。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1990年代</div>
+      <div class="timeline-content">
+        <h4>日本のガーメントダイ技術の導入</h4>
+        <p>日本の職人・工場との協力関係を構築。日本独自の染色技術・仕上げ技術をStone Islandの製法に統合。日本市場への根強い人気の基盤となった時期でもある。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1990年代〜</div>
+      <div class="timeline-content">
+        <h4>UK サッカーカルチャーとの融合</h4>
+        <p>イングランドのフーリガン・サッカーファンに愛用されるブランドとして浸透。Oasis（ギャラガー兄弟）をはじめとするUKアーティストの着用で若者文化に定着。高機能×カルチャーという独自ポジションを確立。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2000年代</div>
+      <div class="timeline-content">
+        <h4>ステンレス鋼繊維 — Nylon Metal</h4>
+        <p>金属繊維（ステンレス鋼）を織り込んだファブリックを開発。金属特有の光沢とテキスタイルのしなやかさを両立。着用することで布が金属になるという概念上の飛躍。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2010年代</div>
+      <div class="timeline-content">
+        <h4>Shadow Project・Ghost Piece の確立</h4>
+        <p>Shadow Project = 最先端素材を使ったハイテクラインとして上位展開。Ghost Piece = あえてコンパスバッジをつけず、内側のタグのみでブランドを示す逆説的なラインを確立。「知る人だけが知る」というコアファン向けのサブライン。</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <div class="timeline-content">
+        <h4>Moncler Group 傘下へ（約11.5億ユーロ（約12億EUR））</h4>
+        <p>Moncler Group がStone Islandを買収。プレミアムアウターウェア市場でのポートフォリオ強化が目的。買収後もブランド独自のクリエイティブ哲学・素材実験路線は継続されている。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 05 COLLABS ── -->
+<section id="collabs">
+  <p class="section-label">05 — Collaborations</p>
+  <h2>主要<span class="accent">コラボレーション</span></h2>
+
+  <p style="margin-bottom: 32px;">Stone Islandのコラボは「素材実験の共同研究」という側面が強い。単なるブランドロゴの貼り合わせではなく、素材・加工技術の共有・開発が中心となっている。</p>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <div class="card-icon">🔴</div>
+      <div class="role">Supreme</div>
+      <h3>Supreme × Stone Island</h3>
+      <p>複数回のコラボレーション。ストリートウェアの王者とテキスタイル実験の最高峰の組み合わせ。Stone Island特有のGarment Dye × Supremeの赤ロゴという組み合わせが話題に。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">👟</div>
+      <div class="role">Nike</div>
+      <h3>Nike × Stone Island</h3>
+      <p>Air Max・Shox等でコラボ実績。Stone Island素材をフットウェアに転用するチャレンジ。テキスタイル技術とスポーツシューズ設計の融合実験。</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🤝</div>
+      <div class="role">Massimo Dutti</div>
+      <h3>Massimo Dutti コラボ</h3>
+      <p>Inditexグループブランドとのコラボ。Stone Islandの素材技術をより広い客層に届ける試み。高機能テキスタイルのデモクラタイゼーション（大衆化）の文脈。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 06 BUSINESS ── -->
+<section id="business">
+  <p class="section-label">06 — Business Model</p>
+  <h2>ビジネス<span class="accent">モデル</span></h2>
+
+  <p style="margin-bottom: 32px;">Moncler Group傘下として、グローバルプレミアムアウターウェア市場で独自のポジションを持つ。直販・セレクトの二軸展開。</p>
+
+  <div class="sales-flow" style="margin-bottom: 40px;">
+    <div class="sales-step">
+      <div class="step-icon">🏭</div>
+      <div class="step-title">素材開発</div>
+      <div class="step-desc">イタリア工場での実験・製造</div>
+    </div>
+    <div class="sales-step" style="background: #f5e8d0; border-color: #c8a060; outline: 2px solid var(--si-orange); outline-offset: -1px;">
+      <div class="step-icon" style="color: var(--si-orange);">🧭</div>
+      <div class="step-title" style="color: var(--si-orange);">コンパスバッジ縫付</div>
+      <div class="step-desc">全品左腕に取り外し可能なバッジ</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🏬</div>
+      <div class="step-title">直販（旗艦店）</div>
+      <div class="step-desc">世界主要都市・公式EC</div>
+    </div>
+    <div class="sales-step">
+      <div class="step-icon">🛍️</div>
+      <div class="step-title">セレクト販売</div>
+      <div class="step-desc">高級セレクトショップ経由</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>主要市場</th>
+        <th>特徴・背景</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>ヨーロッパ（本拠地）</td><td>イタリア・UK・フランス。特にUKはサッカーカルチャーとの結びつきで強固なファンベース</td></tr>
+      <tr><td>日本</td><td>ガーメントダイ技術の共同開発から続く深い関係。日本のセレクトショップでの展開が強い</td></tr>
+      <tr><td>北米</td><td>Supreme等のコラボによるストリートウェア層への浸透。都市部ファッションシーンでの地位</td></tr>
+      <tr><td>アジア</td><td>Moncler Group傘下後の成長市場。中国・韓国でのプレミアムブランドとしての展開</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── 07 POSITIONING ── -->
+<section id="positioning">
+  <p class="section-label">07 — Positioning Map</p>
+  <h2>ブランド<span class="accent">ポジショニングマップ</span></h2>
+
+  <p style="margin-bottom: 32px;">X軸：ストリート/カルチャー ↔ テクニカル/ラグジュアリー　／　Y軸：デザイン主導 ↔ 素材/機能主導<br>ポイントにホバーするとブランド情報が表示されます。</p>
+
+  <div class="chart-wrapper">
+    <div class="chart-container">
+      <canvas id="positioningChart"></canvas>
+    </div>
+  </div>
+
+  <div style="margin-top: 32px;">
+    <h3 style="margin-bottom: 20px;">競合比較</h3>
+    <table>
+      <thead><tr><th>ブランド</th><th>ポジション</th><th>Stone Islandとの違い</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="dot dot-blue"></span>Moncler</td>
+          <td>プレミアムダウン・ラグジュアリーアウター</td>
+          <td>親会社。デザイン性・ラグジュアリーが中心で素材実験は限定的</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Arc'teryx</td>
+          <td>テクニカルアウトドア最高峰</td>
+          <td>機能・素材重視は共通だがアウトドア特化。ストリートカルチャー接続がない</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-orange"></span>C.P. Company</td>
+          <td>Stone Islandと同じルーツを持つ兄弟ブランド</td>
+          <td>同じMassimo Osti起源。C.P. Companyはゴーグルフードで有名。素材哲学は近似</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-blue"></span>Acronym</td>
+          <td>テクニカルウェア最先端・ニッチ高価格</td>
+          <td>機能主義は共通。しかしAcronymはより実験的・アングラで量産体制がない</td>
+        </tr>
+        <tr>
+          <td><span class="dot dot-orange"></span><strong>Stone Island</strong></td>
+          <td><strong>素材実験 × カルチャー接続の唯一無二ゾーン</strong></td>
+          <td>テキスタイル実験をブランドの核に置きながらUKストリートカルチャーにも根ざす。ガーメントダイ×コンパスバッジという独自アイデンティティ</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── 08 CD INSIGHTS ── -->
+<section id="cd-insights">
+  <p class="section-label">08 — CD Insights</p>
+  <h2>CDとして<span class="accent">活かせるポイント</span></h2>
+  <p style="margin-bottom: 40px;">Stone Islandから抽出できる、新ブランドAIワークフロー（各フェーズ）との接続ポイント。</p>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">「素材が先、デザインは後」という設計順序</div>
+    </div>
+    <div class="insight-content">
+      <p>Stone Islandが提示する最も重要な逆転の発想は「素材ありきのデザイン」。通常は「コンセプト → デザイン → 素材選定」の順だが、Stone Islandは「素材実験の結果 → デザイン」と逆順で動く。</p>
+      <p class="learn">💡 新ブランドでも「この素材・加工技術の特性を生かすとしたらどんな形になるか」という問いからデザインを始める選択肢がある。特に技術革新を訴求したいブランドに有効。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">コンパスバッジ：「見える人だけに見える」ブランディング</div>
+    </div>
+    <div class="insight-content">
+      <p>取り外し可能なコンパスバッジは、ロゴを誇示するラグジュアリーとも、ロゴを完全に排除するステルスラグジュアリーとも異なる第三の道。<strong>「知っている人への暗号」</strong>として機能する。</p>
+      <p class="learn">💡 新ブランドのロゴ設計で「誰に見せるか」を問う。全員に見せるのか、知る人だけに伝わるサインにするのか。kemio案件でも「外に出さない内側の哲学」という方向性と共鳴する。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 0</span>
+      <div class="insight-title">ガーメントダイ：「工業的一点もの」という矛盾の美学</div>
+    </div>
+    <div class="insight-content">
+      <p>同じ型・同じ素材でも、染色ロットごとに微妙に異なる色味・風合いが生まれる。大量生産でありながら完全に同一ではない。この<strong>「制御されたランダム性」</strong>が希少性を生み出す。</p>
+      <p class="learn">💡 新ブランドでも「意図した不均一性」をデザインに取り込む可能性。手染め・自然素材・手縫いなど、工業生産の中に人の手の痕跡を残す設計。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 1</span>
+      <div class="insight-title">機能がビジュアルになる：Ice Jacketの設計哲学</div>
+    </div>
+    <div class="insight-content">
+      <p>熱変色インクを使ったIce Jacketは「体温で色が変わる」という機能をそのままビジュアルエフェクトに転換した。機能の副産物が美しさになっている。</p>
+      <p class="learn">💡 AIワークフローで「機能的制約 → デザイン要素」に変換する発想。たとえば素材の伸縮性・透過性・反射率をデザインの出発点として使う。制約をデザインチャンスとして読み替える訓練。</p>
+    </div>
+  </div>
+
+  <div class="insight-card">
+    <div class="insight-phase">
+      <span class="phase-badge">Phase 3</span>
+      <div class="insight-title">Ghost Piece：「引き算」で深みを出す</div>
+    </div>
+    <div class="insight-content">
+      <p>Ghost Pieceはあえてコンパスバッジを外し、内タグだけでブランドを示すライン。ブランドを隠すことで逆にブランドへの深い理解を示す。<strong>「何を見せないか」がデザイン判断になる</strong>。</p>
+      <p class="learn">💡 テクニカルフラットやコレクション設計で「何を足すか」より「何を外すか」を先に考えるクセをつける。特にロゴ・タグ・装飾の省略がブランドの成熟度を示すことがある。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <h3>参照ソース</h3>
+  <ul class="ref-list">
+    <li><a href="https://www.stoneisland.com" target="_blank">Stone Island Official — stoneisland.com</a></li>
+    <li><a href="https://www.monclergroup.com/en/brands/stone-island" target="_blank">Stone Island — Moncler Group</a></li>
+    <li><a href="https://www.highsnobiety.com/tag/stone-island/" target="_blank">Stone Island Coverage — Highsnobiety</a></li>
+    <li><a href="https://hypebeast.com/tags/stone-island" target="_blank">Stone Island Coverage — Hypebeast</a></li>
+    <li><a href="https://www.vogue.co.uk/fashion/article/stone-island-history" target="_blank">The History of Stone Island — Vogue UK</a></li>
+  </ul>
+  <div class="footer-meta">
+    生成日: 2026-05-10 ／ CORIN ブランド分析レポート ／ Phase 0 競合リサーチ用
+  </div>
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+const brands = [
+  { label: 'Stone Island', x: 0.42, y: 0.82, color: '#c8871a', size: 20, desc: '素材実験 × カルチャー接続\nガーメントダイ・コンパスバッジ' },
+  { label: 'Moncler', x: 0.78, y: 0.45, color: '#88aad8', size: 12, desc: 'プレミアムダウン・ラグジュアリーアウター\nStone Islandの親会社' },
+  { label: 'Arc\'teryx', x: 0.82, y: 0.88, color: '#88d8a8', size: 12, desc: 'テクニカルアウトドア最高峰\n機能・素材重視だがカルチャー接続なし' },
+  { label: 'C.P. Company', x: 0.35, y: 0.75, color: '#c8c888', size: 10, desc: '同じルーツを持つ兄弟ブランド\nゴーグルフードで有名' },
+  { label: 'Acronym', x: 0.62, y: 0.92, color: '#a888d8', size: 10, desc: 'テクニカルウェア最先端・ニッチ高価格\n実験的・アングラ' },
+  { label: 'Supreme', x: 0.15, y: 0.22, color: '#d88888', size: 10, desc: 'ストリートウェア頂点\nStone Islandとコラボ実績あり' },
+  { label: 'The North Face', x: 0.50, y: 0.78, color: '#88d8a8', size: 10, desc: 'アウトドア×ストリート\n大衆的な機能ブランド' },
+  { label: 'Patagonia', x: 0.40, y: 0.88, color: '#88d8a8', size: 10, desc: '環境重視・機能素材\nサステナビリティが核' },
+  { label: 'Vetements', x: 0.25, y: 0.15, color: '#d8a8d8', size: 10, desc: 'コンセプト主導のアバンギャルド\n素材より概念が先行' },
+];
+
+const ctx = document.getElementById('positioningChart').getContext('2d');
+new Chart(ctx, {
+  type: 'scatter',
+  data: {
+    datasets: brands.map(b => ({
+      label: b.label,
+      data: [{ x: b.x, y: b.y }],
+      backgroundColor: b.label === 'Stone Island'
+        ? 'rgba(200,135,26,0.85)'
+        : 'rgba(255,255,255,0.06)',
+      borderColor: b.color,
+      borderWidth: b.label === 'Stone Island' ? 3 : 1.5,
+      pointRadius: b.size,
+      pointHoverRadius: b.size + 4,
+      _desc: b.desc,
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 800, easing: 'easeOutQuart' },
+    layout: { padding: { top: 40, bottom: 40, left: 40, right: 40 } },
+    scales: {
+      x: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+        border: { color: 'rgba(255,255,255,0.1)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← ストリート / カルチャー　　　　　　テクニカル / ラグジュアリー →',
+          color: '#555', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      },
+      y: {
+        min: 0, max: 1,
+        grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+        border: { color: 'rgba(255,255,255,0.1)' },
+        ticks: { display: false },
+        title: {
+          display: true,
+          text: '← デザイン主導　　　　　　素材 / 機能主導 →',
+          color: '#555', font: { size: 11, family: 'Inter' }, padding: 12
+        }
+      }
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#111',
+        borderColor: '#2a2a2a',
+        borderWidth: 1,
+        titleFont: { size: 13, weight: '700', family: 'Inter' },
+        bodyFont: { size: 12, family: 'Inter' },
+        titleColor: '#e8e8e8',
+        bodyColor: '#888',
+        padding: 14,
+        cornerRadius: 10,
+        callbacks: {
+          title: ctx => ctx[0].dataset.label,
+          label: ctx => {
+            const desc = ctx.dataset._desc || '';
+            return desc.split('\n');
+          }
+        }
+      },
+      datalabels: {
+        color: ctx => ctx.dataset.label === 'Stone Island' ? '#c8871a' : '#aaa',
+        font: {
+          size: ctx => ctx.dataset.label === 'Stone Island' ? 13 : 11,
+          weight: ctx => ctx.dataset.label === 'Stone Island' ? '700' : '400',
+          family: 'Inter'
+        },
+        anchor: 'end',
+        align: ctx => {
+          const x = ctx.dataset.data[0].x;
+          return x > 0.7 ? 'left' : 'right';
+        },
+        offset: 8,
+        formatter: (val, ctx) => ctx.dataset.label,
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
