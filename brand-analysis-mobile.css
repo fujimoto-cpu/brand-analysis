@@ -25,8 +25,22 @@
   .nav-brand {
     font-size: 12px !important;
   }
-  /* 個別HTMLの目次リンクはブランド名以外を非表示（横スクロール防止） */
-  nav a:not(.brand) {
+  /* 個別HTMLの目次アンカー（#overview等）はモバイル非表示。
+     外部リンク（index.html = 一覧）は残す。 */
+  nav a[href^="#"] {
+    display: none !important;
+  }
+  nav .spacer {
+    display: none !important;
+  }
+  /* 「← 一覧」ボタンを目立たせる */
+  nav a[href="index.html"] {
+    margin-left: auto !important;
+    font-size: 12px !important;
+    padding: 6px 14px !important;
+  }
+  /* 日付メタは長くてはみ出すのでモバイルでは非表示 */
+  nav .date {
     display: none !important;
   }
   /* 一覧ページのメタ情報は表示維持（短いので問題なし） */
